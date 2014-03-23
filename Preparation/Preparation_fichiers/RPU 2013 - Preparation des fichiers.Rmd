@@ -1,0 +1,410 @@
+RPU 2013 - Préparation des fichiers
+========================================================
+
+Ce document décrit la préparation des données RPU depuis la ptransmission du fichier brut jusqu'à la production d'un fichier directement exploitable par R.
+Mise à jour:
+```{r}
+date()
+```
+
+Nomenclature
+------------
+- *raw* désigne les données brutes
+- *tidy* désigne les données nettoyées
+- la lettre *d* désigne les données. La lettre d peut être suivie de deux ou quatre chiffres désignant le mois. Par ex. *d01* désigne les données du mois de janvier et *d0506* les données des mois de mai et juin.
+- la base de donnée mysql contenant les données du mois s'appelle *rpu* et la table contenant les RPU s'appelle *RPU__* (deux soulignés).
+- les données nettoyées sont sauvegardées sous deux formats
+  - rpu2013_05.txt (rpu+année_mois.txt)
+  - rpu2013d06.Rda (rpu+année+d+mois.Rda)
+
+#### Liste des fichiers
+- le dossier **Fichiers source** contient les fichiers archivés de 2013
+  - dossier *Text* contient la table *rpu__* du mois en format text
+  - dossier *Dump* contient des dump originaux de la base de donnée (source e-santé)
+  - les fichiers *.Rda* contiennent les tables *rpu__* du mois en format binaire
+    - le fichier *rpu2013d1.rda* recense les mois 01 à 04 de 2013
+    - les fichiers *rpu2013dmm.rda* recensent les mois *mm* de 2013 (de 05 à 12)
+  - le **fichier courant** est *rpu2013d01mm.Rda* ou *mm* est le mois courant.
+  
+Origine des données
+-------------------
+Les données sont constituées par les RPU produits par les servives d'urgence. Les RPU sont transmis quotidiennement selon le schéma défini par l' INVS (version 2006) au serveur régional Sagec. Ces données sont gérées par Alsace e-santé (AeS) qui transmets les informations à l'INVS et à Résural. Pour Resural, AeS adresse tous les 5 du mois courant un dump de la table RPU__ du mois précédant, sous la forme d'un fichier .sql.  
+Ce fichier .sql est accessible uniquement sur le réseau interne des HUS via un accès sécurisé au serveur HUS (**TODO** décrire la procédure).  
+Le fichier est récupéré sur ce serveur par Résural.
+
+Transfert des données brutes vers PhpMyAdmin
+--------------------------------------------
+Le fichier récupéré est ensuite importé dans une base de données MySql. La base est crée sur le poste *mint* via *PhpMyAdmin* sous le nom de *rpu*. Par défaut, le fichier récupéré est stocké dans le dossier racine de l'utilisateur, *Dossier personnel/Resural_mai_juin_2013*. Il contient les données pour les mois de:
+- mai: rpu_2013_05_dump.sql (22.7 Mo)
+- juin: rpu_2013_06_dump.sql (23.7 Mo)
+Pour les transférer, on utilise la procédure standard en ligne de commande, commençant par le mois de mai:
+
+cd ~/Documents/Resural/'Stat Resural'/'Fichiers source'/Dump/RPU2013_09
+
+```{}
+jcb@mint1:~$ mysql -u root -pmarion rpu < rpu_2014-01_dump.sql
+```
+Création d'un fichier .my.cfg
+-----------------------------
+Le fichier caché *.my.cfg* (Dossier personnel) contient les identifiants de connexion à la base de données nécéssaires pour R:
+```{}
+[rpu] 
+user = root 
+host = localhost 
+database = rpu 
+password = marion 
+```
+On peut lister son contenu: jcb@XPS:~$ cat $HOME/.my.cnf
+
+
+Lecture du fichier dans RStudio
+-------------------------------
+
+### étape 1
+
+Cette étape permet de récupérer les données à partir de la table *rpu__* de la base de données *rpu*. A l'issue, un fichier de travail *rpu2013_05.txt* esr créé. Si ce fichier a déjà été créé, passer directement à l'étape 4.
+
+Chargement des library nécessaires:
+```{r}
+library("RMySQL")
+```
+Création d'un connecteur:
+```{r}
+con<-dbConnect(MySQL(),group = "rpu") 
+# con <- dbConnect(MySQL(),user="root", password="marion",dbname="rpu", host="localhost") 
+```
+Si échec:
+con <- dbConnect(MySQL(),user="root", password="marion",dbname="rpu", host="localhost")  
+ref: http://digitheadslabnotebook.blogspot.fr/2011/08/mysql-and-r.html
+
+
+Liste des tables de la base *rpu*
+```{r}
+dbListTables(con)
+```
+Liste des champs de la table *rpu__*
+```{r}
+dbListFields(con,"RPU__")
+```
+Lecture des enregistrements de la table compris entre le 1er mai et le 31 mai 2013 (cette étape peu être longue):
+```{r}
+ac<-2014  # annee courante
+mc<-1    # mois courant
+
+ac2 <- ac
+
+ms<-mc + 1
+if (ms > 12){
+  ms<-1
+  ac2<-ac + 1
+}
+
+mp<-mc - 1
+if(mp < 1){
+  mp<-1
+}
+# conversion en chaines de caracteres
+if (ms < 10){
+  ms<-paste("0",ms,sep="")
+} else ms<-as.character(ms)
+
+if (mc < 10){
+  mc<-paste("0",mc,sep="")
+} else mc<-as.character(mc)
+
+if (mp < 10){
+  mp<-paste("0",mp,sep="")
+} else mp<-as.character(mp)
+
+ac<-as.character(ac)
+
+date1<-paste(ac,"-",mc,"-01",sep="")
+date2<-paste(ac2,"-",ms,"-01",sep="")
+
+# rs<-dbSendQuery(con,"SELECT * FROM RPU__ WHERE ENTREE BETWEEN '2013-09-01' AND '2013-10-01' ")
+rs<-dbSendQuery(con,paste("SELECT * FROM RPU__ WHERE ENTREE BETWEEN '",date1,"' AND '",date2,"' ",sep=""))
+
+dx<-fetch(rs,n=-1,encoding = "UTF-8")
+max(dx$ENTREE)
+min(dx$ENTREE)
+```
+Pour la mois de juin on répète les mêmes étapes:
+- jcb@mint1:~$ mysql -u root -pmarion rpu < Resural_mai_juin_2013/rpu_2013_06_dump.sql
+- rs<-dbSendQuery(con,"SELECT * FROM RPU__ WHERE ENTREE BETWEEN '2013-06-01' AND '2013-06-31' ")
+- d06<-fetch(rs,n=-1,encoding = "UTF-8")
+Les deux fichiers peuvent être combinés en un seul avec la commande *rbind*:
+```{}
+d0506<-rbind(d05,d06)
+min(d0506$ENTREE)
+[1] "2013-05-01 00:00:00"
+max(d0506$ENTREE)
+[1] "2013-06-30 23:53:00"
+```
+
+etape 2: nettoyage des données
+------------------------------
+Suppression de la colonne 16, intitulée RAW. Cette colonne a été rajoutée par mr Nold pour stocker le RPU tel que fournit par le SAU:
+```{r}
+dx<-dx[,-16]
+```
+On ramène le nombre de variable à 19.
+
+création de FINESS unique pour un établissement par transformation du finess juridique en finess geographique
+```{r}
+a<-dx$FINESS
+a[a=="670000397"]<-"Sel"
+a[a=="680000684"]<-"Col"
+a[a=="670016237"]<-"Odi"
+a[a=="670000272"]<-"Wis"
+a[a=="680000700"]<-"Geb"
+a[a=="670780055"]<-"Hus"
+a[a=="680000197"]<-"3Fr"
+a[a=="680000627"]<-"Mul"
+a[a=="670000157"]<-"Hag"
+a[a=="680000320"]<-"Dia"
+a[a=="680000395"]<-"Alk"
+a[a=="670000165"]<-"Sav"
+a[a=="680000494"]<-"Ros"
+a[a=="670780162"]<-"Dts"
+a[a=="670780212"]<-"Ane"
+a[a=="680000601"]<-"Tan"
+unique(a)
+dx$FINESS<-as.factor(a)
+rm(a)
+```
+Transformation en facteur:
+```{r}
+dx$CODE_POSTAL<-as.factor(dx$CODE_POSTAL)
+dx$COMMUNE<-as.factor(dx$COMMUNE)
+dx$SEXE<-as.factor(dx$SEXE)
+dx$TRANSPORT<-as.factor(dx$TRANSPORT)
+dx$TRANSPORT_PEC<-as.factor(dx$TRANSPORT_PEC)
+dx$GRAVITE<-as.factor(dx$GRAVITE)
+dx$ORIENTATION<-as.factor(dx$ORIENTATION)
+dx$MODE_ENTREE<-factor(dx$MODE_ENTREE,levels=c(0,6,7,8),labels=c('NA','Mutation','Transfert','Domicile'))
+dx$PROVENANCE<-factor(dx$PROVENANCE,levels=c(0,1,2,3,4,5,8),labels=c('NA','MCO','SSR','SLD','PSY','PEA','PEO'))
+dx$MODE_SORTIE<-factor(dx$MODE_SORTIE,levels=c(0,6,7,8,4),labels=c('NA','Mutation','Transfert','Domicile','Décès'))
+dx$DESTINATION<-factor(dx$DESTINATION,levels=c(0,1,2,3,4,6,7),labels=c('NA','MCO','SSR','SLD','PSY','HAD','HMS'))
+```
+Création d'une variable AGE:
+```{r-age1}
+dx$AGE<-floor(as.numeric(as.Date(dx$ENTREE)-as.Date(dx$NAISSANCE))/365)
+summary(dx$AGE)
+```
+Correction des ages supérieurs à 120 ans (3 cas) ou inférieur à 0 (2 cas)
+```{r age}
+dx$AGE[dx$AGE > 120]<-NA
+dx$AGE[dx$AGE < 0]<-NA
+```
+etape 3: sauvegarde des données nettoyées
+-----------------------------------------
+```{r-sauvegarde}
+# write.table(dx,"rpu2013_07.txt",sep=',',quote=TRUE,na="NA")
+mois_courant_file <- paste("rpu",ac,"d",mc,".Rda",sep="")
+save(dx,file = mois_courant_file)
+```
+
+etape 4: chargement des données sauvegardées
+--------------------------------------------
+```{r}
+# load(mois_courant_file)
+```
+Résumé des tidy datas
+---------------------
+```{r}
+str(dx)
+summary(dx)
+```
+Fusion avec la base annuelle
+-----------------------------
+*d0110* est la base annuelle provisoire
+base_annuelle_courante = rpuAAAAd01MM.Rda où AAAA est l'année courante et MM le mois précédant le mois courant. Ex. si on saisit le mois d'octobre 2013, la base courante est celle qui va du 1er janvier au 30 septembre 2013 => AAAA = 2013 et MM = 09.
+
+Les données de la base annuelle courante sont stockées dans la variable **d1**; (avant octobre 2013 les données sont stockées sous le nom de variable d01xx où xx coresspod au mois courant.)
+
+les données du mois courant sont stockées et restituées dans la variable **dx**
+
+```{r}
+base_annuelle_courante <- paste("d01",mp,sep="")
+bac <- paste("rpu",ac,base_annuelle_courante,".Rda",sep="")
+load(bac)
+
+# new_data <- rbind(d0109,dx)
+new_data <- rbind(d1,dx)
+d1 <- new_data
+
+
+nb_name <- paste("rpu",ac,"d01",mc,".Rda",sep="")
+save(d1, file = nb_name)
+```
+
+SUITE: voir RPU_2013_Preparation.Rmd
+
+Vérification de la complétude des données
+=========================================
+
+**METTRE EN COPIE MR NOLD ET MME BROUSTAL**
+
+Nombre de passages
+------------------
+Tableau croisé des Finess et du nombre de passages quotidiens:
+```{r}
+d<-table(as.Date(dx$ENTREE),dx$FINESS)
+head(d)
+plot(t(d))
+
+d2 <- addmargins(d,c(2,2),FUN = list(Somme=sum,Moyenne=mean))
+write.table(d2, file="data.csv", sep=",", row.names = TRUE, quote = FALSE)
+```
+           3Fr Alk Col Dia Geb Hag Hus Mul Odi Sel Wis
+  2013-05-01  49   8 155  70  40 102 103 132  73  85  29
+  2013-05-02  43  41 180  85  52 104 120 123  72  89  32
+  2013-05-03  36  29 176  64  43  85 116 141  71  82  27
+  2013-05-04  47  11 184  92  42 104  87 151  74  93  34
+  2013-05-05  52  10 190  89  50  91 102 185  93  99  31
+  2013-05-06  50  46 209  97  40  99 138 174  73  98  36
+  
+Lignes où le nombre de données est inférieur à 20:
+```{r}
+df<-data.frame(d)
+a<-df[df$Freq<20,]
+```
+Dernier fichier sauvegardé
+==========================
+octobre 2013:  
+----------
+write.table(d06,"rpu2013_06.txt",sep=',',quote=TRUE,na="NA")
+save(d06,file="rpu2013d06.Rda")
+
+RPU du 1er janvier 2013 au 30 juin 2013:
+----------------------------------------
+d0106<-rbind(d1,d05,d06)
+save(d0106,file="rpu2013d0106.Rda")
+rm(d0106)
+
+Résumé de la mise à jour
+========================
+
+```{r maj,echo=FALSE}
+print(paste("Date: ",date()))
+sessionInfo()
+print(paste("année courante: ",ac))
+print(paste("Mois courant: ",mc))
+print(paste("Base de données upgradée: ",bac))
+print(paste("Fichier du mois courant: ",mois_courant_file))
+print(paste("Nouvelle base de données",nb_name))
+print(paste("- date de début: ",min(d1$ENTREE)))rm
+print(paste("- date de fin  : ",max(d1$ENTREE)))
+print(paste("Nombre d'enregistrements: ",nrow(d1)))
+
+# nombre de RPU par établissement
+table(d1$FINESS)
+
+# nombre de non réponses (NA) par rubrique. Application au DP
+rpu_manquants <- function(x){mean(is.na(x))}
+
+# un seul hôpital sur toutes les rubriques du RPU
+
+rubrique <- c("CODE_POSTAL","COMMUNE","DESTINATION","DP","ENTREE","FINESS","GRAVITE","MODE_ENTREE","MODE_SORTIE","MOTIF","NAISSANCE","ORIENTATION","PROVENANCE","SEXE","SORTIE","TRANSPORT","TRANSPORT_PEC")
+
+hop <- "Geb"
+rpu <- d1[d1$FINESS==hop,] # éliminer la colonne FINESS
+item <- "DP"
+for(i in 1:length(rubrique)){
+  a <- paste0(hop,rubrique[i])
+  
+}
+
+# tous les hôpitaux sur un seul item
+x <-tapply(dx$DP, dx$FINESS, z)
+
+sort(round(x * 100, 2)) # DP manquants en %
+sort(round((1-x) * 100, 2)) # taux de complétude en %
+
+Comparaison des mois de Janvier
+-------------------------------
+rm(d1)
+# charge l'année 2013 (d1)
+load("~/Documents/Resural/Stat Resural/RPU_2013/rpu2013d0112.Rda")
+# isole le mois de janvier 2013
+d2013_01 <- d1[d1$ENTREE < "2013-02-01",]
+# charge le mois de janvier 2014
+load("~/Documents/Resural/Stat Resural/RPU_2013/rpu2014d01.Rda")
+
+n_2014 <- nrow(dx)
+n_2013 <- nrow(d2013_01)
+
+# différence entre les 2 années
+n_2014-n_2013
+
+# nb moyen de RPU en janvier 2014
+n_2014/31
+n_2013/31
+1 - (n_2014/31)/(n_2013/31)
+
+t2014 <- table(dx$FINESS)
+t2013 <- table(d2013_01$FINESS)
+# entre les 2 tables, l'ordre des colonnes diffère. On aligne la table 2014 sur celle de 2013:
+a <- t2014[c(1,2,3,4,5,6,7,8,9,11,12,10)]
+t2014 <- a
+
+t2013
+t2014
+
+t <- rbind(t2013,t2014)
+rownames(t) <- c("2013","2014")
+t
+
+farben <- c("blue","green")
+barplot(t, beside=T,main="RPU 2014 - RPU02013\nMois de Janvier", col=farben)
+legend("topright", legend=c("2013","2014"), col=farben, pch=15)
+
+a <- t2014-t2013
+a
+f2 <- ifelse(a>0,"green","blue")
+barplot(a, col=f2)
+
+```
+Commentaires:
+- le mois de janvier a été plutôt calme, hormis un épisode de tension déclaré sur Sélestat au cous de la dernière semaine 
+- 3628 RPU de plus ont été déclarés par rapport à janvier 2013 mais une bonne partie de cette augmentation est due aux hôpitaux d'Alkirch et de Saverne qui n'ont pas déclarés de RPU pour cette période en 2013.
+- le nombre moyen de passages s'établit à 943 contre 826 en 2013 (+ 14%)
+- la clinique ste odile présente une diminution importante mais qui est liée à un défaut de transmission des RPU depuis le 16 janvier. Le problème est en cours de résolution
+
+pandoc arret_pdsa.md -o test.tex
+pandoc arret_pdsa.md -o test.pdf
+pandoc arret_pdsa.md -o test.docx
+
+Export Word
+-----------
+
+p <- "pandoc Analyse/PDSA/arret_pdsa.md -o Analyse/PDSA/arret_pdsa.docx"
+system(p)
+
+Création des fichiers pour février 2014
+========================================
+
+Début des envois quotidiens de fichier le 20/02/2014. Le premier fichier comporte les enregistrements créés entre le 1 et le 21 février. Après cette date, les sauvegardes se font par jour.
+
+```{}
+setwd("~/Documents/Resural/Stat Resural/Archives_Sagec/dataQ")
+dx <- parse_rpu("2014_02")
+dx$FINESS <- as.factor(finess2hop(dx$FINESS))
+dx <- rpu2factor(dx)
+analyse_rpu_jour(dx)
+d02 <- dx[dx$ENTREE < "2014-02-22",]
+analyse_rpu_jour(d02)
+```
+[1] 22636
+[1] "2014-02-01"
+[1] "2014-02-21"
+[1] 14
+ 3Fr  Alk  Col  Dia  Dts  Geb  Hag  Hus  Mul  Odi  Ros  Sav  Sel  Wis 
+ 909  801 3914 1671  102  927 2057 2404 3599 1581  335 1850 1731  755
+
+```{}
+# d02<- gsub("\\e9", "é", d02, fixed=TRUE) # caractère anormal généré par certains SU (Haguenau)
+setwd("~/Documents/Resural/Stat Resural/Archives_Sagec/dataQ/archivesCsv")
+write.table(d02, "2014-02.csv", sep=',', quote=TRUE, na="NA", row.names=FALSE,col.names=TRUE)
+```
+Les données du 1 au 21 février 2014 inclus sont sauvegardés dans le dossier **Stat Resural/Archives_Sagec/dataQ/archivesCsv** sous le nom de **2014-02.csv**. A partir du 22/2 les données sont sauvegardées quotidiennement.
