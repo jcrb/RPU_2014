@@ -216,9 +216,11 @@ lire_archive <- function(jour){
 #'
 #' assemble les fichiers .csv contenus dans un dossier pour créer un dataframe
 #' @source: https://gist.github.com/danielmarcelino
-#' @return un dataframe correspondant aux jours présents. Le dataframe est sauvegardé dans un fichier .csv
+#' @param comment si TRUE imprime des commentaires sur les fichiers traités (défaut=FALSE)
+#' @return un dataframe correspondant aux jours présents. Le dataframe est sauvegardé dans un fichier .csv appelé rpu2014.data
+#' @usage dx <- assemble(comment=TRUE)
 #' 
-assemble <- function(){
+assemble <- function(comment=FALSE){
   path <- "/home/jcb/Documents/Resural/Stat Resural/Archives_Sagec/dataQ/archivesCsv"
   out.file<-NULL
   file.names <- dir(path, pattern =".csv")
@@ -226,7 +228,13 @@ assemble <- function(){
        file <- read.table(paste(path, file.names[i], sep="/"),header=TRUE, sep=",", stringsAsFactors=FALSE)
        out.file <- rbind(out.file, file)
    }
-  write.table(out.file, file = paste(path,"rpu2014.csv",sep="/"),sep=",", row.names = FALSE, qmethod = "double")
+  file <- paste(path,"rpu2014.data",sep="/")
+  write.table(out.file, file = file, sep=",", row.names = FALSE, qmethod = "double")
+  if(comment==TRUE){
+    dx <- normalise(dx)
+    analyse_rpu_jour(dx)
+    print(paste("fichier créé:", file))
+  }
   return(out.file)
 }
 
@@ -248,5 +256,6 @@ normalise <- function(dx){
   dx$AGE <- as.numeric(dx$AGE)
   dx$id <- as.character(dx$id)
   dx$CODE_POSTAL <- as.factor(dx$CODE_POSTAL)
+  dx$FINESS <- as.factor(dx$FINESS)
   return(dx)
 }

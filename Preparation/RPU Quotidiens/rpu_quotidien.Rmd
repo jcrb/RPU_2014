@@ -127,3 +127,27 @@ r
 - sélestat: 22 et 23/2 pas de RPU
 - diaconat strasbourg: 1-2-3-4/3 puis plus rien
 - roosvelt: depuis le 5/2 OK
+
+En pratique
+===========
+
+- dézipper le fichier du jour dans */home/jcb/Documents/Resural/Stat Resural/Archives_Sagec/dataQ*
+- charger le fichier **quot_utils.R** pour disposer des routines
+- répéter l'étape **rj** autant de fois qu'il y a de fichiers à analyser
+- assembler les fichiers avec **assemble()**
+
+```{}
+source("Preparation/RPU Quotidiens/quot_utils.R")
+rj <- rpu_jour("2014-03-20")
+dx <- assemble(comment = TRUE)
+```
+Eventuellement sauvegarder au format .Rda
+```{}
+dx <- normalise(dx)
+save(dx, file="rpu2014d03.Rda")
+```
+et assembler le tout (d1 = fichier .Rda des mois précédents)
+```{}
+a <- rbind(d1,dx)
+```
+Pour fabriquer les courbes interactives d'activité, voir le projet **dygraph**.
