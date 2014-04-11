@@ -175,9 +175,8 @@ Pour fabriquer les courbes interactives d'activité, voir le projet **dygraph**.
 
 exhaustivité des données
 ------------------------
-
+On forme une table en croisant FINESS et ENTREE:
 ```{}
-library("lubridate", lib.loc="/home/jcb/R/x86_64-pc-linux-gnu-library/3.1")
 table(as.Date(dx$ENTREE), dx$FINESS)
 ```
-write.table(rpu, file="exaustivite_rpu.csv", sep=";", dec=",") enregistre la table au format .csv mais les colonnes sont décalées ???
+write.table(rpu, file="exaustivite_rpu.csv", sep=";", dec=",") enregistre la table au format .csv mais les colonnes sont décalées => rajouter un ";" en début de fichier.
