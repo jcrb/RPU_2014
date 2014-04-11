@@ -57,6 +57,7 @@ séquence:
 - summary(dx$FINESS) fait un décompte des RPU par établissement sur la période => permet de vérifier si anomalies quantitatives. Suppose de disposer d'un historique moyenne, écart-type par type de jour.
 - dx <- rpu2factor(dx)
 
+```{}
 #' Méthode générale
 #' Préalable: disposer d'une base de donnée MySql avec une table appelée "archives". Cette base doit être référencée dans le fichier .my.conf
 #'@ data date.jour nom du fichier. Pour une utilisation courante il s'agit de la date du jour au format ISO
@@ -99,12 +100,13 @@ finess2hop <- function(a){
   a[a=="680000601"]<-"Tan"
   return(a)
 }
+```
 
-# controles quotidiens
+#### controles quotidiens
 - nlevels(dx$FINESS) si différent de 14 => problème
 - nb moyen et ecart-type de RPU par établissement et par jour
 
-```{r}
+```{}
 date1 <- "2014-03-01"
 date2 <- "2014-03-05"
 p <- seq(as.Date(date1), as.Date(date2), 1)
@@ -115,7 +117,7 @@ for(i in 1:length(p)){
 ```
 Commentaires:
 -------------
-```{r}
+```{}
 r <- table(as.Date(a$ENTREE), a$FINESS)
 r <- r[,-13] # supprime la colonne 13 qui est totalement vide ?
 r
@@ -141,7 +143,25 @@ source("Preparation/RPU Quotidiens/quot_utils.R")
 rj <- rpu_jour("2014-03-20")
 dx <- assemble(comment = TRUE)
 ```
-Eventuellement sauvegarder au format .Rda
+Exhaustivité des RPU du jour:
+
+table(as.Date(rj$ENTREE), rj$FINESS)
+
+#### Si on a une collection de fichiers:
+```{}
+date1 <- "2014-03-18"
+date2 <- "2014-04-06"
+p <- seq(as.Date(date1), as.Date(date2), 1)
+for(i in 1:length(p)){
+  dx <- rpu_jour(p[i])
+}
+dx <- assemble(comment = TRUE)
+
+min(as.Date(dx$ENTREE))
+max(as.Date(dx$ENTREE))
+```
+
+#### Eventuellement sauvegarder au format .Rda
 ```{}
 dx <- normalise(dx)
 save(dx, file="rpu2014d03.Rda")
@@ -149,5 +169,15 @@ save(dx, file="rpu2014d03.Rda")
 et assembler le tout (d1 = fichier .Rda des mois précédents)
 ```{}
 a <- rbind(d1,dx)
+save(a, file="rpu2014d0103_provisoire.Rda")
 ```
 Pour fabriquer les courbes interactives d'activité, voir le projet **dygraph**.
+
+exhaustivité des données
+------------------------
+
+```{}
+library("lubridate", lib.loc="/home/jcb/R/x86_64-pc-linux-gnu-library/3.1")
+table(as.Date(dx$ENTREE), dx$FINESS)
+```
+write.table(rpu, file="exaustivite_rpu.csv", sep=";", dec=",") enregistre la table au format .csv mais les colonnes sont décalées ???

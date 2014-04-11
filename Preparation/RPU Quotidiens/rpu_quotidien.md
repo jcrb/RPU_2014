@@ -12,18 +12,22 @@ Depuis février 2014, Alsace e-sante transmet quotidiennement un fichier contena
 
 2. le fichier est ensuite transféré dans la base de données **archives** dans la table **RPU__** via R
   - il est important que le répertoire de travail temporaire soit positionné dans le dossier *dataQ*
-    - wd <- getwd()
-    - setwd("~/Documents/Resural/Stat Resural/Archives_Sagec/dataQ")
-    - system(paste0("mysql -u root -pmarion archives < ", file))
-    - setwd(wd)
+```{}
+    wd <- getwd()
+    setwd("~/Documents/Resural/Stat Resural/Archives_Sagec/dataQ")
+    system(paste0("mysql -u root -pmarion archives < ", file))
+    setwd(wd)
+```
 
 3. Lecture des données dans R
-  - library("RMySQL")
-  - con<-dbConnect(MySQL(),group = "archives")
-  - rs<-dbSendQuery(con,paste("SELECT * FROM RPU__ ",sep=""))
-  - dx<-fetch(rs,n=-1,encoding = "UTF-8")
-  - max(dx$ENTREE)
-  - min(dx$ENTREE)
+```{}
+  library("RMySQL")
+  con<-dbConnect(MySQL(),group = "archives")
+  rs<-dbSendQuery(con,paste("SELECT * FROM RPU__ ",sep=""))
+  dx<-fetch(rs,n=-1,encoding = "UTF-8")
+  max(dx$ENTREE)
+  min(dx$ENTREE)
+```
 
 4. nettoyage des données
   - suppression de la colonne 16: dx<-dx[,-16]
@@ -53,6 +57,7 @@ séquence:
 - summary(dx$FINESS) fait un décompte des RPU par établissement sur la période => permet de vérifier si anomalies quantitatives. Suppose de disposer d'un historique moyenne, écart-type par type de jour.
 - dx <- rpu2factor(dx)
 
+```{}
 #' Méthode générale
 #' Préalable: disposer d'une base de donnée MySql avec une table appelée "archives". Cette base doit être référencée dans le fichier .my.conf
 #'@ data date.jour nom du fichier. Pour une utilisation courante il s'agit de la date du jour au format ISO
@@ -95,53 +100,28 @@ finess2hop <- function(a){
   a[a=="680000601"]<-"Tan"
   return(a)
 }
+```
 
-# controles quotidiens
+#### controles quotidiens
 - nlevels(dx$FINESS) si différent de 14 => problème
 - nb moyen et ecart-type de RPU par établissement et par jour
 
-
-```r
+```{}
 date1 <- "2014-03-01"
 date2 <- "2014-03-05"
 p <- seq(as.Date(date1), as.Date(date2), 1)
-for (i in 1:length(p)) {
-    x <- parse_rpu(p[i])
-    table(x$FINESS, as.Date(x$ENTREE))
+for(i in 1:length(p)){
+  x <- parse_rpu(p[i])
+  table(x$FINESS, as.Date(x$ENTREE))
 }
 ```
-
-```
-## Error: impossible de trouver la fonction "parse_rpu"
-```
-
 Commentaires:
 -------------
-
-```r
+```{}
 r <- table(as.Date(a$ENTREE), a$FINESS)
-```
-
-```
-## Error: objet 'a' introuvable
-```
-
-```r
-r <- r[, -13]  # supprime la colonne 13 qui est totalement vide ?
-```
-
-```
-## Error: objet 'r' introuvable
-```
-
-```r
+r <- r[,-13] # supprime la colonne 13 qui est totalement vide ?
 r
 ```
-
-```
-## Error: objet 'r' introuvable
-```
-
 
 - altkirch: toujours des trous inexpliqués: 1/1, 5/1, 11 et 12/1, 16/1, 18/1, 2/3
 - mulhouse: 15/1, 7/2, 5-6-7/3 zéro rpu
@@ -149,3 +129,55 @@ r
 - sélestat: 22 et 23/2 pas de RPU
 - diaconat strasbourg: 1-2-3-4/3 puis plus rien
 - roosvelt: depuis le 5/2 OK
+
+En pratique
+===========
+
+- dézipper le fichier du jour dans */home/jcb/Documents/Resural/Stat Resural/Archives_Sagec/dataQ*
+- charger le fichier **quot_utils.R** pour disposer des routines
+- répéter l'étape **rj** autant de fois qu'il y a de fichiers à analyser
+- assembler les fichiers avec **assemble()**
+
+```{}
+source("Preparation/RPU Quotidiens/quot_utils.R")
+rj <- rpu_jour("2014-03-20")
+dx <- assemble(comment = TRUE)
+```
+Exhaustivité des RPU du jour:
+
+table(as.Date(rj$ENTREE), rj$FINESS)
+
+#### Si on a une collection de fichiers:
+```{}
+date1 <- "2014-03-18"
+date2 <- "2014-04-06"
+p <- seq(as.Date(date1), as.Date(date2), 1)
+for(i in 1:length(p)){
+  dx <- rpu_jour(p[i])
+}
+dx <- assemble(comment = TRUE)
+
+min(as.Date(dx$ENTREE))
+max(as.Date(dx$ENTREE))
+```
+
+#### Eventuellement sauvegarder au format .Rda
+```{}
+dx <- normalise(dx)
+save(dx, file="rpu2014d03.Rda")
+```
+et assembler le tout (d1 = fichier .Rda des mois précédents)
+```{}
+a <- rbind(d1,dx)
+save(a, file="rpu2014d0103_provisoire.Rda")
+```
+Pour fabriquer les courbes interactives d'activité, voir le projet **dygraph**.
+
+exhaustivité des données
+------------------------
+
+```{}
+library("lubridate", lib.loc="/home/jcb/R/x86_64-pc-linux-gnu-library/3.1")
+table(as.Date(dx$ENTREE), dx$FINESS)
+```
+write.table(rpu, file="exaustivite_rpu.csv", sep=";", dec=",") enregistre la table au format .csv mais les colonnes sont décalées ???
