@@ -1,0 +1,7 @@
+Latex
+=====
+
+-[Prevent floating of figures or tables](http://texblog.net/latex-archive/uncategorized/prevent-floating-image-figure-table/)
+
+- [Hooks](http://yihui.name/knitr/hooks)
+
