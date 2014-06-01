@@ -3,6 +3,13 @@ Fichier RPU quotdien
 
 Depuis février 2014, Alsace e-sante transmet quotidiennement un fichier contenant les RPU des 7 derniers jours (j-7 à j-1). Les données correspondant à J-7 sont considérées comme consolidées. Elles peuvent être extraites et stockées. Les données sont transmises de manière habituelle, c'est à dire un fichier .sql qu'il faut transcoder en R pour le nettoyer avant stockage.
 
+__Au mois de mai 2014 la clinique des 3 frontières (C3F) a changé de N°FINESS__. (voir le paragraphe C3F)
+
+#### Méthode rapide: voir __En Preatique__
+
+Descriptif
+----------
+
 1. Le fichier des données est récupéré sur le serveur de test des HUS. Il st déposé dans le dossier de stockage (**/home/jcb/Documents/Resural/Stat Resural/Archives_Sagec/dataQ**) et dézippé.
 
 2. le nom du fichier est construit de la manière suivante:
@@ -140,6 +147,10 @@ En pratique
 
 ```{}
 source("Preparation/RPU Quotidiens/quot_utils.R")
+```
+
+# si un seul fichier
+```{}
 rj <- rpu_jour("2014-03-20")
 dx <- assemble(comment = TRUE)
 ```
@@ -149,8 +160,8 @@ table(as.Date(rj$ENTREE), rj$FINESS)
 
 #### Si on a une collection de fichiers:
 ```{}
-date1 <- "2014-03-18"
-date2 <- "2014-04-06"
+date1 <- "2014-04-05"
+date2 <- "2014-04-29"
 p <- seq(as.Date(date1), as.Date(date2), 1)
 for(i in 1:length(p)){
   dx <- rpu_jour(p[i])
@@ -164,7 +175,8 @@ max(as.Date(dx$ENTREE))
 #### Eventuellement sauvegarder au format .Rda
 ```{}
 dx <- normalise(dx)
-save(dx, file="rpu2014d03.Rda")
+dx <- dx[dx$ENTREE >= "2014-04-01" & dx$ENTREE < "2014-05-01",]
+save(dx, file="rpu2014d04_provisoire.Rda")
 ```
 et assembler le tout (d1 = fichier .Rda des mois précédents)
 ```{}
@@ -180,3 +192,47 @@ On forme une table en croisant FINESS et ENTREE:
 table(as.Date(dx$ENTREE), dx$FINESS)
 ```
 write.table(rpu, file="exaustivite_rpu.csv", sep=";", dec=",") enregistre la table au format .csv mais les colonnes sont décalées => rajouter un ";" en début de fichier.
+
+
+#### Préparation des fichiers pour Dygraph 
+
+  -> voir _Préparation des fichiers pour Dygraph.Rmd_
+  
+Résumé activité
+===============
+ On crée un tableau Finess x Jour de l'année permettant de voir rapidement où sont les "trous". A partir du tableau __t__ on crée un dataframe __a__ compotant deux colonnes: la date du jour et le nombre de RPU correspondants pour l'ensemble des SU d'Alsace. Ce dataframe peut être utilisé pour __Dygraph__.
+
+On peut aussi l'utiliser pourtracer le graphe correspondant.
+
+```{r activite}
+t <- table(as.Date(dx$ENTREE), dx$FINESS)
+s <- rowSums(t)
+b <- rownames(t)
+a <- as.data.frame(cbind(b,s))
+colnames(a) <- c("Date","RPU")
+a$Date <- as.Date(a$Date)
+a$RPU <- as.numeric(as.character(a$RPU))
+
+plot(a$Date, a$RPU, type="l", ylab="nombre de RPU", xlab="Année 2014", main="Activité des SU d'Alsace en nombre de RPU")
+
+library("xts", lib.loc="/home/jcb/R/x86_64-pc-linux-gnu-library/3.1")
+
+x <- as.xts(a$RPU, a$Date)
+
+z <- as.zoo(x)
+plot(z, col="blue")
+lines(rollmean(z, 7), col="red")
+
+plot.xts(x, ylab="nombre de RPU", xlab="Année 2014", main="Activité des SU d'Alsace en nombre de RPU", col="blue")
+lines(rollmean(z, 7), col="red")
+```
+Activité 2013-2014
+==================
+
+Voir __Activités_2013-2014.Rmd__
+
+
+C3F - Mai 2014
+==============
+
+A partir du 16 mai 2014 la clinique des 3 frontières passe au n°Finess __680020096__. Ce changement provoque une erreur dans le fichier transmis par Mr Nold car les données de la clinique apparaissent deux fois: une fois sous "3Fr" et une fois sous "680020096". Les données sont corrigées jusqu'au 19/05 inclus. Anomalie signalée le 31/05/2014 , en attente.

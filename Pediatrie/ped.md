@@ -5,15 +5,25 @@ La pédiatrie des HUS commence à produire des RPU depuis le 1/04/2014. Un point
 
 
 ```
+[1] "2014-01-01"
+```
+
+```
+[1] "2014-05-19"
+```
+
+```
 [1] "RPU totaux et RPU pédiatriques:"
 ```
 
 ```
-|id   |   RPU|  RPU-PED|
-|:----|-----:|--------:|
-|HUS  |  2482|      569|
-|MUL  |  3098|     1090|
-|COL  |  3633|     1417|
+
+
+|    |   RPU| RPU-PED|
+|:---|-----:|-------:|
+|HUS | 16839|    2950|
+|MUL | 22694|    8173|
+|COL | 25051|    9443|
 ```
 
 ```
@@ -21,14 +31,15 @@ La pédiatrie des HUS commence à produire des RPU depuis le 1/04/2014. Un point
 ```
 
 ```
-|id   |  Min.|  1st Qu.|  Median|  Mean|  3rd Qu.|  Max.|
-|:----|-----:|--------:|-------:|-----:|--------:|-----:|
-|HUS  |     0|        1|       4|  5.94|       11|    17|
-|MUL  |     0|        1|       4|  6.01|       11|    17|
-|COL  |     0|        2|       6|  6.80|       11|    17|
+
+
+|    | Min.| 1st Qu.| Median| Mean| 3rd Qu.|  Max.|
+|:---|----:|-------:|------:|----:|-------:|-----:|
+|HUS | 0.00|    2.00|   6.00| 6.83|   12.00| 17.00|
+|MUL | 0.00|    1.00|   3.00| 5.16|    9.00| 17.00|
+|COL | 0.00|    1.00|   5.00| 6.27|   11.00| 17.00|
 ```
 
 ![plot of chunk ped](figure/ped.png) 
-
 
 

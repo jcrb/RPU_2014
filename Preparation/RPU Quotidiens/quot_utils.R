@@ -56,6 +56,7 @@ finess2hop <- function(a){
   a[a=="680000700"]<-"Geb"
   a[a=="670780055"]<-"Hus"
   a[a=="680000197"]<-"3Fr"
+  a[a=="680020096"]<-"3Fr" # maj le 30/5/2014 680020096
   a[a=="680000627"]<-"Mul"
   a[a=="670000157"]<-"Hag"
   a[a=="680000320"]<-"Dia"
@@ -77,7 +78,7 @@ finess2hop <- function(a){
 #' Préalable: disposer d'une base de donnée MySql avec une table appelée "archives".
 #' Cette base doit être référencée dans le fichier .my.conf
 #' 
-#'@name finess2hop
+#'@name parse_rpu
 #'@title 2014-03-01
 #'@author JcB
 #'@param data date.jour nom du fichier. Pour une utilisation courante il s'agit de la date du jour au format ISO

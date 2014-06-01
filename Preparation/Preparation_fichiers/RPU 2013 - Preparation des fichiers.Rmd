@@ -1,7 +1,7 @@
 RPU 2013 - Préparation des fichiers
 ========================================================
 
-Ce document décrit la préparation des données RPU depuis la ptransmission du fichier brut jusqu'à la production d'un fichier directement exploitable par R.
+Ce document décrit la préparation des données RPU depuis la transmission du fichier brut jusqu'à la production d'un fichier directement exploitable par R.
 Mise à jour:
 ```{r}
 date()
@@ -159,6 +159,7 @@ a[a=="670000272"]<-"Wis"
 a[a=="680000700"]<-"Geb"
 a[a=="670780055"]<-"Hus"
 a[a=="680000197"]<-"3Fr"
+a[a=="680020096"]<-"3Fr" # maj le 30/5/2014
 a[a=="680000627"]<-"Mul"
 a[a=="670000157"]<-"Hag"
 a[a=="680000320"]<-"Dia"
@@ -408,3 +409,11 @@ setwd("~/Documents/Resural/Stat Resural/Archives_Sagec/dataQ/archivesCsv")
 write.table(d02, "2014-02.csv", sep=',', quote=TRUE, na="NA", row.names=FALSE,col.names=TRUE)
 ```
 Les données du 1 au 21 février 2014 inclus sont sauvegardés dans le dossier **Stat Resural/Archives_Sagec/dataQ/archivesCsv** sous le nom de **2014-02.csv**. A partir du 22/2 les données sont sauvegardées quotidiennement.
+
+Tous les jours sont-ils présents ?
+==================================
+
+```{}
+a <- unique(as.Date(x$ENTREE))
+```
+__a__ est un vecteur de date.
