@@ -172,6 +172,24 @@ min(as.Date(dx$ENTREE))
 max(as.Date(dx$ENTREE))
 ```
 
+#### Sélectionner une période particulière (ie. mai 2014)
+```{}
+d05 <- dx[as.Date(dx$ENTREE) >= "2014-05-01" & as.Date(dx$ENTREE) < "2014-06-01",]
+max(as.Date(d05$ENTREE))
+min(as.Date(d05$ENTREE))
+d05 <- normalise(d05)
+save(d05, file="rpu2014d05.Rda")
+load("rpu2014d0104.Rda")
+rm(dx)
+dx <- rbind(a, d05)
+min(as.Date(dx$ENTREE))
+max(as.Date(dx$ENTREE))
+save(dx, file="rpu2014d0105.Rda")
+
+table(as.Date(d05$ENTREE), d05$FINESS)
+```
+
+
 #### Eventuellement sauvegarder au format .Rda
 ```{}
 dx <- normalise(dx)
@@ -202,7 +220,7 @@ Résumé activité
 ===============
  On crée un tableau Finess x Jour de l'année permettant de voir rapidement où sont les "trous". A partir du tableau __t__ on crée un dataframe __a__ compotant deux colonnes: la date du jour et le nombre de RPU correspondants pour l'ensemble des SU d'Alsace. Ce dataframe peut être utilisé pour __Dygraph__.
 
-On peut aussi l'utiliser pourtracer le graphe correspondant.
+On peut aussi l'utiliser pour tracer le graphe correspondant.
 
 ```{r activite}
 t <- table(as.Date(dx$ENTREE), dx$FINESS)
@@ -236,3 +254,61 @@ C3F - Mai 2014
 ==============
 
 A partir du 16 mai 2014 la clinique des 3 frontières passe au n°Finess __680020096__. Ce changement provoque une erreur dans le fichier transmis par Mr Nold car les données de la clinique apparaissent deux fois: une fois sous "3Fr" et une fois sous "680020096". Les données sont corrigées jusqu'au 19/05 inclus. Anomalie signalée le 31/05/2014 , en attente.
+
+Erreur corrigée à partir du 22/05/2014 mais 6 jours sont doublonnés, du 16/5 au 23/5/2014 inclu.
+
+Algorithme de correction(12/06/2014):
+- on isole les 6 jours concernés dans le datafame __c3f__
+- on trie les lignes par ordre de date/heure d'entrée de sorte que tous les doublons se trouvent sur deux lignes consécutives
+- on crée le dataframe __c3__ en ne retenant que les lignes impaires de c3f. En pratique on ne garde qu'une ligne sur 2 ce qui permet d'éliminer les doublons
+- on forme un dataframe avec tous les enregistrements du mois de mai, sauf ceux correspondants à la C3F: __d05_saufc3f__
+- de la même façon on forme le dataframe complémentaire qui ne contient que les enregistrement de la C3F: __d05_3fr__
+- de d05_3fr on retire tous les enregistrements correspondants aux jours litigieux, ce qui donne __d05_3fr_sauf_doublons__
+- on reforme un dataframe __d05_corrige__ qui est la concaténation des lignes correspondant à la C3F moins les doublons
+- on vérifie que tout est bon en faisant un table()
+- on rebaptise le dataframe corrigé en __d05__ et on le sauvegarde
+- on recrée le dataframe __dx__ concaténation du mois de mai avec les autres mois de l'année et on sauvegarde le tout dans __rpu2014d0105.Rda__.
+
+```{}
+c3f <- d05[as.Date(d05$ENTREE) >= "2014-05-16" & as.Date(d05$ENTREE) <= "2014-05-23" & d05$FINESS == "3Fr",]
+c3fo <- c3f[order(c3f$ENTREE),]
+c3 <- c3fo[1,]
+seq <- seq(3, nrow(c3fo), by=2)
+for(i in seq){c3 <- rbind(c3, c3fo[i,])}
+d05_saufc3f <- d05[d05$FINESS != "3Fr",]
+d05_3fr <- d05[d05$FINESS == "3Fr",]
+d05_3fr_sauf_doublons <- d05_3fr[as.Date(d05_3fr$ENTREE) < "2014-05-16" | as.Date(d05_3fr$ENTREE) > "2014-05-23",]
+d05_corrige <- rbind(d05_saufc3f, d05_3fr_corrige)
+table(as.Date(d05_corrige$ENTREE), d05_corrige$FINESS)
+d05 <- d05_corrige
+save(d05, file="rpu2014d05.Rda")
+load("rpu2014d0104.Rda")
+dx <- rbind(a, d05)
+save(dx, file="rpu2014d0105.Rda")
+
+```
+CCL: les données du mpois de Mai 2014 sont 'propres' à la date du 12 juin 2014.
+
+Anomalies du mois de mai:
+
+- Ste Anne a fait unessai du 12 au 16 mai, et semle être passé en production depuisle 28 mai 2014. A vérifier en juin.
+- CH Alkirch: toujours des ratées dans la transmission: 1, 4, 11, 27, 29 mai
+- CHM: 9, 10, 22 nb anormalement bas de assages
+- Roosvelt: 13 mai nnb de RPU < 10
+- CH Selestat: 13, 15, 16,17 moins de 5 RPU
+
+- 158 346 RPU au 31 mai 2014. Comparaison avec 2013:
+```{load("../RPU_2013/rpu2013d0112.Rda")
+d_2013_au31mai <- d1[as.Date(d1$ENTREE) < "2013-06-01",]
+nrow(d_2013au31mai)
+}
+# 137 612
+```
+soit __20734__ RPU de plus soit environ 400.000 RPU en 2014.
+
+Rajouter:
+```{}
+Résumé d'activité
+Radar
+```
+
