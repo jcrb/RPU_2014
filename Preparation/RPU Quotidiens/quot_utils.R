@@ -260,3 +260,28 @@ normalise <- function(dx){
   dx$FINESS <- as.factor(dx$FINESS)
   return(dx)
 }
+
+#=======================================
+#
+# rpu2xts
+#
+#=======================================
+#'A partir du fichier habituel des RPU retourne un objet xts ayant autant de
+#'colonnes qu'il y a de SU dans d plus 2 colonnes supplémentaires:
+#'- date de type 'Date' qui sert d'index à xts
+#'- total nombre total de RPU par jour
+#'
+#'@param d données RPU
+#'@usage ts <- rpu2xts(d0106p); plot(ts$total);lines(rollapply(ts$total, 7, mean), col="red")
+#'
+rpu2xts <- function(d){
+  library(xts)
+  t <- table(as.Date(d$ENTREE), d$FINESS)
+  date <- rownames(t)
+  a <- as.data.frame.matrix(t)
+  a <- cbind(a, date)
+  a$date <- as.Date(a$date)
+  a$total <- rowSums(a[,1:14])
+  ts <- xts(a, order.by = a$date)
+  ts
+}

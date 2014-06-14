@@ -158,7 +158,11 @@ Exhaustivité des RPU du jour:
 
 table(as.Date(rj$ENTREE), rj$FINESS)
 
-#### Si on a une collection de fichiers:
+Si on a une collection de fichiers:
+-----------------------------------
+
+#### NB: SUPPRIMER LE FICHIER /home/jcb/Documents/Resural/Stat Resural/Archives_Sagec/dataQ/archivesCsv/rpu2014.data
+
 ```{}
 date1 <- "2014-04-05"
 date2 <- "2014-04-29"
@@ -311,4 +315,58 @@ Rajouter:
 Résumé d'activité
 Radar
 ```
+
+Juin 2014
+=========
+
+Au 6/6 Ste Anne n'émet rien => vérifier
+
+Essai d'utilisation de Xts
+--------------------------
+ On forme une table de contingence en croisant la date d'entrée et le Finess. Le croisement donne le total des RPU par jour pour un SU. Le tableau est transformé en dataframe par __as.data.frame.matrix__. La transformation en dataframe permet de préserver la nature des colonnes. On crée une colonne __date__ correspondant à chaque jour du mois que l'on ajoute au dataframe et cette nouvelle colonne est mise au format 'Date'. C'est elle qui servira d'index à l'objet xts. On crée également une colonne total qui est ajoutée au dataframe.
+ 
+ Le rataframe est transformé en objet __xts__ qui peut être plotté. On ajoute la moyenne mobile avec __rollappy__ (j'ai essayé avec rollmean mais j'ai une erreur ?)
+ 
+```{r xts_test}
+library(xts)
+t <- table(as.Date(d05$ENTREE), d05$FINESS) 
+date <- rownames(t)
+a <- as.data.frame.matrix(t)
+a <- cbind(a, date)
+a$date <- as.Date(a$date)
+a$total <- rowSums(a[,1:14])
+ts <- xts(a, order.by = a$date)
+plot(ts$total, main="Activité du mois de Mai", ylab="nombre de RPU")
+lines(rollapply(ts$total, 7, mean), col="red")
+legend("topleft", legend="Moyenne mobile", col="red", lty=1)
+
+plot(ts$total,minor.ticks=FALSE, col = "gray")
+lines(rollapply(ts$total, 7, mean), col="red")
+
+plot(ts$total["2014-02/2014-03"],minor.ticks=FALSE, col = "gray")
+lines(rollapply(ts$total["2014-01-25/2014-03"], 7, mean), col="red")
+
+```
+fonction dérivée
+
+A partir du fichier habituel des RPU retourne un objet xts ayant autant de 
+colonnes qu'il y a de SU dans d plus 2 colonnes supplémentaires:
+- date de type 'Date' qui sert d'index à xts
+- total nombre total de RPU par jour
+
+d données RPU
+
+rpu2xts <- function(d){
+  library(xts)
+  t <- table(as.Date(d$ENTREE), d$FINESS)
+  date <- rownames(t)
+  a <- as.data.frame.matrix(t)
+  a <- cbind(a, date)
+  a$date <- as.Date(a$date)
+  a$total <- rowSums(a[,1:14])
+  ts <- xts(a, order.by = a$date)
+  ts
+}
+
+
 
