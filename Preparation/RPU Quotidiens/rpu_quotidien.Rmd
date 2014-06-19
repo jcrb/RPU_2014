@@ -368,5 +368,21 @@ rpu2xts <- function(d){
   ts
 }
 
+Sauvegarde de données de juin 
+-----------------------------
+
+date1 <- "2014-06-08"
+date2 <- "2014-06-18"
+p <- seq(as.Date(date1), as.Date(date2), 1)
+for(i in 1:length(p)){
+dx <- rpu_jour(p[i])
+}
+dx <- assemble(comment = FALSE)
+min(as.Date(dx$ENTREE))
+table(as.Date(dx$ENTREE), dx$FINESS)
+d06 <- dx
+save(d06, file = "rpu2014d06_Provisoire.Rda")
+
+
 
 
