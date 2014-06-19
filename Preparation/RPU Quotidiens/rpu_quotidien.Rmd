@@ -164,8 +164,8 @@ Si on a une collection de fichiers:
 #### NB: SUPPRIMER LE FICHIER /home/jcb/Documents/Resural/Stat Resural/Archives_Sagec/dataQ/archivesCsv/rpu2014.data
 
 ```{}
-date1 <- "2014-04-05"
-date2 <- "2014-04-29"
+date1 <- "2014-06-08"
+date2 <- "2014-06-18"
 p <- seq(as.Date(date1), as.Date(date2), 1)
 for(i in 1:length(p)){
   dx <- rpu_jour(p[i])
