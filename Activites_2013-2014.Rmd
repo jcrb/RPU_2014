@@ -5,7 +5,7 @@ On crée le fichier __d2__ concaténation de 2013 (d1) et 2014 (dx):
 
 ```{}
 load("../RPU_2013/rpu2013d0112.Rda")
-load("rpu2014d0105_provisoire.Rda")
+load("rpu2014d0107_provisoire.Rda")
 d2 <- rbind(d1,dx)
 save(d2, file="rpu2013-2014.Rda")
 ```
@@ -22,8 +22,23 @@ install.packages("xtsExtra", repos="http://R-Forge.R-project.org")
 ```{r lib}
 library("xtsExtra", lib.loc="/home/jcb/R/x86_64-pc-linux-gnu-library/3.1")
 library("xts", lib.loc="/home/jcb/R/x86_64-pc-linux-gnu-library/3.1")
+library("lubridate", lib.loc="~/R/x86_64-pc-linux-gnu-library/3.1")
 
 ```
+
+Chiffres clés
+------------
+d2 rpu 2013 + rpu 2014
+```{r clés}
+anc <- "2014"
+a <- table(year(as.Date(d2$ENTREE)))
+n_2013 <- a[1] # rpu 2013
+n_2014 <- a[2] # rpu 2014
+delta <- as.numeric(100 * (n_2014/n_2013 - 1)) # variation 2013/2014
+ 
+```
+$`r n_2014`$ RPU créés en `r anc`  
+$`r round(delta,1)`$ % par rapport à 2013.
 
 
 tableau des hôpitaux

@@ -7,6 +7,11 @@ output: html_document
 
 Ce document recense le suivi des RPU.
 
+Août 2014
+=========
+
+Incorporation des fichiers de Juillet. Pas de problèmes notables sauf Diaconat Strasbourg qui n'envoie pas de données.
+
 Juillet 2014
 ============
 

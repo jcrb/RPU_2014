@@ -197,6 +197,7 @@ table(as.Date(d05$ENTREE), d05$FINESS)
 #### Eventuellement sauvegarder au format .Rda
 ```{}
 dx <- normalise(dx)
+dx$FINESS <- factor(dx$FINESS) # supprime les facteurs vides
 dx <- dx[dx$ENTREE >= "2014-04-01" & dx$ENTREE < "2014-05-01",]
 save(dx, file="rpu2014d04_provisoire.Rda")
 ```
@@ -228,9 +229,12 @@ On peut aussi l'utiliser pour tracer le graphe correspondant.
 
 ```{r activite}
 t <- table(as.Date(dx$ENTREE), dx$FINESS)
+t <-t[,c(-13,-16)] # on supprime les colonnes vides
 s <- rowSums(t)
 b <- rownames(t)
 a <- as.data.frame(cbind(b,s))
+m <- rowMeans(t)
+
 colnames(a) <- c("Date","RPU")
 a$Date <- as.Date(a$Date)
 a$RPU <- as.numeric(as.character(a$RPU))
@@ -245,8 +249,8 @@ z <- as.zoo(x)
 plot(z, col="blue")
 lines(rollmean(z, 7), col="red")
 
-plot.xts(x, ylab="nombre de RPU", xlab="Année 2014", main="Activité des SU d'Alsace en nombre de RPU", col="blue")
-lines(rollmean(z, 7), col="red")
+plot.xts2(x, ylab="nombre de RPU", xlab="Année 2014", main="Activité des SU d'Alsace en nombre de RPU", col="blue")
+lines(rollmean(x, 7), col="red")
 ```
 Activité 2013-2014
 ==================
