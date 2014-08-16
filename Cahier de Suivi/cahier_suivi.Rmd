@@ -10,7 +10,71 @@ Ce document recense le suivi des RPU.
 Août 2014
 =========
 
-Incorporation des fichiers de Juillet. Pas de problèmes notables sauf Diaconat Strasbourg qui n'envoie pas de données.
+Incorporation des fichiers de Juillet. Pas de problèmes notables sauf Diaconat Strasbourg qui n'envoie pas de données
+Pb de serveur, je ne reçoit pas les RPU du diaconat -> relancer Nold
+Parser XML terminé le 15/8. Voir avec Nold pour lasuite
+
+suivi des RPU: comment est saisi l'item motif;
+```{r}
+h <- function(x){head(x,20)}
+tapply(d07$MOTIF, d07$FINESS, h)
+
+```
+pas de saisie
+------------
+Guebwiller: 
+HUS
+3Fr
+
+pas conforme
+------------
+Haguenau: 
+Sélestat
+Colmar
+Ste Anne
+
+Conforme:
+---------
+Mulhouse
+Se Odile
+Roosvelt
+Saverne: ok mais bcp de non réponses
+Wissembourg
+Altkirch
+Diaconat Mulhouse: sp
+
+suivi de la complétude
+----------------------
+Il faut corriger DESTINATION et ORIENTATION: si MODE_SORTIE = Domicile, alors les 2 items ne peuvent être remplis et se voient attribuer la valeur NA, ce qui provoque une erreur dans le décompte de ces 2 items. Pour éviter cela, on leur attribue la valeur "domicile" si MODE_SORTIE = Domicile.
+
+```{r}
+d07$DESTINATION[d07$MODE_SORTIE == "Domicile"] <- "Domicile"
+d07$ORIENTATION[d07$MODE_SORTIE == "Domicile"] <- "Domicile"
+
+h <- function(x){apply(is.na(x),2,mean)}
+a <- unique(d07$FINESS)
+for(i in a){print(i); x <- h(d07[d07$FINESS==i,]); print((1-x)*100) }
+
+# la fonction qui suit automatise la tâche et retourne un dataframe:
+complet <- function(hop, d07){
+  j = 0;
+  for(i in hop){
+    x <- h(d07[d07$FINESS==i,]); 
+    x <- (1-x)*100; 
+    j = j+1
+    if(j == 1)
+      t = x
+    else
+      t = rbind(t,x)
+  }
+  t <- data.frame(hop,t)
+  return(t)
+}
+
+q <- complet(a,d07)
+
+```
+
 
 Juillet 2014
 ============
