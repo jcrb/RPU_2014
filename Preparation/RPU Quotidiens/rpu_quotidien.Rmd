@@ -165,7 +165,7 @@ Si on a une collection de fichiers:
 
 ```{}
 date1 <- "2014-08-08"
-date2 <- "2014-08-10"
+date2 <- "2014-09-01"
 p <- seq(as.Date(date1), as.Date(date2), 1)
 for(i in 1:length(p)){
   dx <- rpu_jour(p[i])
@@ -185,10 +185,10 @@ d08 <- normalise(d08)
 save(d08, file="rpu2014d08_provisoire.Rda")
 load("rpu2014d0107.Rda")
 rm(dx)
-dx <- rbind(a, d05)
+dx <- rbind(dx, d08)
 min(as.Date(dx$ENTREE))
 max(as.Date(dx$ENTREE))
-save(dx, file="rpu2014d0105.Rda")
+save(dx, file="rpu2014d0108_provisoire.Rda")
 
 table(as.Date(d08$ENTREE), d08$FINESS)
 ```

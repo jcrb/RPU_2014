@@ -1,0 +1,18 @@
+---
+title: "Sous-Comité des transport"
+author: "JcB"
+date: "03/09/2014"
+output: html_document
+---
+
+Passages CCMU1 du 1er septembre 2013 au 31 août 2014 ventilés par structure selon les tranches horaires suivantes:
+
+- toutes les nuits de 20h à 23h59
+- toutes les nuits de 0h à 7h59
+- le samedi de 12h à 19h59
+- le dimanche et les jours fériés de ? à 20h
+- le nombre total de CCMU1
+- le nombre total de RPU
+
+Correspondant: AC Schiebert
+
