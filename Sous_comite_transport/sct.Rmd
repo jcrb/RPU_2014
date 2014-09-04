@@ -16,3 +16,49 @@ Passages CCMU1 du 1er septembre 2013 au 31 août 2014 ventilés par structure se
 
 Correspondant: AC Schiebert
 
+Création du fichier
+
+```{r, echo=FALSE}
+
+library("epicalc")
+library("lubridate")
+
+path <- "../"
+load(paste0(path, "../RPU_2013/rpu2013d0112.Rda"))
+d2013 <- d1[as.Date(d1$ENTREE) > "2013-08-31", c("ENTREE", "FINESS", "GRAVITE")]
+rm(d1)
+
+load(paste0(path, "rpu2014d0108_provisoire.Rda"))
+d2014 <- dx[as.Date(dx$ENTREE) < "2014-09-01", c("ENTREE", "FINESS", "GRAVITE")]
+rm(dx)
+
+d2 <- rbind(d2013, d2014)
+min(as.Date(d2$ENTREE))
+max(as.Date(d2$ENTREE))
+rm(d2013, d2014)
+N <- nrow(d2)
+
+d2$GRAVITE <- factor(d2$GRAVITE)
+
+s.gravite <- summary(d2$GRAVITE)
+p.gravite <- round(s.gravite * 100 / N, 2)
+t.gravite <- rbind(s.gravite, p.gravite)
+rownames(t.gravite) <- c("Fréquence", "Pourcentage")
+t.gravite
+
+tab1(d2$GRAVITE)
+
+# création d'une colonne avec uniquement les heures
+d2$heure <- substr(d2$ENTREE, 12, length(d2$ENTREE))
+# les RPU en soirée
+soiree <- d2[d2$heure > "19:59:59" & d2$heure < "23:59:59",]
+# les RPU de nuit profonde
+nuit <- d2[d2$heure >= "00:00:00" & d2$heure < "08:00:00",]
+# ToDo:
+# samedi (non fériés) de 8h à 20h
+# dimanches et jours fériés de 8h à 20h
+```
+
+Nombre total de RPU sur la période du 1er septembre 2013 au 31 août 2014: __`r N`__
+
+Nombre total de CCMU1: __`r s.gravite[1]`__
