@@ -22,6 +22,7 @@ Création du fichier
 
 library("epicalc")
 library("lubridate")
+library("timeDate")
 
 path <- "../"
 load(paste0(path, "../RPU_2013/rpu2013d0112.Rda"))
@@ -54,11 +55,111 @@ d2$heure <- substr(d2$ENTREE, 12, length(d2$ENTREE))
 soiree <- d2[d2$heure > "19:59:59" & d2$heure < "23:59:59",]
 # les RPU de nuit profonde
 nuit <- d2[d2$heure >= "00:00:00" & d2$heure < "08:00:00",]
-# ToDo:
-# samedi (non fériés) de 8h à 20h
-# dimanches et jours fériés de 8h à 20h
+
+# calendrier de la demande
+date1 <- "2013-09-01"
+date2 <- "2014-08-31"
+y <- timeSequence(from = date1, to = date2, by = "day")
+y <- as.Date(y)
+length(y)
+
+# date des samedis et dimanches
+dim <- y[weekdays(as.Date(y)) == "dimanche"]
+sam <- y[weekdays(as.Date(y)) == "samedi"]
+
+# calcul des jours fériés
+year <- 2013
+ferie2013 <- c(Pentecost(year), PentecostMonday(year), LaborDay(year), FRAscension(year), FRBastilleDay(year), FRAssumptionVirginMary(year), FRAscension(year), FRArmisticeDay(year),  FRAllSaints(year), GoodFriday(year), EasterMonday(year), NewYearsDay(year), ChristmasDay(year))
+year <- 2014
+ferie2014 <- c(Pentecost(year), PentecostMonday(year), LaborDay(year), FRAscension(year), FRBastilleDay(year), FRAssumptionVirginMary(year), FRAscension(year), FRArmisticeDay(year),  FRAllSaints(year), GoodFriday(year), EasterMonday(year), NewYearsDay(year), ChristmasDay(year))
+
+ferie <- as.Date(c(ferie2013, ferie2014))
+ferie <- ferie[ferie >= date1 & ferie <= date2]
+
+# Ensemble des jours qui ne sont ni des samedis, ni des dimanches, ni des jours fériés
+ouvrable <- y[!match(as.character(y), as.character(dim), nomatch = 0)]
+ouvrable <- ouvrable[!match(as.character(ouvrable), as.character(sam), nomatch = 0)]
+ouvrable <- ouvrable[!match(as.character(ouvrable), as.character(ferie), nomatch = 0)]
+length(ouvrable)
+
+# Samedi et dimanche fériés
+samedi.ferie <- a <- merge(as.character(sam), as.character(ferie), by=1)
+samedi.ferie
+dimanche.ferie <- merge(as.character(dim), as.character(ferie), by=1)
+dimanche.ferie
+
+# Jours de semaine NON fériés
+ouvrable <- y[!match(as.character(y), as.character(dim), nomatch = 0)]
+ouvrable <- ouvrable[!match(as.character(ouvrable), as.character(sam), nomatch = 0)]
+ouvrable <- ouvrable[!match(as.character(ouvrable), as.character(ferie), nomatch = 0)]
+ouvrable
+
+# Jours de semaine fériés
+ouvrable <- y[!match(as.character(y), as.character(dim), nomatch = 0)]
+ouvrable <- ouvrable[!match(as.character(ouvrable), as.character(sam), nomatch = 0)]
+ouvrable.ferie <- merge(as.character(ouvrable), as.character(ferie), by=1)
+ouvrable.ferie
+wday(ouvrable.ferie$x, label = TRUE)
+
+# Dimanches et jours fériés en Alsace
+dim.and.ferie <- sort(c(dim, as.Date(t(ouvrable.ferie))))
+
+# effectifs correspondants: la somme des 3 est égale à d2
+d.dim.ferie <- d2[as.Date(d2$ENTREE) %in% dim.and.ferie,]
+d.sam <- d2[as.Date(d2$ENTREE) %in% sam,]
+d.ouvrable <- d2[as.Date(d2$ENTREE) %in% ouvrable,]
+
 ```
 
 Nombre total de RPU sur la période du 1er septembre 2013 au 31 août 2014: __`r N`__
 
 Nombre total de CCMU1: __`r s.gravite[1]`__
+
+Nombre de RPU en semaine (jours ouvrables): `r nrow(d.ouvrable)`
+
+Nombre de rpu le samedi (non férié): `r nrow(d.sam)`
+
+Nombre de RPU les dimanches et jours fériés: : `r nrow(d.dim.ferie)`
+
+NB: on peut simplifier en créan une colonne avec 3 facteurs: ouvrable, samedi, dimanche ou férié.
+
+```{r}
+d2$type[as.Date(d2$ENTREE) %in% ouvrable] <- "Ouv"
+d2$type[as.Date(d2$ENTREE) %in% sam] <- "Sam"
+d2$type[as.Date(d2$ENTREE) %in% dim.and.ferie] <- "DimFerie"
+summary(as.factor(d2$type))
+
+# groupe des CCMU1
+ccmu1 <- d2[d2$GRAVITE == 1,]
+boxplot(as.Date(ccmu1$ENTREE) ~ ccmu1$type)
+
+# samedi (non fériés) de 8h à 20h
+sam.jour <- d2[d2$type == "Sam" & d2$heure > "07:59:59" & d2$heure < "20:00:00",]
+s.sam.jour <- summary(sam.jour$GRAVITE)
+p.sam.jour <- round(s.sam.jour * 100 /nrow(sam.jour), 2)
+t.sam.jour <- rbind(s.sam.jour, p.sam.jour)
+rownames(t.sam.jour) <- c("Fréquence", "Pourcentage")
+t.sam.jour
+  
+# dimanches et jours fériés de 8h à 20h
+dim.jour <-  d2[d2$type == "DimFerie" & d2$heure > "07:59:59" & d2$heure < "20:00:00",]
+summary(dim.jour$GRAVITE)
+s.dim.jour <-summary(dim.jour$GRAVITE)
+p.dim.jour <- round(s.dim.jour * 100 /nrow(dim.jour), 2)
+t.dim.jour <- rbind(s.dim.jour, p.dim.jour)
+rownames(t.dim.jour) <- c("Fréquence", "Pourcentage")
+t.dim.jour
+```
+Ventilation par établissement
+```{r}
+# RPU totaux par établissement
+tapply(d2$ENTREE, factor(d2$FINESS), length)
+# RPU CCMU1 le samedi 8-20h
+tapply(sam.jour$ENTREE, factor(sam.jour$FINESS), length)
+# RPU CCMU1 le dimanche et férié
+tapply(dim.jour$ENTREE, factor(dim.jour$FINESS), length)
+
+
+```
+
+
