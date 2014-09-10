@@ -165,7 +165,7 @@ Si on a une collection de fichiers:
 
 ```{}
 date1 <- "2014-08-08"
-date2 <- "2014-09-01"
+date2 <- "2014-09-07"
 p <- seq(as.Date(date1), as.Date(date2), 1)
 for(i in 1:length(p)){
   dx <- rpu_jour(p[i])
@@ -183,11 +183,14 @@ max(as.Date(d08$ENTREE))
 min(as.Date(d08$ENTREE))
 d08 <- normalise(d08)
 save(d08, file="rpu2014d08_provisoire.Rda")
-load("rpu2014d0107.Rda")
 rm(dx)
+
+load("rpu2014d0107.Rda")
+
 dx <- rbind(dx, d08)
 min(as.Date(dx$ENTREE))
 max(as.Date(dx$ENTREE))
+
 save(dx, file="rpu2014d0108_provisoire.Rda")
 
 table(as.Date(d08$ENTREE), d08$FINESS)
@@ -212,9 +215,10 @@ exhaustivité des données
 ------------------------
 On forme une table en croisant FINESS et ENTREE:
 ```{}
-table(as.Date(dx$ENTREE), dx$FINESS)
+dx$FINESS <- factor(dx$FINESS) # supprime les facteurs vide
+rpu <- table(as.Date(dx$ENTREE), dx$FINESS)
 ```
-write.table(rpu, file="exaustivite_rpu.csv", sep=";", dec=",") enregistre la table au format .csv mais les colonnes sont décalées => rajouter un ";" en début de fichier.
+write.csv(rpu, file="exaustivite_rpu.csv") enregistre la table au format .csv mais à la différence de write.table, une case vide est ajoutée dans le header pour éviter le décalage des colonnes.
 
 
 #### Préparation des fichiers pour Dygraph 
@@ -223,33 +227,33 @@ write.table(rpu, file="exaustivite_rpu.csv", sep=";", dec=",") enregistre la tab
   
 Résumé activité
 ===============
- On crée un tableau Finess x Jour de l'année permettant de voir rapidement où sont les "trous". A partir du tableau __t__ on crée un dataframe __a__ compotant deux colonnes: la date du jour et le nombre de RPU correspondants pour l'ensemble des SU d'Alsace. Ce dataframe peut être utilisé pour __Dygraph__.
+ On crée un tableau Finess x Jour de l'année permettant de voir rapidement où sont les "trous". A partir du tableau __rpu__ on crée un dataframe __a__ compotant deux colonnes: la date du jour et le nombre de RPU correspondants pour l'ensemble des SU d'Alsace. Ce dataframe peut être utilisé pour __Dygraph__.
 
 On peut aussi l'utiliser pour tracer le graphe correspondant.
 
 ```{r activite}
-t <- table(as.Date(dx$ENTREE), dx$FINESS)
-t <-t[,c(-13,-16)] # on supprime les colonnes vides
-s <- rowSums(t)
-b <- rownames(t)
+
+s <- rowSums(rpu)
+b <- rownames(rpu)
 a <- as.data.frame(cbind(b,s))
-m <- rowMeans(t)
+m <- rowMeans(rpu)
 
 colnames(a) <- c("Date","RPU")
 a$Date <- as.Date(a$Date)
-a$RPU <- as.numeric(as.character(a$RPU))
+a$RPU <- as.numeric(as.character(a$RPU)) # transforme les facteurs en nombre
 
-plot(a$Date, a$RPU, type="l", ylab="nombre de RPU", xlab="Année 2014", main="Activité des SU d'Alsace en nombre de RPU")
+plot(a$Date, a$RPU, type="l", ylab="nombre de RPU", xlab=paste0("Année ", year(Sys.Date())), main="Activité des SU d'Alsace en nombre de RPU")
 
 library("xts", lib.loc="/home/jcb/R/x86_64-pc-linux-gnu-library/3.1")
+library("lubridate")
 
 x <- as.xts(a$RPU, a$Date)
 
 z <- as.zoo(x)
-plot(z, col="blue")
+plot(z, col="blue", ylab="nombre de RPU", xlab=paste0("Année ", year(Sys.Date())), main="Activité des SU d'Alsace en nombre de RPU")
 lines(rollmean(z, 7), col="red")
 
-plot.xts2(x, ylab="nombre de RPU", xlab="Année 2014", main="Activité des SU d'Alsace en nombre de RPU", col="blue")
+plot.xts2(x, ylab="nombre de RPU", xlab=paste0("Année ", year(Sys.Date())), main="Activité des SU d'Alsace en nombre de RPU", col="blue", minor.ticks = FALSE)
 lines(rollmean(x, 7), col="red")
 ```
 Activité 2013-2014

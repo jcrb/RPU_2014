@@ -18,18 +18,13 @@ Correspondant: AC Schiebert
 
 Création du fichier
 
-```{r, echo=FALSE}
-
-library("epicalc")
-library("lubridate")
-library("timeDate")
-
+```{}
 path <- "../"
 load(paste0(path, "../RPU_2013/rpu2013d0112.Rda"))
 d2013 <- d1[as.Date(d1$ENTREE) > "2013-08-31", c("ENTREE", "FINESS", "GRAVITE")]
 rm(d1)
 
-load(paste0(path, "rpu2014d0108_provisoire.Rda"))
+load(paste0(path, "rpu2014d0108.Rda"))
 d2014 <- dx[as.Date(dx$ENTREE) < "2014-09-01", c("ENTREE", "FINESS", "GRAVITE")]
 rm(dx)
 
@@ -37,6 +32,21 @@ d2 <- rbind(d2013, d2014)
 min(as.Date(d2$ENTREE))
 max(as.Date(d2$ENTREE))
 rm(d2013, d2014)
+
+save(d2, file="sct_2014.Rda")
+
+```
+
+
+```{r, echo=FALSE}
+
+library("epicalc")
+library("lubridate")
+library("timeDate")
+path <- "../"
+
+load(paste0(path, "sct_2014.Rda"))
+
 N <- nrow(d2)
 
 d2$GRAVITE <- factor(d2$GRAVITE)
@@ -92,7 +102,6 @@ dimanche.ferie
 ouvrable <- y[!match(as.character(y), as.character(dim), nomatch = 0)]
 ouvrable <- ouvrable[!match(as.character(ouvrable), as.character(sam), nomatch = 0)]
 ouvrable <- ouvrable[!match(as.character(ouvrable), as.character(ferie), nomatch = 0)]
-ouvrable
 
 # Jours de semaine fériés
 ouvrable <- y[!match(as.character(y), as.character(dim), nomatch = 0)]
@@ -111,17 +120,38 @@ d.ouvrable <- d2[as.Date(d2$ENTREE) %in% ouvrable,]
 
 ```
 
-Nombre total de RPU sur la période du 1er septembre 2013 au 31 août 2014: __`r N`__
+Calendrier
+-----------
 
-Nombre total de CCMU1: __`r s.gravite[1]`__
+- Date de début: `r min(as.Date(d2$ENTREE))`   
+- Date de fin: `r max(as.Date(d2$ENTREE))`
 
-Nombre de RPU en semaine (jours ouvrables): `r nrow(d.ouvrable)`
+- Nombre total de RPU sur la période du 1er septembre 2013 au 31 août 2014: __`r N`__
 
-Nombre de rpu le samedi (non férié): `r nrow(d.sam)`
+- Nombre de jours ouvrables (Ensemble des jours qui ne sont ni des samedis, ni des dimanches, ni des jours fériés): `r length(ouvrable)`
 
-Nombre de RPU les dimanches et jours fériés: : `r nrow(d.dim.ferie)`
+- Nombre total de jours fériés durant la période: `r length(ferie)`
 
-NB: on peut simplifier en créan une colonne avec 3 facteurs: ouvrable, samedi, dimanche ou férié.
+- Nombre de jours de semaine fériés: `r nrow(ouvrable.ferie)`
+
+- Nombre de samedis (non fériés): `r length(sam)` (pas de samedi férié sur la période.)
+
+- Nombre de dimanches: `r length(dim)`
+
+- Nombre de dimanches et jours fériés: `r length(dim.and.ferie)`
+
+Activité
+---------
+
+- Nombre total de CCMU1: __`r s.gravite[1]`__
+
+- Nombre de RPU en semaine (jours ouvrables): `r nrow(d.ouvrable)`
+
+- Nombre de rpu le samedi (non férié): `r nrow(d.sam)`
+
+- Nombre de RPU les dimanches et jours fériés: : `r nrow(d.dim.ferie)`
+
+NB: on peut simplifier en créant une colonne avec 3 facteurs: ouvrable, samedi, dimanche ou férié.
 
 ```{r}
 d2$type[as.Date(d2$ENTREE) %in% ouvrable] <- "Ouv"

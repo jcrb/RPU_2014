@@ -14,7 +14,13 @@ Incorporation des fichiers de Juillet. Pas de problèmes notables sauf Diaconat 
 Pb de serveur, je ne reçoit pas les RPU du diaconat -> relancer Nold
 Parser XML terminé le 15/8. Voir avec Nold pour lasuite
 
-suivi des RPU: comment est saisi l'item motif;
+Septembre 2014
+==============
+
+Le fichier __rpu2014d08.Rda__ est créé à partir des fichiers .csv allant du 8/8/2014 au 7/9/2014. Un trou à rattrapper pour Altkirch à partir du 20/8.
+
+suivi des RPU: comment est saisi l'item motif, bilan du mois d'aout 2014. En progrès. Un seul établissement ne saisit pas (Hus) et 3 sont non conformes.
+
 ```{r}
 h <- function(x){head(x,20)}
 tapply(d07$MOTIF, d07$FINESS, h)
@@ -22,13 +28,12 @@ tapply(d07$MOTIF, d07$FINESS, h)
 ```
 pas de saisie
 ------------
-Guebwiller: 
+
 HUS
-3Fr
 
 pas conforme
 ------------
-Haguenau: 
+ 
 Sélestat
 Colmar
 Ste Anne
@@ -42,25 +47,32 @@ Saverne: ok mais bcp de non réponses
 Wissembourg
 Altkirch
 Diaconat Mulhouse: sp
+3Fr
+Diaconat Strasbourg
+Guebwiller
+Haguenau
 
 suivi de la complétude
 ----------------------
 Il faut corriger DESTINATION et ORIENTATION: si MODE_SORTIE = Domicile, alors les 2 items ne peuvent être remplis et se voient attribuer la valeur NA, ce qui provoque une erreur dans le décompte de ces 2 items. Pour éviter cela, on leur attribue la valeur "domicile" si MODE_SORTIE = Domicile.
 
 ```{r}
-d07$DESTINATION[d07$MODE_SORTIE == "Domicile"] <- "Domicile"
-d07$ORIENTATION[d07$MODE_SORTIE == "Domicile"] <- "Domicile"
 
-h <- function(x){apply(is.na(x),2,mean)}
-a <- unique(d07$FINESS)
-for(i in a){print(i); x <- h(d07[d07$FINESS==i,]); print((1-x)*100) }
+data <- d08
 
-# la fonction qui suit automatise la tâche et retourne un dataframe:
-complet <- function(hop, d07){
+data$DESTINATION[data$MODE_SORTIE == "Domicile"] <- "Domicile"
+data$ORIENTATION[data$MODE_SORTIE == "Domicile"] <- "Domicile"
+
+pIsNa <- function(x){apply(is.na(x),2,mean)} # mean(is.na(x)) = % ne non réponses
+a <- unique(data$FINESS) # liste des établissements
+for(i in a){print(i); x <- pIsNa(data[data$FINESS==i,]); print((1-x)*100) }
+
+# la fonction qui suit automatise la tâche et retourne l'inverse de la fonction h cad le % de réponses pour l'item, sous forme de dataframeun dataframe:
+complet <- function(hop, data){
   j = 0;
   for(i in hop){
-    x <- h(d07[d07$FINESS==i,]); 
-    x <- (1-x)*100; 
+    x <- pIsNa(data[data$FINESS==i,]); 
+    x <- (1-x)*100; # inverse de la fonction
     j = j+1
     if(j == 1)
       t = x
@@ -71,7 +83,7 @@ complet <- function(hop, d07){
   return(t)
 }
 
-q <- complet(a,d07)
+q <- complet(a,data)
 
 ```
 
