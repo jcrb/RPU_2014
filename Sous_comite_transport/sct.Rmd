@@ -38,11 +38,13 @@ save(d2, file="sct_2014.Rda")
 ```
 
 
-```{r, echo=FALSE}
+```{r, echo=FALSE, message=FALSE}
 
 library("epicalc")
 library("lubridate")
 library("timeDate")
+library("RColorBrewer")
+
 path <- "../"
 
 load(paste0(path, "sct_2014.Rda"))
@@ -61,8 +63,10 @@ tab1(d2$GRAVITE)
 
 # création d'une colonne avec uniquement les heures
 d2$heure <- substr(d2$ENTREE, 12, length(d2$ENTREE))
+
 # les RPU en soirée
 soiree <- d2[d2$heure > "19:59:59" & d2$heure < "23:59:59",]
+
 # les RPU de nuit profonde
 nuit <- d2[d2$heure >= "00:00:00" & d2$heure < "08:00:00",]
 
@@ -153,42 +157,124 @@ Activité
 
 NB: on peut simplifier en créant une colonne avec 3 facteurs: ouvrable, samedi, dimanche ou férié.
 
-```{r}
+```{r, echo=FALSE}
 d2$type[as.Date(d2$ENTREE) %in% ouvrable] <- "Ouv"
 d2$type[as.Date(d2$ENTREE) %in% sam] <- "Sam"
 d2$type[as.Date(d2$ENTREE) %in% dim.and.ferie] <- "DimFerie"
 summary(as.factor(d2$type))
 
-# groupe des CCMU1
-ccmu1 <- d2[d2$GRAVITE == 1,]
-boxplot(as.Date(ccmu1$ENTREE) ~ ccmu1$type)
-
-# samedi (non fériés) de 8h à 20h
-sam.jour <- d2[d2$type == "Sam" & d2$heure > "07:59:59" & d2$heure < "20:00:00",]
+# samedi (non fériés) de 12h à 20h
+sam.jour <- d2[d2$type == "Sam" & d2$heure > "11:59:59" & d2$heure < "20:00:00",]
 s.sam.jour <- summary(sam.jour$GRAVITE)
 p.sam.jour <- round(s.sam.jour * 100 /nrow(sam.jour), 2)
 t.sam.jour <- rbind(s.sam.jour, p.sam.jour)
 rownames(t.sam.jour) <- c("Fréquence", "Pourcentage")
-t.sam.jour
   
 # dimanches et jours fériés de 8h à 20h
 dim.jour <-  d2[d2$type == "DimFerie" & d2$heure > "07:59:59" & d2$heure < "20:00:00",]
-summary(dim.jour$GRAVITE)
 s.dim.jour <-summary(dim.jour$GRAVITE)
 p.dim.jour <- round(s.dim.jour * 100 /nrow(dim.jour), 2)
 t.dim.jour <- rbind(s.dim.jour, p.dim.jour)
 rownames(t.dim.jour) <- c("Fréquence", "Pourcentage")
+```
+Répartitions des RPU en fonction de la CCMU les Samedis de 12h à 20 h en 2014:
+```{r, echo=FALSE, comment=""}
+t.sam.jour
+```
+Répartitions des RPU en fonction de la CCMU les Dimanches et jour fériés de 8h à 20 h en 2014:
+```{r, echo=FALSE, comment=""}
 t.dim.jour
 ```
-Ventilation par établissement
-```{r}
-# RPU totaux par établissement
-tapply(d2$ENTREE, factor(d2$FINESS), length)
-# RPU CCMU1 le samedi 8-20h
-tapply(sam.jour$ENTREE, factor(sam.jour$FINESS), length)
-# RPU CCMU1 le dimanche et férié
-tapply(dim.jour$ENTREE, factor(dim.jour$FINESS), length)
 
+
+Ventilation des CCMU par établissement
+```{r, echo=FALSE, comment=""}
+# RPU totaux par établissement
+etab.tot <- tapply(d2$ENTREE, factor(d2$FINESS), length)
+# RPU CCMU1 le samedi 8-20h
+etab.sam <- tapply(sam.jour$ENTREE, factor(sam.jour$FINESS), length)
+# RPU CCMU1 le dimanche et férié
+etab.dim <- tapply(dim.jour$ENTREE, factor(dim.jour$FINESS), length)
+# final
+act <- rbind(etab.tot, etab.sam, etab.dim)
+act
+
+```
+
+Groupe des CCMU 1
+-----------------
+```{r, echo=FALSE}
+# groupe des CCMU1
+
+p3 <- brewer.pal(n=3, name = "RdYlBu")
+ccmu1 <- d2[!is.na(d2$GRAVITE) & d2$GRAVITE == 1,]
+n.ccmu1 <- nrow(ccmu1) # nb de ccmu1
+boxplot(as.Date(ccmu1$ENTREE) ~ ccmu1$type, col=p3)
+
+#nombre total de RPU par établissement
+rpu.etab <- tapply(d2$ENTREE, factor(d2$FINESS), length)
+rpu.etab <- c(rpu.etab, sum(rpu.etab))
+
+# nombre total de CCMU1 par établissement
+ccmu1.etab <- tapply(ccmu1$ENTREE, factor(ccmu1$FINESS), length)
+ccmu1.etab <- c(ccmu1.etab, sum(ccmu1.etab))
+
+# % de ccmu1 par rapport aux RPU totaux
+p.ccmu1 <- round(ccmu1.etab * 100 / rpu.etab, 2)
+
+# les RPU en soirée
+ccmu1.soiree <- ccmu1[ccmu1$heure > "19:59:59" & ccmu1$heure < "23:59:59",] # total
+ccmu1.soiree.etab <- tapply(ccmu1.soiree$ENTREE, factor(ccmu1.soiree$FINESS), length)
+ccmu1.soiree.etab <- c(ccmu1.soiree.etab, sum(ccmu1.soiree.etab))
+
+# les RPU de nuit profonde
+ccmu1.nuit <- ccmu1[ccmu1$heure >= "00:00:00" & ccmu1$heure < "08:00:00",]
+ccmu1.nuit.etab <- tapply(ccmu1.nuit$ENTREE, factor(ccmu1.nuit$FINESS), length)
+ccmu1.nuit.etab <- c(ccmu1.nuit.etab, sum(ccmu1.nuit.etab))
+
+# CCMU1 aux heures de PSD le samedi
+ccmu1.sam.pds <- ccmu1[ccmu1$type == "Sam" & ccmu1$heure > "11:59:59" & ccmu1$heure < "20:00:00",]
+ccmu1.etab.sam <- tapply(ccmu1.sam.pds$ENTREE, factor(ccmu1.sam.pds$FINESS), length)
+ccmu1.etab.sam <- c(ccmu1.etab.sam, sum(ccmu1.etab.sam))
+
+rpu.sam <- tapply(as.Date(ccmu1.sam.pds$ENTREE), as.Date(ccmu1.sam.pds$ENTREE), length) # nombre par samedi
+barplot(rpu.sam, las=2)
+
+# CCMU1 aux heures de PSD le dimanche
+ccmu1.dim.pds <-  ccmu1[ccmu1$type == "DimFerie" & ccmu1$heure > "07:59:59" & ccmu1$heure < "20:00:00",]
+ccmu1.etab.dim <- tapply(ccmu1.dim.pds$ENTREE, factor(ccmu1.dim.pds$FINESS), length)
+ccmu1.etab.dim <- c(ccmu1.etab.dim, sum(ccmu1.etab.dim))
+
+# les jours ouvrables (pas demandé)
+ccmu1.ouv.pds <-  ccmu1[ccmu1$type == "Ouv" & ccmu1$heure > "07:59:59" & ccmu1$heure < "20:00:00",]
+
+a <- rbind(nrow(ccmu1.sam.pds), nrow(ccmu1.dim.pds))
+b <- rbind(round(nrow(ccmu1.sam.pds)*100/n.ccmu1, 2), round(nrow(ccmu1.dim.pds)*100/n.ccmu1, 2))
+c <- rbind(round(nrow(ccmu1.sam.pds)/nrow(sam), 2), round(nrow(ccmu1.dim.pds)/nrow(dim.and.ferie), 2))
+t.ccmu1 <- cbind(a ,b, c)
+t.ccmu1
+
+# synthèse
+
+synthese <- as.data.frame.matrix(rbind(rpu.etab, ccmu1.etab, p.ccmu1, ccmu1.soiree.etab, ccmu1.nuit.etab, ccmu1.etab.sam, ccmu1.etab.dim))
+names(synthese)[16] <- "Total"
+names(synthese) <- c("Cl. 3 Frontières","CH Alkirch","CH Colmar","Diaconat-Fonderie","CH Guebwiller","CH Haguenau","HUS","CH Mulhouse","Cl.Ste Odile","CH Sélestat","CH Wissembourg","CH Saverne","Diaconat-Strasbourg","Diaconat-Roosvelt","Cl.Ste Anne","Total")
+row.names(synthese) <- c("Total RPU", "Total CCMU 1", "% CCMU 1","Total CCMU1 soirée (20h-24h)", "Total CCMU1 nuit profonde (0h-8h)", "CCMU 1 Samedi (12h-20h)", "CCMU1 Dimanche et jours fériés (8h-20h)")
+write.csv2(synthese, file="CCMU1_2013-2014.csv", sep=";", dec=",")
+
+synthese
+```
+- nombre de CCMU1 en soirée (20h-24h): `r nrow(ccmu1.soiree)`   
+- nombre de CCMU1 en nuit profonde (0h-8h): `r nrow(ccmu1.nuit)`
+
+Ventilation des CCMU1 par établissement:
+
+```{r, echo=FALSE, comment=""}
+ccmu1.etab.tot <- tapply(ccmu1$ENTREE, factor(ccmu1$FINESS), length)
+ccmu1.etab.sam <- tapply(ccmu1.sam.pds$ENTREE, factor(ccmu1.sam.pds$FINESS), length)
+ccmu1.etab.dim <- tapply(ccmu1.dim.pds$ENTREE, factor(ccmu1.dim.pds$FINESS), length)
+ccmu1.act <- rbind(ccmu1.etab.tot, ccmu1.etab.sam, ccmu1.etab.dim)
+ccmu1.act
 
 ```
 
