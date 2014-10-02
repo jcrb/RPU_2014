@@ -5,7 +5,7 @@ On crée le fichier __d2__ concaténation de 2013 (d1) et 2014 (dx):
 
 ```{}
 load("../RPU_2013/rpu2013d0112.Rda")
-load("rpu2014d0107_provisoire.Rda")
+load("rpu2014d0109_provisoire.Rda")
 d2 <- rbind(d1,dx)
 save(d2, file="rpu2013-2014.Rda")
 ```
@@ -20,9 +20,9 @@ La librairie __xtsExtra__ be fait pas partie des librairiees standards, il faut 
 install.packages("xtsExtra", repos="http://R-Forge.R-project.org")
 
 ```{r lib}
-library("xtsExtra", lib.loc="/home/jcb/R/x86_64-pc-linux-gnu-library/3.1")
-library("xts", lib.loc="/home/jcb/R/x86_64-pc-linux-gnu-library/3.1")
-library("lubridate", lib.loc="~/R/x86_64-pc-linux-gnu-library/3.1")
+library("xtsExtra")
+library("xts")
+library("lubridate")
 
 ```
 
@@ -59,5 +59,73 @@ plot(z, col="blue")
 lines(rollmean(z, 7), col="red")
 plot.xts(x, ylab="nombre de RPU", xlab="Année 2014", main="Activité des SU d'Alsace en nombre de RPU", col="blue", las=2, minor.ticks=FALSE, cex.axis=c(0.8))
 lines(rollmean(z, 7), col="red")
+```
+
+Comparaison de l'activité globale 2013-2014
+============================================
+
+On veut comparer le nombre  de RPU quotidiens créés en 2013 et 2014. Pour cela on veut tracer deux courbes sur le même graphique avec:
+- en abcisse les mois de l'année de janvier à janvier
+- en ordonnée le nombre de RPU
+Je n'ai pas trouvé dans R en général et dans les séries temporelles de fonction pour tracer ce genre de graphe. J'y sui arrivé en appliquant la méthodologie suivante:
+
+1. récupérer les données. La colonne ENTREE contient une ligne par RPU avec la date et l'heure de création de l'enregistrement. Avec tapply on répère le nombre de RPU créés par jour (t).
+2. on crée un dataframe à partir de t où:
+  - la colonne 1 = nom des lignes = date du jour (V1)
+  - la colonne 2 = nb de RPU du jour (V2)
+  - la colonne 3 = n° du jour de l'année (1er janvier = 1)
+  - la colonne 4 = moyenne lissée sur 7 jours
+3. On obtient les 2 dataframes __t2013__ et __t2014__ que l'on peut plotter sur le même graphe.
+4. Il faut redessiner complètement le graphe
+
+```{r}
+
+# comparaison RPU 2013-2014
+
+#nb de rpu/jour 2014
+t <- tapply(as.Date(dx$ENTREE), as.Date(dx$ENTREE), length)
+t2014 <- as.data.frame(cbind(names(t), as.numeric(t)), stringsAsFactors = FALSE)
+t2014$V1 <- as.Date(t2014$V1) # col. date
+t2014$V2 <- as.numeric(t2014$V2) # nb de RPU
+t2014$V3 <- yday(t2014$V1) # date du jour en n° du jour dans l'année
+t2014$V4 <- rollmean(t2014$V2, 7, fill = NA) # moyenne mobile sur 7 jours. rollmean crée un vecteur plus petit. Pour obtenir un vecteur de la même longueur, on remplace les valeurs manquantes par NA
+plot(t2014$V2, type="l")
+lines(t2014$V3, t2014$V4) # moyenne mobile
+
+
+# nb rpu/jpour en 2013
+t <- tapply(as.Date(d1$ENTREE), as.Date(d1$ENTREE), length)
+t2013 <- as.data.frame(cbind(names(t2013), as.numeric(t2013)), stringsAsFactors = FALSE)
+t2013$V1 <- as.Date(t2013$V1)
+t2013$V2 <- as.numeric(t2013$V2)
+t2013$V3 <- yday(t2013$V1)
+t2013$V4 <- rollmean(t2013$V2, 7)
+plot(t2013$V2, type="l")
+lines(t2013$V3, t2013$V4)
+
+# synthèse
+# png("fig1.png", width = 400, height = 300)
+source("constantes.R") # récupère le nom des mois
+plot(t2014$V4, type="l", xlim = c(0,365), ylim = c(650, 1400), axes = FALSE, xlab="", ylab="")
+axis(side = 1, at= seq(1,365,30), labels=NA)
+axis(side = 1, at= seq(1,365,30), labels= c(mois_c, "Jan"))
+axis(side=2, las = 1)
+lines(t2013$V3, t2013$V4, col="blue")
+legend("topleft", legend=c("2013","2014"), col=c("blue","black"), lty=1, bty="n")
+title(main="Comparaison 2013-2014", ylab="nombre de RPU", xlab="mois")
+# abline(lm(t2014$V2 ~ t2014$V3), col = "red", lwd = 2)
+# abline(lm(t2013$V2 ~ t2013$V3), col = "blue", lwd = 2)
+
+#dev.off()
+
+
+# bonne syntaxe pour créer des xts à partir d'un dataframe
+t1 <- xts(t2013[,-1], order.by=t2013[,1])
+t2 <- xts(t2014[,-1], order.by=t2014[,1])
+
+plot(yday(t2013$V1), t2013$V2, type="l", col="red", axes=FALSE)
+lines(yday(t2014$V1), t2014$V2, col="blue")
+axis(side=1, at=axTicksByTime(t1, "months"), labels=1:13)
 
 ```
+
