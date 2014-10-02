@@ -1,0 +1,29 @@
+---
+title: "DP"
+author: "JcB"
+date: "01/10/2014"
+output: html_document
+---
+
+Analyse des diagnostics principaux
+=================================
+
+Combien de sorte de DP sont crées par jour ?
+--------------------------------------------
+
+ex. avec Sélestat: on crée un objet de type liste formé d'autant de lise qu'il y a de jours (1 liste par jour). Chaque liste est formée par les codes CIM10 du jour, lesquels ont regroupés par type grace à la méthode table. Au final on obtient pour chaque jour la liste des codes CIM et pour chaque code, le nombre de dossiiers correspondants. Par la fonction _length_ on compte le nombre de diagnostics uniques. L'ensemble est résumé par la fonction _summary_.
+
+```{r}
+sel <- d09[d09$FINESS == "Sel",]
+x <- tapply(sel$DP, as.Date(sel$ENTREE), table)
+# exemple:
+length(x[[2]])
+x[[2]]
+# la fonction sapply permet de récupérer un vecteur plutôt qu'une liste.
+m <- sapply(x, length)
+summary(m)
+hist(m)
+
+```
+
+
