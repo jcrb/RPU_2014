@@ -164,8 +164,8 @@ Si on a une collection de fichiers:
 #### NB: SUPPRIMER LE FICHIER /home/jcb/Documents/Resural/Stat Resural/Archives_Sagec/dataQ/archivesCsv/rpu2014.data
 
 ```{}
-date1 <- "2014-09-08"
-date2 <- "2014-09-29"
+date1 <- "2014-10-08"
+date2 <- "2014-10-12"
 p <- seq(as.Date(date1), as.Date(date2), 1)
 for(i in 1:length(p)){
   dx <- rpu_jour(p[i])
@@ -178,20 +178,20 @@ max(as.Date(dx$ENTREE))
 
 #### Sélectionner une période particulière (ie. mai 2014)
 ```{}
-d09 <- dx[as.Date(dx$ENTREE) >= "2014-09-01" & as.Date(dx$ENTREE) < "2014-10-01",]
-max(as.Date(d09$ENTREE))
-min(as.Date(d09$ENTREE))
-d09 <- normalise(d09)
-save(d09, file="rpu2014d09_provisoire.Rda")
+d09 <- dx[as.Date(dx$ENTREE) >= "2014-10-01" & as.Date(dx$ENTREE) < "2014-11-01",]
+max(as.Date(d10$ENTREE))
+min(as.Date(d10$ENTREE))
+d10 <- normalise(d10)
+save(d10, file="rpu2014d10_provisoire.Rda")
 rm(dx)
 
-load("rpu2014d0108.Rda")
+load("rpu2014d0109.Rda")
 
-dx <- rbind(dx, d09)
+dx <- rbind(dx, d10)
 min(as.Date(dx$ENTREE))
 max(as.Date(dx$ENTREE))
 
-save(dx, file="rpu2014d0109_provisoire.Rda")
+save(dx, file="rpu2014d0110_provisoire.Rda")
 
 table(as.Date(d09$ENTREE), d09$FINESS)
 ```
