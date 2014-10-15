@@ -87,6 +87,52 @@ q <- complet(a,data)
 
 ```
 
+Remarque pour 2013: on réduit de façon importante les NA sur ces 2 rubriques.
+
+```{}
+load("../RPU_2013/rpu2013d0112.Rda")
+d1$DESTINATION <- as.character(d1$DESTINATION)
+d1$DESTINATION[d1$MODE_SORTIE == "Domicile"] <- "Domicile"
+d1$DESTINATION <- as.factor(d1$DESTINATION)
+summary(d1$DESTINATION)
+mean(is.na(d1$DESTINATION))
+
+d1$ORIENTATION <- as.character(d1$ORIENTATION)
+d1$ORIENTATION[d1$MODE_SORTIE == "Domicile"] <- "Domicile"
+d1$ORIENTATION <- as.factor(d1$ORIENTATION)
+summary(d1$ORIENTATION)
+mean(is.na(d1$ORIENTATION))
+
+Domicile      HAD      MCO      PSY      SLD      SSR     NA's 
+  223155        5    71522     1173       27      102    48089 
+[1] 0.1397639
+
+CHIR Domicile    FUGUE      HDT       HO      MED     OBST      PSA      REA      REO       SC       SI     UHCD     NA's 
+7738   223155        1      110       29    18449       96       52     1025       44     1420     1366    32169    58419 
+[1] 0.1697866
+
+```
+
+
+Incohérence destination et mode de sortie
+-----------------------------------------
+
+On ne peut pas avoir simultanément MODE_SORTIE = Domicile et DESTINATION = MCO. Par exemple pour sptembre 2014:
+```{}
+table(d09$DESTINATION, d09$MODE_SORTIE)
+     
+      Domicile Mutation Transfert
+  MCO       45     6446       360
+  PSY        0       35        50
+  SSR        0        6         8
+```
+Il y a 45 destinations incohérentes. Elle correspondent toutes à Ste Anne:
+```{}
+a <- d09[d09$MODE_SORTIE=="Domicile" & d09$DESTINATION=="MCO" & !is.na(d09$DESTINATION) & !is.na(d09$MODE_SORTIE),]
+
+```
+
+
 
 Juillet 2014
 ============
