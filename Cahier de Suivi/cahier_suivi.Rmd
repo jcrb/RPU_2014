@@ -7,6 +7,22 @@ output: html_document
 
 Ce document recense le suivi des RPU.
 
+Octobre 2014
+============
+
+L'évènement du mois est le passage en production du nouvelle méthodologie des HUS (développée par mr Lorenz) permettant une transmission exhaustive des RPU. La bascule se fait pour les données du 13 octobre:
+```{}
+ rj <- rpu_jour("2014-10-13")
+ d <- rj[rj$FINESS=="Hus",]
+tapply(as.Date(d$ENTREE), as.Date(d$ENTREE), length)
+
+2014-10-06 2014-10-07 2014-10-08 2014-10-09 2014-10-10 2014-10-11 2014-10-12 
+       139        415        422        425        465        436        462
+```
+On passe de 130 à 462 RPU/jour.
+
+Deux FINESS nouveaux sont introduits: NHC et HTP. Pour l'instant les deux FINESS sont fusionnés en un seul. 
+
 Août 2014
 =========
 
