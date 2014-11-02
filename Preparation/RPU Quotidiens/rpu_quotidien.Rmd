@@ -167,7 +167,7 @@ Si on a une collection de fichiers:
 
 ```{}
 date1 <- "2014-10-08"
-date2 <- "2014-10-16"
+date2 <- "2014-10-29"
 
 mc <- substr(date1, 6, 7)
 ac <- substr(date1, 1,4)

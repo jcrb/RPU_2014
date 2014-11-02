@@ -3,11 +3,12 @@ Pédiatrie
 
 La pédiatrie des HUS commence à produire des RPU depuis le 1/04/2014. Un point point pour voir. Analyse des données du 1 au 14 avril 2014, comparaison de 3 accueils pédiatriques: CHU de Strasbourg (HUS), CH de Mulhouse (MUL) et CH de Colmar (COL).
 
-```{r ped, comment="", echo=FALSE}
-load("~/Documents/Resural/Stat Resural/RPU_2014/rpu2014d0108.Rda")
+```{r ped, comment="", echo=FALSE, message=FALSE}
+load("~/Documents/Resural/Stat Resural/RPU_2014/rpu2014d0110_provisoire.Rda")
 #dx <- a
 library(knitr)
-
+library("dplyr")
+        
 print(min(as.Date(dx$ENTREE)))
 print(max(as.Date(dx$ENTREE)))
 
