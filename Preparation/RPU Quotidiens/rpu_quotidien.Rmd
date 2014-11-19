@@ -151,23 +151,29 @@ En pratique
 source("Preparation/RPU Quotidiens/quot_utils.R")
 ```
 
-# si un seul fichier
+si un seul fichier
+------------------
 ```{}
-rj <- rpu_jour("2014-03-20")
-dx <- assemble(comment = TRUE)
-```
-Exhaustivité des RPU du jour:
+rj <- rpu_jour("2014-11-18")
+dj <- assemble(comment = TRUE)
 
+# Exhaustivité des RPU du jour:
 table(as.Date(rj$ENTREE), rj$FINESS)
+```
+
 
 Si on a une collection de fichiers:
 -----------------------------------
 
 #### NB: SUPPRIMER LE FICHIER /home/jcb/Documents/Resural/Stat Resural/Archives_Sagec/dataQ/archivesCsv/rpu2014.data
+```{}
+file.to.delete <- "/home/jcb/Documents/Resural/Stat Resural/Archives_Sagec/dataQ/archivesCsv/rpu2014.data"
+file.remove(file.to.delete)
+```
 
 ```{}
-date1 <- "2014-10-08"
-date2 <- "2014-10-29"
+date1 <- "2014-11-08"
+date2 <- "2014-11-18"
 
 mc <- substr(date1, 6, 7)
 ac <- substr(date1, 1,4)
@@ -184,22 +190,22 @@ max(as.Date(dx$ENTREE))
 
 #### Sélectionner une période particulière (ie. mai 2014)
 ```{}
-d10 <- dx[as.Date(dx$ENTREE) >= "2014-10-01" & as.Date(dx$ENTREE) < "2014-11-01",]
-max(as.Date(d10$ENTREE))
-min(as.Date(d10$ENTREE))
-d10 <- normalise(d10)
-save(d10, file="rpu2014d10_provisoire.Rda")
+d11 <- dx[as.Date(dx$ENTREE) >= "2014-11-01" & as.Date(dx$ENTREE) < "2014-12-01",]
+max(as.Date(d11$ENTREE))
+min(as.Date(d11$ENTREE))
+d11 <- normalise(d11)
+save(d11, file="rpu2014d11_provisoire.Rda")
 rm(dx)
 
-load("rpu2014d0109.Rda")
+load("rpu2014d0110.Rda")
 
-dx <- rbind(dx, d10)
+dx <- rbind(dx, d11)
 min(as.Date(dx$ENTREE))
 max(as.Date(dx$ENTREE))
 
-save(dx, file="rpu2014d0110_provisoire.Rda")
+save(dx, file="rpu2014d0111_provisoire.Rda")
 
-table(as.Date(d10$ENTREE), d10$FINESS)
+table(as.Date(d11$ENTREE), d11$FINESS)
 ```
 
 
@@ -250,7 +256,7 @@ a$RPU <- as.numeric(as.character(a$RPU)) # transforme les facteurs en nombre
 
 plot(a$Date, a$RPU, type="l", ylab="nombre de RPU", xlab=paste0("Année ", year(Sys.Date())), main="Activité des SU d'Alsace en nombre de RPU")
 
-library("xts", lib.loc="/home/jcb/R/x86_64-pc-linux-gnu-library/3.1")
+library("xts")
 library("lubridate")
 
 x <- as.xts(a$RPU, a$Date)

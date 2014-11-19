@@ -7,6 +7,26 @@ output: html_document
 
 Ce document recense le suivi des RPU.
 
+Novembre 2014
+=============
+
+Infos du mois: la pédiatrie médicale de Haguenau n'est informatisée via dxcare que depuis le moiis de juillet 2014. Ceci explique les chiffres anormalement bas de 2013 (environ 15% des RPU contre 30% en oyenne départementale). Vérification:
+
+```{r}
+# tois les rpu de haguenau
+hag <- dx[dx$FINESS == "Hag",] # dx = rpu2014d0111_provisoire
+# rpu peédiatriques
+ped.hag <- hag[hag$AGE < 18,]
+rpu.hag <- tapply(as.Date(hag$ENTREE), month(as.Date(hag$ENTREE)), length)
+rpu.ped.hag <- tapply(as.Date(ped.hag$ENTREE), month(as.Date(ped.hag$ENTREE)), length)
+rpu.ped.hag * 100 / rpu.hag
+
+```
+       1        2        3        4        5        6        7        8        9       10       11 
+10.97520 12.19512 14.42720 15.27963 14.73142 15.50095 28.38861 27.98032 34.23631 32.91071 34.58647
+
+A partir du mois de juillet le % de rpu pediatriques atteint les 30%.
+
 Octobre 2014
 ============
 
