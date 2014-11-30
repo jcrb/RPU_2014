@@ -8,12 +8,21 @@ output: html_document
 Analyse des diagnostics principaux
 =================================
 
+```{r init, echo=FALSE}
+library("lubridate")
+library("epicalc")
+library("epitools")
+library("RColorBrewer")
+
+```
+
+
 Combien de sorte de DP sont crées par jour ?
 --------------------------------------------
 
-ex. avec Sélestat: on crée un objet de type liste formé d'autant de lise qu'il y a de jours (1 liste par jour). Chaque liste est formée par les codes CIM10 du jour, lesquels ont regroupés par type grace à la méthode table. Au final on obtient pour chaque jour la liste des codes CIM et pour chaque code, le nombre de dossiiers correspondants. Par la fonction _length_ on compte le nombre de diagnostics uniques. L'ensemble est résumé par la fonction _summary_.
+ex. avec Sélestat: on crée un objet de type liste formé d'autant de listes qu'il y a de jours (1 liste par jour). Chaque liste est formée par les codes CIM10 du jour, lesquels ont regroupés par type grace à la méthode table. Au final on obtient pour chaque jour la liste des codes CIM et pour chaque code, le nombre de dossiiers correspondants. Par la fonction _length_ on compte le nombre de diagnostics uniques. L'ensemble est résumé par la fonction _summary_.
 
-```{r}
+```{}
 sel <- d09[d09$FINESS == "Sel",]
 x <- tapply(sel$DP, as.Date(sel$ENTREE), table)
 # exemple:
@@ -23,6 +32,84 @@ x[[2]]
 m <- sapply(x, length)
 summary(m)
 hist(m)
+
+```
+
+
+```{r init2, echo=FALSE}
+load("~/Documents/Resural/Stat Resural/RPU_2014/rpu2014d0111_provisoire.Rda")
+
+dpr<-dx[!is.na(dx$DP),c("DP","CODE_POSTAL","ENTREE","FINESS","GRAVITE","ORIENTATION","MODE_SORTIE","AGE","SEXE","TRANSPORT","DESTINATION", "NAISSANCE")]
+anc <- year(dpr$ENTREE[1]) # année courante
+
+# correction des caractères bloquants
+dpr$DP<-gsub("\xe8","è",as.character(dpr$DP),fixed=FALSE)
+
+# autres symboles
+dpr$DP<-gsub(".","",as.character(dpr$DP),fixed=TRUE)
+dpr$DP<-gsub("+","",as.character(dpr$DP),fixed=TRUE)
+
+```
+
+Bronchiolites
+=============
+
+```{r bronchiolites}
+
+bron<-dpr[substr(dpr$DP,1,3)=="J21" & dpr$AGE < 10 ,] # on limite aux moins de 10 ans
+n.bron <- nrow(bron) # nombre de bronchiolites
+# age des bronchioloites en mois
+age.bron <- (as.Date(bron$ENTREE) - as.Date(bron$NAISSANCE))/30
+
+n2 <- length(age.bron[age.bron < 25]) # nb de 24 mois (2 ans)
+round(n2 * 100 / n.bron, 2) # % de 2 ans et moins
+
+
+
+titre <- paste0("Bronchiolites", " - ", anc)
+
+m<-month(bron$ENTREE,label=T)
+barplot(table(m),main = titre, xlab="Mois", ylab = "nombre de RPU")
+
+# nombre de bronchiolites par semaine
+s<-week(bron$ENTREE)
+n.bronchio.par.semaine <- table(s)
+barplot(table(s),main = titre, xlab = "Semaines", ylab = "nombre de RPU", las = 2, cex.names = 0.8)
+
+# ages des enfants en mois
+age.bron <- (as.Date(bron$ENTREE) - as.Date(bron$NAISSANCE))/30
+s.age.bron <- summary(as.numeric(age.bron)) # résumé
+ceiling(as.numeric(s.age.bron["Min."] * 30)) # age min en jours
+
+# sexe
+summary(bron$SEXE)
+
+# age de tous les RPU en jours
+age.jours <- as.numeric(as.Date(dx$ENTREE) - as.Date(dx$NAISSANCE))
+
+# age de tous les rpu en mois
+age.en.mois <- as.numeric(as.Date(dx$ENTREE) - as.Date(dx$NAISSANCE))/30
+
+# nb de rpu de moins de 24 mois
+ped2.age <- age.en.mois[age.en.mois > 0 & age.en.mois < 24.1]
+summary(ped2.age)
+# il faut calculer le nombre de rpu de moins de 2 ans par semaine, puis voir ce que les bronchiolites représentent en %
+
+a <- data.frame(dx$ENTREE, age.en.mois)
+a <- a[a$age.en.mois > 0 & a$age.en.mois < 24.1,]
+colnames(a) <- c("ENTREE", "AGE.MOIS")
+
+
+# nombre de passages des moins de 2 ans par semaine
+# NB: semaine 41 = nouveau flux des HUS
+n.rpu.inf2ans.par.semaine <- tapply(as.Date(a$ENTREE), week(as.Date(a$ENTREE)), length)
+barplot(n.rpu.inf2ans.par.semaine, main = "Passages des moins de 2 ans", ylab = "nombre de RPU", xlab = "semaines")
+
+# Pourcentage de bronchiolites par rapport au nombre total de passages d'enfants de moins de 24 mois
+a <- round(n.bronchio.par.semaine * 100 / n.rpu.inf2ans.par.semaine, 2)
+barplot(a, xlab = "semaines", ylab = "% de bronchiolites", main = "Pourcentage de bronchiolites par rapport au nombre total de passages\n d'enfants de moins de 24 mois")
+# sous forme de courbe type InVS
+plot(a, type="l", xlab = "semaines", ylab = "% de bronchiolites", main = "Proportion de bronchiolites parmi le total de passages\n chez les enfants de moins de 24 mois")
 
 ```
 
