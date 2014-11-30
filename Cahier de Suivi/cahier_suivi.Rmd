@@ -7,8 +7,24 @@ output: html_document
 
 Ce document recense le suivi des RPU.
 
+Remplacer __dx__ par le noms des données à analyser. Par défaut _dx_ fait référence aux données de l'année. __data__ est un nom générique pour l'ensemble des calculs.
+
+```{r init}
+load("~/Documents/Resural/Stat Resural/RPU_2014/rpu2014d0111_provisoire.Rda")
+data <- dx
+
+library("lubridate")
+anc <- year(data$ENTREE[1])
+
+```
+
+
+
 Novembre 2014
 =============
+
+Haguenau
+--------
 
 Infos du mois: la pédiatrie médicale de Haguenau n'est informatisée via dxcare que depuis le moiis de juillet 2014. Ceci explique les chiffres anormalement bas de 2013 (environ 15% des RPU contre 30% en oyenne départementale). Vérification:
 
@@ -26,6 +42,11 @@ rpu.ped.hag * 100 / rpu.hag
 10.97520 12.19512 14.42720 15.27963 14.73142 15.50095 28.38861 27.98032 34.23631 32.91071 34.58647
 
 A partir du mois de juillet le % de rpu pediatriques atteint les 30%.
+
+Wissembourg
+-----------
+
+Envoi d'un fichier XML avec les données du 1er janvier au 19 novembre 2014. Fichier transformé en csv et archivé dans /home/jcb/Documents/Resural/Stat Resural/Archives_Sagec/RPU2014_Wissembourg. Reste la maj dans le fichier maître à faire: supprimer les enregistrements de wissembourg entre le 1er javier et le 19 novembre et les remplacer par des derniers.
 
 Octobre 2014
 ============
@@ -59,20 +80,19 @@ suivi des RPU: comment est saisi l'item motif, bilan du mois d'aout 2014. En pro
 
 ```{r}
 h <- function(x){head(x,20)}
-tapply(d07$MOTIF, d07$FINESS, h)
+tapply(data$MOTIF, data$FINESS, h)
 
 ```
 pas de saisie
 ------------
 
-HUS
+Ste Anne ? 1 seule réponse en novembre: "U359**"
 
 pas conforme
 ------------
  
 Sélestat
 Colmar
-Ste Anne
 
 Conforme:
 ---------
@@ -81,20 +101,35 @@ Se Odile
 Roosvelt
 Saverne: ok mais bcp de non réponses
 Wissembourg
-Altkirch
 Diaconat Mulhouse: sp
-3Fr
 Diaconat Strasbourg
 Guebwiller
 Haguenau
+HUS
+3Fr (complétude = 2 %...)
+Altkirch  (complétude = 17 %...)
+
+suivi de la conformité
+----------------------
+c3f <- d11[d11$FINESS == "3Fr", "MOTIF"]
+mean(is.na(c3f))
+c3f[!is.na(c3f)]
+
+alk <- d11[d11$FINESS == "Alk", "MOTIF"]
+mean(is.na(alk))
+alk[!is.na(alk)]
+
+ane <- d11[d11$FINESS == "Ane", "MOTIF"]
+mean(is.na(ane))
+ane[!is.na(ane)]
+
+
 
 suivi de la complétude
 ----------------------
 Il faut corriger DESTINATION et ORIENTATION: si MODE_SORTIE = Domicile, alors les 2 items ne peuvent être remplis et se voient attribuer la valeur NA, ce qui provoque une erreur dans le décompte de ces 2 items. Pour éviter cela, on leur attribue la valeur "domicile" si MODE_SORTIE = Domicile.
 
 ```{r}
-
-data <- d08
 
 data$DESTINATION[data$MODE_SORTIE == "Domicile"] <- "Domicile"
 data$ORIENTATION[data$MODE_SORTIE == "Domicile"] <- "Domicile"
@@ -119,9 +154,19 @@ complet <- function(hop, data){
   return(t)
 }
 
+# dataframe des complétudes par rubrique et par finess
 q <- complet(a,data)
 
+
+# fonction auxiliaire qui retourne la moyenne d'un vecteur x, arrondi à 2 décimales
+arrondi <- function(x){round(mean(x, na.rm = TRUE), 2)}
+# application: pour chaque rubrique calcule la moyenne de l'ensemble des Finess (les rubriques sont en colonnes)
+apply(q[-1], 2, arrondi)
+
 ```
+__q__ est un dataframe de 15 lignes et 21 colonnes
+
+TODO: faire des radars: les établissements comme rayons et les rubriques comme intitulé du graphe.
 
 Remarque pour 2013: on réduit de façon importante les NA sur ces 2 rubriques.
 
@@ -155,16 +200,18 @@ Incohérence destination et mode de sortie
 
 On ne peut pas avoir simultanément MODE_SORTIE = Domicile et DESTINATION = MCO. Par exemple pour sptembre 2014:
 ```{}
-table(d09$DESTINATION, d09$MODE_SORTIE)
+data <- dx
+table(data$DESTINATION, data$MODE_SORTIE)
      
       Domicile Mutation Transfert
   MCO       45     6446       360
   PSY        0       35        50
   SSR        0        6         8
 ```
-Il y a 45 destinations incohérentes. Elle correspondent toutes à Ste Anne:
+Il y a 45 destinations incohérentes. Elle correspondent à Ste Anne et aux HUS:
 ```{}
-a <- d09[d09$MODE_SORTIE=="Domicile" & d09$DESTINATION=="MCO" & !is.na(d09$DESTINATION) & !is.na(d09$MODE_SORTIE),]
+a <- data[data$MODE_SORTIE=="Domicile" & data$DESTINATION=="MCO" & !is.na(data$DESTINATION) & !is.na(data$MODE_SORTIE),]
+table(a$FINESS)
 
 ```
 
@@ -218,26 +265,32 @@ Essai d'utilisation de Xts
 --------------------------
  On forme une table de contingence en croisant la date d'entrée et le Finess. Le croisement donne le total des RPU par jour pour un SU. Le tableau est transformé en dataframe par __as.data.frame.matrix__. La transformation en dataframe permet de préserver la nature des colonnes. On crée une colonne __date__ correspondant à chaque jour du mois que l'on ajoute au dataframe et cette nouvelle colonne est mise au format 'Date'. C'est elle qui servira d'index à l'objet xts. On crée également une colonne total qui est ajoutée au dataframe.
  
- Le rataframe est transformé en objet __xts__ qui peut être plotté. On ajoute la moyenne mobile avec __rollappy__ (j'ai essayé avec rollmean mais j'ai une erreur ?)
+ Le dataframe est transformé en objet __xts__ qui peut être plotté. On ajoute la moyenne mobile avec __rollappy__ (j'ai essayé avec rollmean mais j'ai une erreur ?)
  
 ```{r xts_test}
 library(xts)
-t <- table(as.Date(d05$ENTREE), d05$FINESS) 
+data <- dx
+
+t <- table(as.Date(data$ENTREE), data$FINESS) 
 date <- rownames(t)
 a <- as.data.frame.matrix(t)
 a <- cbind(a, date)
 a$date <- as.Date(a$date)
 a$total <- rowSums(a[,1:14])
 ts <- xts(a, order.by = a$date)
-plot(ts$total, main="Activité du mois de Mai", ylab="nombre de RPU")
+
+anc <- year(data$ENTREE[1])
+plot(ts$total, main= paste0("Activité du mois de Mai ", anc), ylab="nombre de RPU", minor.ticks = FALSE)
+
 lines(rollapply(ts$total, 7, mean), col="red")
-legend("topleft", legend="Moyenne mobile", col="red", lty=1)
+legend("topleft", legend="Moyenne mobile", col="red", lty=1, bty="n")
 
 plot(ts$total,minor.ticks=FALSE, col = "gray")
 lines(rollapply(ts$total, 7, mean), col="red")
 
-plot(ts$total["2014-02/2014-03"],minor.ticks=FALSE, col = "gray")
-lines(rollapply(ts$total["2014-01-25/2014-03"], 7, mean), col="red")
+# essai d'agrandissement de la fenêtre:
+plot(ts$total["2014-10/2014-12"],minor.ticks=FALSE, col = "gray")
+lines(rollapply(ts$total["2014-09/2014-12"], 7, mean), col="red")
 
 ```
 fonction dérivée
@@ -288,29 +341,29 @@ Algorithme de correction(12/06/2014):
 - on isole les 6 jours concernés dans le datafame __c3f__
 - on trie les lignes par ordre de date/heure d'entrée de sorte que tous les doublons se trouvent sur deux lignes consécutives
 - on crée le dataframe __c3__ en ne retenant que les lignes impaires de c3f. En pratique on ne garde qu'une ligne sur 2 ce qui permet d'éliminer les doublons
-- on forme un dataframe avec tous les enregistrements du mois de mai, sauf ceux correspondants à la C3F: __d05_saufc3f__
-- de la même façon on forme le dataframe complémentaire qui ne contient que les enregistrement de la C3F: __d05_3fr__
-- de d05_3fr on retire tous les enregistrements correspondants aux jours litigieux, ce qui donne __d05_3fr_sauf_doublons__
-- on reforme un dataframe __d05_corrige__ qui est la concaténation des lignes correspondant à la C3F moins les doublons
+- on forme un dataframe avec tous les enregistrements du mois de mai, sauf ceux correspondants à la C3F: __data_saufc3f__
+- de la même façon on forme le dataframe complémentaire qui ne contient que les enregistrement de la C3F: __data_3fr__
+- de data_3fr on retire tous les enregistrements correspondants aux jours litigieux, ce qui donne __data_3fr_sauf_doublons__
+- on reforme un dataframe __data_corrige__ qui est la concaténation des lignes correspondant à la C3F moins les doublons
 - on vérifie que tout est bon en faisant un table()
-- on rebaptise le dataframe corrigé en __d05__ et on le sauvegarde
+- on rebaptise le dataframe corrigé en __data__ et on le sauvegarde
 - on recrée le dataframe __dx__ concaténation du mois de mai avec les autres mois de l'année et on sauvegarde le tout dans __rpu2014d0105.Rda__.
 
 ```{}
-c3f <- d05[as.Date(d05$ENTREE) >= "2014-05-16" & as.Date(d05$ENTREE) <= "2014-05-23" & d05$FINESS == "3Fr",]
+c3f <- data[as.Date(data$ENTREE) >= "2014-05-16" & as.Date(data$ENTREE) <= "2014-05-23" & data$FINESS == "3Fr",]
 c3fo <- c3f[order(c3f$ENTREE),]
 c3 <- c3fo[1,]
 seq <- seq(3, nrow(c3fo), by=2)
 for(i in seq){c3 <- rbind(c3, c3fo[i,])}
-d05_saufc3f <- d05[d05$FINESS != "3Fr",]
-d05_3fr <- d05[d05$FINESS == "3Fr",]
-d05_3fr_sauf_doublons <- d05_3fr[as.Date(d05_3fr$ENTREE) < "2014-05-16" | as.Date(d05_3fr$ENTREE) > "2014-05-23",]
-d05_corrige <- rbind(d05_saufc3f, d05_3fr_corrige)
-table(as.Date(d05_corrige$ENTREE), d05_corrige$FINESS)
-d05 <- d05_corrige
-save(d05, file="rpu2014d05.Rda")
+data_saufc3f <- data[data$FINESS != "3Fr",]
+data_3fr <- data[data$FINESS == "3Fr",]
+data_3fr_sauf_doublons <- data_3fr[as.Date(data_3fr$ENTREE) < "2014-05-16" | as.Date(data_3fr$ENTREE) > "2014-05-23",]
+data_corrige <- rbind(data_saufc3f, data_3fr_corrige)
+table(as.Date(data_corrige$ENTREE), data_corrige$FINESS)
+data <- data_corrige
+save(data, file="rpu2014data.Rda")
 load("rpu2014d0104.Rda")
-dx <- rbind(a, d05)
+dx <- rbind(a, data)
 save(dx, file="rpu2014d0105.Rda")
 
 ```
@@ -325,13 +378,28 @@ Anomalies du mois de mai:
 - CH Selestat: 13, 15, 16,17 moins de 5 RPU
 
 - 158 346 RPU au 31 mai 2014. Comparaison avec 2013:
-```{load("../RPU_2013/rpu2013d0112.Rda")
+
+```{}
+load("../RPU_2013/rpu2013d0112.Rda")
 d_2013_au31mai <- d1[as.Date(d1$ENTREE) < "2013-06-01",]
 nrow(d_2013au31mai)
-}
+
 # 137 612
 ```
 soit __20734__ RPU de plus soit environ 400.000 RPU en 2014.
+
+Les chiffres de référence de passages figurent dans le fichier [SAE 2013](home/jcb/Documents/Resural/Stat Resural/RPU_2013/Data/SAE2013). La somme des passages est égale à __493321__, non comptés les SOS mains.
+
+Au 11/11/2014, les sos mains représentent 8762 passages:
+```{r}
+m1 <- dx[dx$FINESS == "Dts", "ENTREE"]
+m2 <- dx[dx$FINESS == "Ros", "ENTREE"]
+length(m1) + length(m2)
+
+n.rpu.su <- nrow(dx) - length(m1) - length(m2)
+n.rpu.su
+```
+
 
 Rajouter:
 ```{}
