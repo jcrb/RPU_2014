@@ -48,6 +48,19 @@ Wissembourg
 
 Envoi d'un fichier XML avec les données du 1er janvier au 19 novembre 2014. Fichier transformé en csv et archivé dans /home/jcb/Documents/Resural/Stat Resural/Archives_Sagec/RPU2014_Wissembourg. Reste la maj dans le fichier maître à faire: supprimer les enregistrements de wissembourg entre le 1er javier et le 19 novembre et les remplacer par des derniers.
 
+Depuis quelle date les établissements transmettent des données
+--------------------------------------------------------------
+
+```{r}
+origin <- as.Date(tapply(as.Date(dx$ENTREE), factor(dx$FINESS), min), origin="1970-01-01")
+a <- data.frame(names(origin), origin)
+```
+- Ste Anne: 2014-05-12
+- Roosvelt: 2014-02-05
+- Diaconat Strasbourg: 2014-02-01
+- Pédiatrie Haguenau: 2014-07-01
+- HUS (nouveaux RPU): 2014-10-10
+
 Octobre 2014
 ============
 
