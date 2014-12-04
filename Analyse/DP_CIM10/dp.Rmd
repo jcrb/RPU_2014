@@ -49,6 +49,9 @@ dpr$DP<-gsub("\xe8","è",as.character(dpr$DP),fixed=FALSE)
 dpr$DP<-gsub(".","",as.character(dpr$DP),fixed=TRUE)
 dpr$DP<-gsub("+","",as.character(dpr$DP),fixed=TRUE)
 
+# sauvegarde
+save(dpr, file="DP2014.R")
+# load("~/Documents/Resural/Stat Resural/RPU_2014/DP2014.R")
 ```
 
 Bronchiolites

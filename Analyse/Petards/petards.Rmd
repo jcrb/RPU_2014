@@ -1,0 +1,42 @@
+---
+title: "petards"
+author: "JcB"
+date: "04/12/2014"
+output: html_document
+---
+
+Question de l'ARS (AC Schieber)
+-------------------------------
+
+Nous avons reçu une demande, cf ci-dessous, de la part de la préfecture du Haut-Rhin : pourriez-vous nous indiquer à partir de la base des RPU le nombre de passage dans la nuit du __31 décembre au 1er janvier 2014 (20h-8h)__, en donnant le total pour le 68? (mais du coup, il n'y aura pas Thann, ni la clinique du Diaconat Roosevelt).
+ 
+Cependant, cette requête n'a du sens à mon avis, que si on confronte ce chiffre à la moyenne annuelle sur la même tranche horaire = moyenne du nombre de passage dans le 68 de 20h à 8h, qu'en pensez-vous?
+
+Réponse
+-------
+
+Je forme un dataframe qui englobe tous les RPU du 31 décembre 2014 et du 1er janvier 2014 concernant mes h^opitaux du haut-Rhin. Pour cela j'utilise le fichier __rpu2013-2014.Rda__. La librairie lubridate est indispensable pour manipuler des dates. Cette question permet d'approfondir le concept __d'intervalle__.
+
+```{r}
+library("lubridate")
+# on récupère le fichier 2013-2014 sous le nom de d2
+load("~/Documents/Resural/Stat Resural/RPU_2014/rpu2013-2014.Rda")
+# on forme un dataframe réduit ne comprtant que le 31 décembre et le 1er janvier
+petards <- d2[d2$FINESS %in% c("Col","Geb","Mul","Alk","3Fr","Dia") & as.Date(d2$ENTREE) > "2013-12-30" &  as.Date(d2$ENTREE) < "2014-01-02", c("ENTREE", "DP", "FINESS")]
+# nombre de passages dans les hôpitaux pendant ces deux jours
+table(factor(petards$FINESS))
+# création d'une colonne avec uniquement les heures
+petards$heure <- substr(petards$ENTREE, 12, length(petards$ENTREE))
+# on forme une colonne date time qui transforme la colonne ENTREE de type caractère en objet temporel via la méthode parse_date_time. On aurait probablement pu aussi utiliser la méthode ymd_hms. Les objets de la colonne datetime sont de type POSIXt.
+petards$datetime <- parse_date_time(petards$ENTREE, "%Y-%m-%d %H:%M:%S")
+# on définit l'intervalle i qui nous intéresse:
+date1 <- as.POSIXct("2013-12-31 19:59:59")
+date2 <- as.POSIXct("2014-01-01 07:59:59")
+i <- new_interval(date1, date2)
+i
+# uniquement la nuit du réveillon: toutes les dates/heures qui tombent dans l'intervalle i.
+p.reveillon <- petards[ymd_hms(petards$datetime) %within% i, ]
+table(factor(p.reveillon$FINESS))
+
+```
+
