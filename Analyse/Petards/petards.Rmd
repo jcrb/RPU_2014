@@ -17,10 +17,16 @@ Réponse
 
 Je forme un dataframe qui englobe tous les RPU du 31 décembre 2014 et du 1er janvier 2014 concernant mes h^opitaux du haut-Rhin. Pour cela j'utilise le fichier __rpu2013-2014.Rda__. La librairie lubridate est indispensable pour manipuler des dates. Cette question permet d'approfondir le concept __d'intervalle__.
 
+[Voir vigette lubridate](http://cran.r-project.org/web/packages/lubridate/vignettes/lubridate.html)
+
 ```{r}
 library("lubridate")
 # on récupère le fichier 2013-2014 sous le nom de d2
 load("~/Documents/Resural/Stat Resural/RPU_2014/rpu2013-2014.Rda")
+
+# RPU du Haut-Rhin en 2013 et 2014
+d68 <- d2[d2$FINESS %in% c("Col","Geb","Mul","Alk","3Fr","Dia"), ]
+
 # on forme un dataframe réduit ne comprtant que le 31 décembre et le 1er janvier
 petards <- d2[d2$FINESS %in% c("Col","Geb","Mul","Alk","3Fr","Dia") & as.Date(d2$ENTREE) > "2013-12-30" &  as.Date(d2$ENTREE) < "2014-01-02", c("ENTREE", "DP", "FINESS")]
 # nombre de passages dans les hôpitaux pendant ces deux jours
@@ -36,7 +42,155 @@ i <- new_interval(date1, date2)
 i
 # uniquement la nuit du réveillon: toutes les dates/heures qui tombent dans l'intervalle i.
 p.reveillon <- petards[ymd_hms(petards$datetime) %within% i, ]
-table(factor(p.reveillon$FINESS))
+t <- table(factor(p.reveillon$FINESS))
+t
+sum(t)
 
 ```
+calendrier <- seq(as.Date("2013-01-01"), as.Date("2013-12-31"), 1)
+for(i in calendrier){
+  date1 <- paste(as.Date(i, origin = as.Date("1970-01-01")), "19:59:59", sep = " ")
+  return(date1)
+}
+
+S60-S69  Lésions traumatiques du poignet et de la main 
+
+S60  Lésion traumatique superficielle du poignet et de la main
+S61	Plaie ouverte du poignet et de la main
+S62	Fracture au niveau du poignet et de la main
+S63	Luxation, entorse et foulure d'articulations et de ligaments au niveau du poignet et de la main
+S64	Lésion traumatique de nerfs au niveau du poignet et de la main
+S65	Lésion traumatique de vaisseaux sanguins au niveau du poignet et de la main
+S66	Lésion traumatique de muscles et de tendons au niveau du poignet et de la main
+S67	Ecrasement du poignet et de la main
+S68	Amputation traumatique du poignet et de la main
+S69	Lésions traumatiques du poignet et de la main, autres et sans précision 
+
+S0230  TRAUMA	Traumatologique	TRAU_TETEC	Traumatologie de la tête et du cou	TRAU_OPHT	Lésions de l'oeil ou de l'orbite
+S0231	TRAUMA	Traumatologique	TRAU_TETEC	Traumatologie de la tête et du cou	TRAU_OPHT	Lésions de l'oeil ou de l'orbite
+S050  TRAUMA	Traumatologique	TRAU_TETEC	Traumatologie de la tête et du cou	TRAU_OPHT	Lésions de l'oeil ou de l'orbite
+S051	TRAUMA	Traumatologique	TRAU_TETEC	Traumatologie de la tête et du cou	TRAU_OPHT	Lésions de l'oeil ou de l'orbite
+S054	TRAUMA	Traumatologique	TRAU_TETEC	Traumatologie de la tête et du cou	TRAU_OPHT	Lésions de l'oeil ou de l'orbite
+S055	TRAUMA	Traumatologique	TRAU_TETEC	Traumatologie de la tête et du cou	TRAU_OPHT	Lésions de l'oeil ou de l'orbite
+S056	TRAUMA	Traumatologique	TRAU_TETEC	Traumatologie de la tête et du cou	TRAU_OPHT	Lésions de l'oeil ou de l'orbite
+
+
+Question 2
+==========
+
+Quel est le nombre moyen de RPU entre 20h et 8h dans le 68 en 2013
+
+réponse
+-------
+
+La difficulté vient du fait que cet horaire est à cheval sur 2 jours. Idée: faire 2 listes:
+- soir <- tous les RPU de 20h à 0h
+- nuit <- tous les RPU de 0H à 8h
+à partir du fichier du haut-rhin = d68
+
+h <- substr(a,12,20) # récupère l'heure
+
+```{r}
+# calendrier 2013
+year2013 <- seq(as.Date("2013-01-01"), as.Date("2013-12-31"), 1)
+
+# RPU 2013 dans le 68
+d68_2013 <- d68[as.Date(d68$ENTREE) < "2014-01-01",]
+
+soir <- d68_2013[hms(substr(d68_2013$ENTREE,12,20)) > hms("19:59:59") & hms(substr(d68_2013$ENTREE,12,20)) <= hms("23:59:59"), ]
+nuit <- d68_2013[hms(substr(d68_2013$ENTREE,12,20)) >= hms("00:00:00") & hms(substr(d68_2013$ENTREE,12,20)) < hms("08:00:00"), ]
+n.soir <- nrow(soir)
+n.nuit <- nrow(nuit)
+n.soir/365 # moyenne empirique
+# nombre de RPU par jour durant la période SOIR
+a <- tapply(as.Date(soir$ENTREE), yday(soir$ENTREE), length)
+mean(a)
+sd(a)
+# idem pourla NUIT
+b <- tapply(as.Date(nuit$ENTREE), yday(nuit$ENTREE), length)
+mean(b)
+sd(b)
+
+# nuit profonde
+plot(b, type = "l", main="68 - Passages en nuit profonde", xlab = "2013 - jours", ylab = "Nombre de RPU")
+mb <- mean(b)
+sdb <- sd(b)
+abline(h = mb, col = "red")
+sd2 <- mb + 2 * sdb
+sd3 <- mb + 3 * sdb
+
+abline(h = mean(b) + 2 * sdb, col = "red", lty = 2)
+abline(h = mean(b) + 3 * sd(b), col = "blue", lty = 2)
+text( 340, mean(b) + 5, "moyenne", col="red")
+text( 340, mean(b) + 2 * sd(b) + 5, "+ 2 SD", col="red")
+text( 340, mean(b) + 3 * sd(b) + 5, "+ 3 SD", col="blue")
+
+# jour pù le nombre de passage est supérieur à 3 ET
+for(i in 1:length(year2013)){ j = yday(year2013[i]); if(!is.na(b[j]) & b[j] > sd3) print(paste(year2013[i], wday(year2013[i], label = TRUE), sep=" "))}
+# jour pù le nombre de passage est supérieur à 2 ET
+for(i in 1:length(year2013)){ j = yday(year2013[i]); if(!is.na(b[j]) & b[j] > sd2) print(paste(year2013[i], wday(year2013[i], label = TRUE), sep=" "))}
+
+
+# soirée
+plot(a, type = "l", main="68 - Passages en nuit profonde", xlab = "2013 - jours", ylab = "Nombre de RPU")
+abline(h = mean(a), col = "red")
+
+```
+
+Nombre moyen de RPU de 20h à 8h
+-------------------------------
+
+Il faut remplacer le 21/5/2014 qui est manquant par NA. Correspond au 151 ème jour de l'année.
+
+On a 2 vecteurs:
+
+- a <- pour le soir
+- b <- pour la nuit
+
+Le nombre de RPU pour une tranche horaire de 20h à 8h est égal à la somme des RPU de la soirée J et de la nuit J + 1. Il faut donc supprimer la 1ère nuit de sorte que la soirée 1 corresponde à la nuit 2.
+
+Le 31 décembre, il va manquer la nuit du 1er janvier. Il faut doc supprimer la soirée du 31/12.
+```{r}
+jour.manquant <- yday("2013-05-31")
+a <- tapply(as.Date(soir$ENTREE), yday(soir$ENTREE), length)
+b <- tapply(as.Date(nuit$ENTREE), yday(nuit$ENTREE), length)
+
+a2 <- c(a[1:150], NA, a[151:364]) # on intercale NA en position 151.
+a2 <- a2[-365]
+
+b2 <- c(b[1:150], NA, b[151:364])
+b2 <- b2[-1]
+
+c <- a2 + b2
+
+m <- mean(c, na.rm=T)
+s <- sd(c, na.rm=T)
+
+m
+s
+
+m + s
+m - s
+
+m + 2 * s
+m - 2 * s
+
+plot(c, type = "l", main="RPU entre 20h et 8h", xlab = "Jours - 2013", ylab = "RPU")
+abline( h=mean(c, na.rm=T), col="red")
+
+```
+
+En 2013, on compte en moyenne `r round(m, 2)` RPU entre 20 heures et 8 heures (écart-type = `r round(s, 2)` RPU.)
+
+Trouver une date manquante
+--------------------------
+
+En 2013, il manque la journée du 31 mai 2013. Pour retrouver cette date, on compare la liste des dates 2013 (a) à un calendrier de référence (year2013)
+
+```{r}
+getwd()
+source("../../Preparation/RPU Quotidiens/quot_utils.R")
+jours.manquants("2013-01-01", "2013-12-31", d68_2013$ENTREE)
+```
+[1] "2013-05-31"
 

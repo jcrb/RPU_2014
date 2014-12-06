@@ -341,3 +341,32 @@ plot.xts2 <- function (x, y = NULL, type = "l", auto.grid = TRUE, major.ticks = 
   do.call("title", list(...))
   assign(".plot.xts", recordPlot(), .GlobalEnv)
 }
+
+#=======================================
+#
+# jours.manquants()
+#
+#=======================================
+# retourne la liste des jours manquants dans la période comprise entre deux dates
+#'@author JcB
+#'@date 2014-12-06
+#'@param date1 (string) date de début de l'intervalle
+#'@param date2 (string) fin de l'intervalle
+#'@param data (vector of string) vecteur de date à tester
+#'@return vecteur de date
+#'@usage  date1 <- "2014-01-01"
+#'        date2 <- "2014-01-31"
+#'        data <- seq(as.Date(date1), as.Date(date2), 1)
+#'        data <- data[-c(1,10)]
+#'        jours.manquants(date1, date2, data)
+#'        
+#'        [1] "2014-01-01" "2014-01-10"
+
+jours.manquants <- function(date1, date2, data){
+  calendar <- seq(as.Date(date1), as.Date(date2), 1) # calendrier de référence
+  a <- unique(as.Date(data)) # date à terter
+  b <- match(calendar, a) # attention à l'ordre des items. Le calendrier de référence tjjrs en premier
+  ok <- complete.cases(b) # vecteur de booleen
+  sum(!ok) # nombre de jours manquants
+  return(calendar[!ok]) # liste des jours manquants
+}
