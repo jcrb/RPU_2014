@@ -15,7 +15,7 @@ Cependant, cette requête n'a du sens à mon avis, que si on confronte ce chiffr
 Réponse
 -------
 
-Je forme un dataframe qui englobe tous les RPU du 31 décembre 2014 et du 1er janvier 2014 concernant mes h^opitaux du haut-Rhin. Pour cela j'utilise le fichier __rpu2013-2014.Rda__. La librairie lubridate est indispensable pour manipuler des dates. Cette question permet d'approfondir le concept __d'intervalle__.
+Je forme un dataframe qui englobe tous les RPU du 31 décembre 2014 et du 1er janvier 2014 concernant mes hôpitaux du haut-Rhin. Pour cela j'utilise le fichier __rpu2013-2014.Rda__. La librairie lubridate est indispensable pour manipuler des dates. Cette question permet d'approfondir le concept __d'intervalle__.
 
 [Voir vigette lubridate](http://cran.r-project.org/web/packages/lubridate/vignettes/lubridate.html)
 
@@ -29,13 +29,17 @@ d68 <- d2[d2$FINESS %in% c("Col","Geb","Mul","Alk","3Fr","Dia"), ]
 
 # on forme un dataframe réduit ne comprtant que le 31 décembre et le 1er janvier
 petards <- d2[d2$FINESS %in% c("Col","Geb","Mul","Alk","3Fr","Dia") & as.Date(d2$ENTREE) > "2013-12-30" &  as.Date(d2$ENTREE) < "2014-01-02", c("ENTREE", "DP", "FINESS")]
+
 # nombre de passages dans les hôpitaux pendant ces deux jours
 table(factor(petards$FINESS))
+
 # création d'une colonne avec uniquement les heures
 petards$heure <- substr(petards$ENTREE, 12, length(petards$ENTREE))
+
 # on forme une colonne date time qui transforme la colonne ENTREE de type caractère en objet temporel via la méthode parse_date_time. On aurait probablement pu aussi utiliser la méthode ymd_hms. Les objets de la colonne datetime sont de type POSIXt.
 petards$datetime <- parse_date_time(petards$ENTREE, "%Y-%m-%d %H:%M:%S")
-# on définit l'intervalle i qui nous intéresse:
+
+# on définit l'intervalle i qui nous intéresse: le 31 à partir de 20h jusqu'au 1er 8 heures:
 date1 <- as.POSIXct("2013-12-31 19:59:59")
 date2 <- as.POSIXct("2014-01-01 07:59:59")
 i <- new_interval(date1, date2)
@@ -91,10 +95,10 @@ La difficulté vient du fait que cet horaire est à cheval sur 2 jours. Idée: f
 h <- substr(a,12,20) # récupère l'heure
 
 ```{r}
-# calendrier 2013
+# calendrier 2013. On a besoin d'un calendrier de référence pour l'abnnée 2013
 year2013 <- seq(as.Date("2013-01-01"), as.Date("2013-12-31"), 1)
 
-# RPU 2013 dans le 68
+# RPU 2013 dans le 68 (tous les RPU)
 d68_2013 <- d68[as.Date(d68$ENTREE) < "2014-01-01",]
 
 soir <- d68_2013[hms(substr(d68_2013$ENTREE,12,20)) > hms("19:59:59") & hms(substr(d68_2013$ENTREE,12,20)) <= hms("23:59:59"), ]
@@ -193,4 +197,33 @@ source("../../Preparation/RPU Quotidiens/quot_utils.R")
 jours.manquants("2013-01-01", "2013-12-31", d68_2013$ENTREE)
 ```
 [1] "2013-05-31"
+
+Analyse des pétards dans le 67
+==============================
+
+```{r}
+# RPU du Bas-Rhin en 2013 et 2014
+d67 <- d2[d2$FINESS %in% c("Wis", "Sav", "Hag", "Hus", "Odi", "Ane", "Dts", "Sel"), ]
+
+# on forme un dataframe réduit ne comprtant que le 31 décembre et le 1er janvier
+petards67 <- d2[d2$FINESS %in% c("Wis", "Sav", "Hag", "Hus", "Odi", "Ane", "Dts", "Sel") & as.Date(d2$ENTREE) > "2013-12-30" &  as.Date(d2$ENTREE) < "2014-01-02", c("ENTREE", "DP", "FINESS")]
+
+# nombre de passages dans les hôpitaux pendant ces deux jours
+table(factor(petards67$FINESS))
+
+# on forme une colonne date time qui transforme la colonne ENTREE de type caractère en objet temporel via la méthode parse_date_time. On aurait probablement pu aussi utiliser la méthode ymd_hms. Les objets de la colonne datetime sont de type POSIXt.
+petards67$datetime <- parse_date_time(petards67$ENTREE, "%Y-%m-%d %H:%M:%S")
+
+# on définit l'intervalle i qui nous intéresse: le 31 à partir de 20h jusqu'au 1er 8 heures:
+date1 <- as.POSIXct("2013-12-31 19:59:59")
+date2 <- as.POSIXct("2014-01-01 07:59:59")
+i <- new_interval(date1, date2)
+i
+
+# uniquement la nuit du réveillon: toutes les dates/heures qui tombent dans l'intervalle i.
+p.reveillon <- petards67[ymd_hms(petards67$datetime) %within% i, ]
+t <- table(factor(p.reveillon$FINESS))
+t
+sum(t)
+```
 
