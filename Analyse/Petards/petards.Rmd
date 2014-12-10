@@ -2,7 +2,9 @@
 title: "petards"
 author: "JcB"
 date: "04/12/2014"
-output: html_document
+output:
+  html_document:
+    toc: yes
 ---
 
 Question de l'ARS (AC Schieber)
@@ -78,6 +80,8 @@ S054	TRAUMA	Traumatologique	TRAU_TETEC	Traumatologie de la tête et du cou	TRAU_
 S055	TRAUMA	Traumatologique	TRAU_TETEC	Traumatologie de la tête et du cou	TRAU_OPHT	Lésions de l'oeil ou de l'orbite
 S056	TRAUMA	Traumatologique	TRAU_TETEC	Traumatologie de la tête et du cou	TRAU_OPHT	Lésions de l'oeil ou de l'orbite
 
+Lésions par un matériaux explosif: W40, w39
+
 
 Question 2
 ==========
@@ -92,7 +96,11 @@ La difficulté vient du fait que cet horaire est à cheval sur 2 jours. Idée: f
 - nuit <- tous les RPU de 0H à 8h
 à partir du fichier du haut-rhin = d68
 
+Récupération de l'heure à  partir de la colonne ENTREE
+```{}
 h <- substr(a,12,20) # récupère l'heure
+```
+
 
 ```{r}
 # calendrier 2013. On a besoin d'un calendrier de référence pour l'abnnée 2013
@@ -101,11 +109,16 @@ year2013 <- seq(as.Date("2013-01-01"), as.Date("2013-12-31"), 1)
 # RPU 2013 dans le 68 (tous les RPU)
 d68_2013 <- d68[as.Date(d68$ENTREE) < "2014-01-01",]
 
+# soir = nombre de <RPU entre 20h et minuit
+# nuit = nobre de RPU entre minuit et 8 heures
 soir <- d68_2013[hms(substr(d68_2013$ENTREE,12,20)) > hms("19:59:59") & hms(substr(d68_2013$ENTREE,12,20)) <= hms("23:59:59"), ]
 nuit <- d68_2013[hms(substr(d68_2013$ENTREE,12,20)) >= hms("00:00:00") & hms(substr(d68_2013$ENTREE,12,20)) < hms("08:00:00"), ]
+
 n.soir <- nrow(soir)
 n.nuit <- nrow(nuit)
+
 n.soir/365 # moyenne empirique
+
 # nombre de RPU par jour durant la période SOIR
 a <- tapply(as.Date(soir$ENTREE), yday(soir$ENTREE), length)
 mean(a)
@@ -119,6 +132,7 @@ sd(b)
 plot(b, type = "l", main="68 - Passages en nuit profonde", xlab = "2013 - jours", ylab = "Nombre de RPU")
 mb <- mean(b)
 sdb <- sd(b)
+
 abline(h = mb, col = "red")
 sd2 <- mb + 2 * sdb
 sd3 <- mb + 3 * sdb
@@ -184,6 +198,8 @@ abline( h=mean(c, na.rm=T), col="red")
 
 ```
 
+### Nombre moyen de RPU dans le 68:
+
 En 2013, on compte en moyenne `r round(m, 2)` RPU entre 20 heures et 8 heures (écart-type = `r round(s, 2)` RPU.)
 
 Trouver une date manquante
@@ -198,12 +214,25 @@ jours.manquants("2013-01-01", "2013-12-31", d68_2013$ENTREE)
 ```
 [1] "2013-05-31"
 
+Lésions spécifiques de la main 68
+--------------------------------
+
+```{r main68}
+dp <- substr(petards$DP, 1, 3)
+main68 <- dp[!is.na(dp) & dp %in% c("S60", "S61", "S62", "S63", "S64", "S65", "S66", "S67", "S68", "S69")]
+table(main68)
+```
+
+
+
 Analyse des pétards dans le 67
 ==============================
 
 ```{r}
 # RPU du Bas-Rhin en 2013 et 2014
 d67 <- d2[d2$FINESS %in% c("Wis", "Sav", "Hag", "Hus", "Odi", "Ane", "Dts", "Sel"), ]
+# uniquement en 2013
+d67_2013 <- d2[d2$FINESS %in% c("Wis", "Sav", "Hag", "Hus", "Odi", "Ane", "Dts", "Sel") & as.Date(d2$ENTREE) < "2014-01-01", ]
 
 # on forme un dataframe réduit ne comprtant que le 31 décembre et le 1er janvier
 petards67 <- d2[d2$FINESS %in% c("Wis", "Sav", "Hag", "Hus", "Odi", "Ane", "Dts", "Sel") & as.Date(d2$ENTREE) > "2013-12-30" &  as.Date(d2$ENTREE) < "2014-01-02", c("ENTREE", "DP", "FINESS")]
@@ -225,5 +254,91 @@ p.reveillon <- petards67[ymd_hms(petards67$datetime) %within% i, ]
 t <- table(factor(p.reveillon$FINESS))
 t
 sum(t)
+```
+
+```{r}
+# soir = nombre de <RPU entre 20h et minuit
+# nuit = nobre de RPU entre minuit et 8 heures
+soir67 <- d67_2013[hms(substr(d67_2013$ENTREE,12,20)) > hms("19:59:59") & hms(substr(d67_2013$ENTREE,12,20)) <= hms("23:59:59"), ]
+nuit67 <- d67_2013[hms(substr(d67_2013$ENTREE,12,20)) >= hms("00:00:00") & hms(substr(d67_2013$ENTREE,12,20)) < hms("08:00:00"), ]
+
+n.soir <- nrow(soir67)
+n.nuit <- nrow(nuit67)
+
+n.soir/365 # moyenne empirique
+n.nuit/365
+(n.soir + n.nuit)/365 # moyenne nuit + soirée
+
+# nombre de RPU par jour durant la période SOIR
+a <- tapply(as.Date(soir67$ENTREE), yday(soir67$ENTREE), length)
+mean(a)
+sd(a)
+# idem pourla NUIT
+b <- tapply(as.Date(nuit67$ENTREE), yday(nuit67$ENTREE), length)
+mean(b)
+sd(b)
+
+#total nuit + soir = garde
+total_garde67 <- rbind(soir67, nuit67)
+tot  <- tapply(as.Date(total_garde67$ENTREE), yday(total_garde67$ENTREE), length)
+mean(tot)
+sd(tot)
+
+
+# nuit profonde
+plot(b, type = "l", main="67 - Passages en nuit profonde", xlab = "2013 - jours", ylab = "Nombre de RPU")
+mb <- mean(b)
+sdb <- sd(b)
+```
+
+Méthode 2
+------------
+
+On forme 2 vecteurs de 365 jours, l'un pour compter le nombre de RPU quotidiens engegistrés le soir (a)
+et l'autre pour les RPU de la nuit (b). La garde est formée de la soirée du jour j et de la nuit du jour j+1. Pour calculer le nomre de RPU correspondants à une garde il faut retirer de (b) la nuit du jour 1 (0h-8h) qui n'a pas de soirée correspondante et la soirée du réveillon (a) qui n'a pas de nuit correspondante.
+
+e plus il faut intercaler le jour 151 (31 mai) qui est manquant. On le remplace par NA.
+```{r}
+jour.manquant <- yday("2013-05-31")
+a <- tapply(as.Date(soir67$ENTREE), yday(soir67$ENTREE), length)
+b <- tapply(as.Date(nuit67$ENTREE), yday(nuit67$ENTREE), length)
+
+a2 <- c(a[1:150], NA, a[151:364]) # on intercale NA en position 151.
+a2 <- a2[-365]
+
+b2 <- c(b[1:150], NA, b[151:364])
+b2 <- b2[-1]
+
+c <- a2 + b2 # c = total des RPU pour une garde
+
+m <- mean(c, na.rm=T)
+s <- sd(c, na.rm=T)
+
+m
+s
+
+m + s
+m - s
+
+m + 2 * s
+m - 2 * s
+
+plot(c, type = "l", main="67 - RPU entre 20h et 8h", xlab = "Jours - 2013", ylab = "RPU")
+abline( h=mean(c, na.rm=T), col="red")
+
+```
+
+### Nombre moyen de RPU pour le 67 en garde:
+
+En 2013, on compte en moyenne `r round(m, 2)` RPU entre 20 heures et 8 heures (écart-type = `r round(s, 2)` RPU.)
+
+Lésions spécifiques de la main 67
+--------------------------------
+
+```{r main67}
+dp <- substr(petards67$DP, 1, 3)
+main67 <- dp[!is.na(dp) & dp %in% c("S60", "S61", "S62", "S63", "S64", "S65", "S66", "S67", "S68", "S69")]
+table(main67)
+
 ```
 

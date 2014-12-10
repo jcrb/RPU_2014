@@ -1,0 +1,72 @@
+---
+title: "WISSEMB"
+author: "JcB"
+date: "10/12/2014"
+output: html_document
+---
+
+Récupération des données de Wissembourg à partir d'un fichier XML
+
+```{r}
+source("../Preparation/RPU Quotidiens/quot_utils.R")
+
+file <- "../../Archives_Sagec/RPU2014_Wissembourg/RPU_670000272_141201(1).csv"
+w <- read.table(file, header=TRUE, sep="\t")
+
+```
+
+Nettoyage et formatage
+
+```{r}
+w$FINESS <- finess2hop(w$FINESS)
+
+w$ENTREE <- as.Date(w$ENTREE, "%j/%m/%Y")
+w$SORTIE <- as.Date(w$SORTIE, "%j/%m/%Y")
+w$EXTRACT <- as.Date(w$EXTRACT, "%j/%m/%Y")
+w$NAISSANCE <- as.Date(w$NAISSANCE, "%j/%m/%Y")
+
+w$AGE<-floor(as.numeric(w$ENTREE - w$NAISSANCE)/365)
+w$AGE[w$AGE > 120] <- NA
+w$AGE[w$AGE < 0] <- NA
+
+w$ENTREE <- as.factor(w$ENTREE)
+w$SORTIE <- as.factor(w$SORTIE)
+w$EXTRACT <- as.factor(w$EXTRACT)
+w$NAISSANCE <- as.factor(w$NAISSANCE)
+
+w <- rpu2factor(w)
+
+# suppression des colonnes DIAG_ASS et ACTES_ASS
+w$DIAG_ASS <- w$ACTES_ASS <- NULL
+
+# réordonner les colonnes
+w <- w[, c("ID", "CODE_POSTAL", "COMMUNE", "DESTINATION", "DP", "ENTREE", "EXTRACT", "FINESS", "GRAVITE", "MODE_ENTREE", "MODE_SORTIE", "MOTIF", "NAISSANCE", "ORIENTATION", "PROVENANCE", "SEXE", "SORTIE", "TRANSPORT", "TRANSPORT_PEC", "AGE")]
+names(w)[1] <- "id"
+
+```
+
+Le fichier __w__ est prêt à être exploité
+
+Récupération du mois de Novembre
+
+```{r}
+# nouvelles données pour Wissembourg
+w_2014.11 <- w[as.Date(w$ENTREE) > "2014-10-31" & as.Date(w$ENTREE) < "2014-12-01", ]
+```
+
+Remplacement
+
+```{}
+# on récupère les données du mois de novembre
+load("../rpu2014d11_provisoire.Rda") # d11
+# on retire celles concernant Wissembourg
+temp <- d11[d11$FINESS != "Wis",]
+# on ajoute les nouvelles données wissembourg
+n <- rbind(temp, w_2014.11)
+# on modifie le nom du fichier 
+d11 <- n
+# on sauvegarde le tout
+save(d11, file="rpu2014d11_provisoire.Rda")
+
+```
+
