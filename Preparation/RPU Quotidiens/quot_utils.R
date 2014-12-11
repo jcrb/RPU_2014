@@ -370,3 +370,40 @@ jours.manquants <- function(date1, date2, data){
   sum(!ok) # nombre de jours manquants
   return(calendar[!ok]) # liste des jours manquants
 }
+
+#=======================================
+#
+# normalise.caracteres()
+#
+#=======================================
+#' transforme les symboles exotiques et caractères ASCII normaux
+#' @author jcb
+#' @date 2014-12-10
+#' @param dpr un vecteur de character
+#' @return un vecteur corrigé
+#' 
+normalise.caracteres <- function(dpr){
+  # correction des caractères bloquants
+  dpr<-gsub("\xe8","è",as.character(dpr),fixed=FALSE)
+  dpr<-gsub("\xe9","é",as.character(dpr),fixed=FALSE)
+  dpr<-gsub("\xe0","à",as.character(dpr),fixed=FALSE)
+  dpr<-gsub("\xeb","ë",as.character(dpr),fixed=FALSE)
+  dpr<-gsub("\xef","ï",as.character(dpr),fixed=FALSE)
+  dpr<-gsub("\xe2","â",as.character(dpr),fixed=FALSE)
+  dpr<-gsub("\xfb","û",as.character(dpr),fixed=FALSE)
+  dpr<-gsub("\xf4","ô",as.character(dpr),fixed=FALSE)
+  dpr<-gsub("\xb0","ê",as.character(dpr),fixed=FALSE) # ?
+  dpr<-gsub("\xc9","é",as.character(dpr),fixed=FALSE)
+  dpr<-gsub("\xea","ê",as.character(dpr),fixed=FALSE)
+  dpr<-gsub("\xe7","ç",as.character(dpr),fixed=FALSE)
+  
+  
+  
+  
+  
+  
+  # autres symboles
+  dpr<-gsub(".","",as.character(dpr),fixed=TRUE)
+  dpr<-gsub("+","",as.character(dpr),fixed=TRUE)
+  return(dpr)
+}

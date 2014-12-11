@@ -17,6 +17,20 @@ library("lubridate")
 anc <- year(data$ENTREE[1])
 
 ```
+Décembre 2014
+=============
+
+Correction des RPU de Novembre 2014 en provenance de Wissembourg. Il manquait environ 20 jours sur les 30 en raison d'un bug local (erreur de date). Wissemboug m'a renvoyé un fichier XML contenant tous les RPU du 1er janvier au 30 novembre 2014. Le fichier intitulé __RPU_670000272_141201(1).xml__ se trouve dans le dossier __/home/jcb/Documents/Resural/Stat Resural/Archives_Sagec/RPU2014_Wissembourg__. Il annule et remplace l'envoi du mois de Novembre. Analysé par le parser pour former les fichiers .CSV correspondant (NB corriger un bug du Parser pour qu'il intitule les fichiers avec des préfixes différents: RPU, DA et ACTES. Actuellement ces 3 fichiers ont le même nom).
+
+Le fichier .csv doit être normalisé et réorganisé pour pouvoir être lié à la base annuelle. C'est l'objet du programme __wiss.Rmd__ qui est transposable à tout fichier parsé par cette méthode.
+
+Au final, le fichier de novembre, la base du 1er janvier au 30 novembre 2014 et le fichier combiné 2013+2014 sont à jour au 1er décembre. Avec cette correction il y a un peu plus de 40.000 RPU pour le mois de novembre.
+
+Ajout d'une fonction periode.pet$MOTIF __normalise.caracteres()__ dans __quot_utils.R__ qui corrige les caractères anormaux dans DP et MOTIF.
+
+Travail pour l'ARS sur les pétards de la fin de l'année: __petards.Rmd__ à mettre en forme.
+
+Création d'un fichier __Lubridate__ pour servir de mode d'emploi à cette librairie.
 
 
 
