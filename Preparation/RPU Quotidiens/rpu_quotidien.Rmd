@@ -173,7 +173,7 @@ file.remove(file.to.delete)
 
 ```{}
 date1 <- "2014-11-08"
-date2 <- "2014-12-07"
+date2 <- "2014-12-15"
 
 mc <- substr(date1, 6, 7)
 ac <- substr(date1, 1,4)
@@ -190,22 +190,22 @@ max(as.Date(dx$ENTREE))
 
 #### Sélectionner une période particulière (ie. mai 2014)
 ```{}
-d11 <- dx[as.Date(dx$ENTREE) >= "2014-11-01" & as.Date(dx$ENTREE) < "2014-12-01",]
-max(as.Date(d11$ENTREE))
-min(as.Date(d11$ENTREE))
-d11 <- normalise(d11)
-save(d11, file="rpu2014d11_provisoire.Rda")
+d12 <- dx[as.Date(dx$ENTREE) >= "2014-12-01" & as.Date(dx$ENTREE) < "2015-01-01",]
+max(as.Date(d12$ENTREE))
+min(as.Date(d12$ENTREE))
+d12 <- normalise(d12)
+save(d12, file="rpu2014d12_provisoire.Rda")
 rm(dx)
 
-load("rpu2014d0110.Rda")
+load("rpu2014d0111.Rda")
 
-dx <- rbind(dx, d11)
+dx <- rbind(dx, d12)
 min(as.Date(dx$ENTREE))
 max(as.Date(dx$ENTREE))
 
-save(dx, file="rpu2014d0111_provisoire.Rda")
+save(dx, file="rpu2014d0112_provisoire.Rda")
 
-table(as.Date(d11$ENTREE), d11$FINESS)
+table(as.Date(d12$ENTREE), d12$FINESS)
 ```
 
 

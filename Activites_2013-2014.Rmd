@@ -94,7 +94,7 @@ lines(t2014$V3, t2014$V4) # moyenne mobile
 
 
 # nb rpu/jpour en 2013
-t <- tapply(as.Date(d1$ENTREE), as.Date(d1$ENTREE), length)
+t2013 <- tapply(as.Date(d1$ENTREE), as.Date(d1$ENTREE), length)
 t2013 <- as.data.frame(cbind(names(t2013), as.numeric(t2013)), stringsAsFactors = FALSE)
 t2013$V1 <- as.Date(t2013$V1)
 t2013$V2 <- as.numeric(t2013$V2)
@@ -126,6 +126,71 @@ t2 <- xts(t2014[,-1], order.by=t2014[,1])
 plot(yday(t2013$V1), t2013$V2, type="l", col="red", axes=FALSE)
 lines(yday(t2014$V1), t2014$V2, col="blue")
 axis(side=1, at=axTicksByTime(t1, "months"), labels=1:13)
+
+```
+
+Nombre de RPU par semaine
+=========================
+
+On compte le nombre deRPU par semaine en distinguant 2013 et 2014. Pour cela on utilise __tapply__ en créant une Liste de deux conditions, l'année et le mois. On obtient une __matrice__ de deux lignes (2013 et 2014) et 53 colonnes, que l'on peut injecter dans un barplot par exemple.
+
+load("~/Documents/Resural/Stat Resural/RPU_2014/rpu2013-2014.Rda")
+
+```{r passages}
+dx <- d2
+library(lubridate)
+
+rpu.semaine <- tapply(as.Date(dx$ENTREE), list(year(as.Date(dx$ENTREE)), week(as.Date(dx$ENTREE))), length)
+
+head(rpu.semaine)
+
+barplot(rpu.semaine, main = "RPU hebdomadaires 2013-2014", xlab="semaines", ylab="nombre de RPU")
+barplot(rpu.semaine, main = "RPU hebdomadaires 2013-2014", beside = TRUE, xlab="semaines", ylab="nombre de RPU")
+
+class(rpu.semaine)
+
+plot(rpu.semaine[2,], type = "l", ylim = c(4000,11000), col="red", xlab="semaines", ylab="nombre de RPU", main = "RPU hebdomadaires 2013-2014")
+lines(rpu.semaine[1,], col = "blue")
+legend("topleft", legend=c("2013", "2014"), col=c("blue","red"), bty="n", lty=1)
+
+```
+
+Nombre d'hospitalisations par semaine
+======================================
+
+Voir le paragraphe précéent pour le principe de la méthodologie
+
+```{r hospitalisation}
+hosp <- dx[dx$MODE_SORTIE == "Mutation" | dx$MODE_SORTIE == "Transfert", 'ENTREE']
+hosp.semaine <- tapply(as.Date(hosp), list(year(as.Date(hosp)), week(as.Date(hosp))), length)
+head(hosp.semaine)
+
+barplot(hosp.semaine, main = "Hospitalisations hebdomadaires 2013-2014", xlab="semaines", ylab="nombre de RPU")
+barplot(hosp.semaine, main = "Hospitalisations hebdomadaires 2013-2014", beside = TRUE, xlab="semaines", ylab="nombre de RPU")
+
+class(hosp.semaine)
+
+plot(hosp.semaine[2,], type = "l", ylim = c(1000,2500), col="red", xlab="semaines", ylab="nombre de RPU", main = "Hospitalisations hebdomadaires 2013-2014")
+lines(hosp.semaine[1,], col = "blue")
+legend("topleft", legend=c("2013", "2014"), col=c("blue","red"), bty="n", lty=1)
+
+```
+
+Taux d'hospitalisation
+----------------------
+
+```{r tx_hosp}
+tx_hosp <- round(100 * hosp.semaine / rpu.semaine, 2)
+head(tx_hosp)
+
+summary(tx_hosp[1,]) # taux hospitalisation 2013
+summary(tx_hosp[2,]) # taux hospitalisation 2014
+
+plot(tx_hosp[2,], type = "l", ylim = c(0,25), col="red", xlab="semaines", ylab="Taux hospitalisation (%)", main = "Taux d'Hospitalisations hebdomadaires 2013-2014", lwd=3)
+lines(tx_hosp[1,], col = "blue", lwd=3)
+legend("bottomleft", legend=c("2013", "2014"), col=c("blue","red"), bty="n", lty=1)
+
+
 
 ```
 
