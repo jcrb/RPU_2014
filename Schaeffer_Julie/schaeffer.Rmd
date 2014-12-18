@@ -2,7 +2,12 @@
 title: "Schaeffer Julie"
 author: "JcB"
 date: "18/12/2014"
-output: html_document
+output:
+  word_document: default
+  html_document:
+    fig_caption: yes
+    keep_md: yes
+    toc: yes
 ---
 
 Nombre de RPU par semaine
