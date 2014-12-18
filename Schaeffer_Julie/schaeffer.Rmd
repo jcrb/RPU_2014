@@ -1,0 +1,70 @@
+---
+title: "Schaeffer Julie"
+author: "JcB"
+date: "18/12/2014"
+output: html_document
+---
+
+Nombre de RPU par semaine
+=========================
+
+
+```{r passages, echo=FALSE}
+load("~/Documents/Resural/Stat Resural/RPU_2014/rpu2013-2014.Rda")
+dx <- d2
+library(lubridate)
+
+rpu.semaine <- tapply(as.Date(dx$ENTREE), list(year(as.Date(dx$ENTREE)), week(as.Date(dx$ENTREE))), length)
+
+head(rpu.semaine)
+
+barplot(rpu.semaine, main = "RPU hebdomadaires 2013-2014", xlab="semaines", ylab="nombre de RPU")
+barplot(rpu.semaine, main = "RPU hebdomadaires 2013-2014", beside = TRUE, xlab="semaines", ylab="nombre de RPU")
+
+class(rpu.semaine)
+
+plot(rpu.semaine[2,], type = "l", ylim = c(4000,11000), col="red", xlab="semaines", ylab="nombre de RPU", main = "RPU hebdomadaires 2013-2014")
+lines(rpu.semaine[1,], col = "blue")
+legend("topleft", legend=c("2013", "2014"), col=c("blue","red"), bty="n", lty=1)
+
+```
+
+Nombre d'hospitalisations par semaine
+======================================
+
+Voir le paragraphe précéent pour le principe de la méthodologie
+
+```{r hospitalisation, echo=FALSE}
+hosp <- dx[dx$MODE_SORTIE == "Mutation" | dx$MODE_SORTIE == "Transfert", 'ENTREE']
+hosp.semaine <- tapply(as.Date(hosp), list(year(as.Date(hosp)), week(as.Date(hosp))), length)
+head(hosp.semaine)
+
+barplot(hosp.semaine, main = "Hospitalisations hebdomadaires 2013-2014", xlab="semaines", ylab="nombre de RPU")
+barplot(hosp.semaine, main = "Hospitalisations hebdomadaires 2013-2014", beside = TRUE, xlab="semaines", ylab="nombre de RPU")
+
+class(hosp.semaine)
+
+plot(hosp.semaine[2,], type = "l", ylim = c(1000,2500), col="red", xlab="semaines", ylab="nombre de RPU", main = "Hospitalisations hebdomadaires 2013-2014")
+lines(hosp.semaine[1,], col = "blue")
+legend("topleft", legend=c("2013", "2014"), col=c("blue","red"), bty="n", lty=1)
+
+```
+
+Taux d'hospitalisation
+----------------------
+
+```{r tx_hosp, echo=FALSE}
+tx_hosp <- round(100 * hosp.semaine / rpu.semaine, 2)
+head(tx_hosp)
+
+summary(tx_hosp[1,]) # taux hospitalisation 2013
+summary(tx_hosp[2,]) # taux hospitalisation 2014
+
+plot(tx_hosp[2,], type = "l", ylim = c(0,25), col="red", xlab="semaines", ylab="Taux hospitalisation (%)", main = "Taux d'Hospitalisations hebdomadaires 2013-2014", lwd=3)
+lines(tx_hosp[1,], col = "blue", lwd=3)
+legend("bottomleft", legend=c("2013", "2014"), col=c("blue","red"), bty="n", lty=1)
+
+
+
+```
+
