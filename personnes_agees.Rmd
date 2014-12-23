@@ -1,0 +1,119 @@
+---
+title: "Personnes_agees"
+output: html_document
+---
+
+Dans ce cadre, serait-il ainsi possible à travers une requête RPU d'avoir des données concernant  :
+- le nombre de passages en 2013 et en 2014 (jusqu'au mois de novembre) selon différentes classes d'âge suivantes:
+
+    - entre >= 55 et <65 ans
+    - entre >=65 et <75 ans
+    - entre >=75 et <85 ans
+    - >=85 ans.  
+    en les rapportant au total de passages.
+
+- le mode d'arrivée et l'origine (mais il me semble qu'à travers les RPU, on ne peut avoir l'information origine domicile/EHPAD...?) (selon les classes d'âge ci-dessus si possible)
+- leur orientation à l'issue du passage aux urgences (selon les classes d'âge ci-dessus si possible)
+ 
+- des informations à travers les motifs et/ou les diagnostics (chute/trouble de la marche/trouble de l'équilibre) en regroupant certains codes ?
+ 
+ 
+```{r init, cache=FALSE, echo=FALSE}
+
+# load("~/Documents/Stat Resural/RPU_2014/rpu2013-2014.Rda")
+# # on forme un dataframe ne comportant que les ages > 54 ans et les colonnes utiles:
+# g <- d2[d2$AGE > 54, c("AGE", "MODE_ENTREE", "PROVENANCE", "MODE_SORTIE", "DESTINATION", "ORIENTATION")]
+# save(g, file = "Personnes_agees.Rda")
+```
+
+Définitions
+-----------
+
+- Domicile: domicile ou ce qui en tient lieu (voie publique)
+- Mutation: hospitalisation dans le même établissement que celui du SU
+- Transfert: hospitalisation dans un autre établissement que celui du SU.
+
+Création des sous groupes
+--------------------------
+
+```{r test, echo=FALSE, comment=""}
+library(xtable)
+library(knitr)
+
+load("Personnes_agees.Rda")
+
+# création d'une colonne AGE2 contenant uniquement les tranches d'age selon le découpage proposé
+a <- cut(g$AGE, c(55, 65, 75, 85, 120))
+levels(a) <- c(">= 55 et <65 ans", ">=65 et <75 ans", ">=75 et <85 ans", ">=85 ans")
+g$AGE2 <- a
+
+b <- table(g$AGE2)
+
+barplot(b, cex.names = 0.6, las = 2, main = "Population de 55 ans et plus" )
+
+# nb total de RPU
+n <- nrow(d2)
+# bn total de RPU de 55 ans et plus
+n2 <- nrow(g)
+
+# en pourcentage du total
+c <- round(table(a) * 100 / n, 2)
+# synthèse
+d <- rbind(b,c)
+rownames(d) <- c("effectif", "pourcentage")
+```
+
+Résultats
+---------
+
+- Date de début: `r min(as.Date(d2$ENTREE))`
+- Date de fin: `r max(as.Date(d2$ENTREE))`
+- Effectif total: `r n` RPU.
+- Nombre de RPU agés de 55 ans ou plus: `r n2`
+
+```{r results, echo=FALSE, results='asis'}
+#kable(d)
+
+print(xtable(d), type = "html")
+```
+
+Selon le MODE_ENTREE et la PROVENANCE
+-------------------------------------
+
+```{r correction, echo=FALSE}
+# correction de l'ortographe de transfert, parfois ortographié en 'transf  ert'
+a <- as.character(g$MODE_ENTREE)
+a[a == "Transfe  rt"] <- "Transfert"
+g$MODE_ENTREE <- as.factor(a)
+table(g$MODE_ENTREE)
+
+# suppression des facteurs vides dans PROVENANCE et MODE_SORTIE
+g$PROVENANCE <- factor(g$PROVENANCE)
+table(g$PROVENANCE, dnn = "PROVENANCE")
+
+g$MODE_SORTIE <- factor(g$MODE_SORTIE)
+table(g$MODE_SORTIE, dnn = "MODE DE SORTIE")
+
+g$DESTINATION <- factor(g$DESTINATION)
+table(g$DESTINATION, dnn = "DESTINATION")
+
+g$ORIENTATION <- factor(g$ORIENTATION)
+table(g$ORIENTATION, dnn = "ORIENTATION")
+
+table(g$AGE2, g$MODE_ENTREE, dnn = c("AGE", "MODE ENTREE"))
+
+table(g$AGE2, g$PROVENANCE, dnn = c("AGE", "PROVENANCE"))
+
+```
+
+Mode de sortie
+--------------
+
+```{r soertie, echo=FALSE}
+table(g$AGE2,g$MODE_SORTIE, dnn = c("AGE", "MODE DE SORTIE"))
+
+table(g$AGE2,g$DESTINATION, dnn = c("AGE", "DESTINATION"))
+```
+
+
+

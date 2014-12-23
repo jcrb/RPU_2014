@@ -15,7 +15,8 @@ Nombre de RPU par semaine
 
 
 ```{r passages, echo=FALSE}
-load("~/Documents/Resural/Stat Resural/RPU_2014/rpu2013-2014.Rda")
+# commentaire
+load("../rpu2013-2014.Rda")
 dx <- d2
 library(lubridate)
 
