@@ -1,0 +1,39 @@
+---
+title: "Activité SAMU"
+author: "jcb"
+date: "24 décembre 2014"
+output: html_document
+---
+
+2014-12-25
+----------
+
+Analyse du nombre d'affaires en 2014. Source de données SAGEC. Le fichier a été obtenu via l'export Sagec des alarmes SAMU pour l'année 2014.
+
+```{r init}
+suppressPackageStartupMessages(library(googleVis))
+path <- "../../"
+file <- "samu67_2014.csv"
+d67 <- read.csv(file)
+```
+
+Nombre moyen d'affaires
+------------------------
+```{r mean_affaires, echo=FALSE}
+mean(d67$affaires)
+sd(d67$affaires)
+# calcul de la moyenne avec 1, 2 ou 3 écarts-types
+m1sd.sup <- round(m + s, 0)
+m1sd.inf <- round(m - s, 0)
+m2sd.sup <- round(m + 2*s, 0)
+m2sd.inf <- round(m - 2*s, 0)
+m3sd.sup <- round(m + 3*s, 0)
+m3sd.inf <- round(m - 3*s, 0)
+# essai de représentation avec une jauge de goglevis
+affaires <- data.frame(x = "SAMU 67", y = 890)
+g <- gvisGauge(affaires, options=list(min=0, max=2000, greenFrom=0, greenTo=m1sd.sup, yellowFrom=m1sd.sup, yellowTo=m2sd.sup, redFrom=m2sd.sup, redTo=2000))
+
+
+
+```
+
