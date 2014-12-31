@@ -1,0 +1,53 @@
+---
+title: "RPU 2014 en chiffres"
+author: "JcB"
+date: "31/12/2014"
+output: html_document
+---
+
+init
+----
+Le fichier source s'appelle __dx__.
+
+```{r init, echo=FALSE}
+load("~/Documents/Resural/Stat Resural/RPU_2014/rpu2014d0112_provisoire.Rda")
+library(lubridate)
+library(knitr)
+
+anc <- year(as.Date(dx$ENTREE[1])) # année courante
+
+MOIS <- format(ISOdate(anc, 1:12, 1), "%B") # noms des mois
+mois <- format(ISOdate(anc, 1:12, 1), "%b") # noms des mois abrégés
+
+# pour que la semaine commence un lundi, il faut choisir 2007 comme année de référence
+SEMAINE <- format(ISOdate(2007, 1, 1:7), "%A") # noms des jours de la semaine
+semaine <- format(ISOdate(2007, 1, 1:7), "%a") # noms des jours de la semaine abrégés
+
+```
+
+Total RPU
+=========
+```{r total, echo=FALSE}
+n <- nrow(dx)
+
+```
+Total RPU: `r n`
+
+Nombre de RPU par mois
+======================
+
+Pb: on veut connaître le nombre de RPU par mois en 2014. Utilisé par le site internet. On utilise la fonction _tapply_ pour calculer la répartition mensuelle.
+
+```{r}
+# en valeur absolue
+t <- tapply(as.Date(dx$ENTREE), month(as.Date(dx$ENTREE)), length)
+names(t) <- format(ISOdate(2000, 1:12, 1), "%B")
+t
+# en pourcentage
+round(prop.table(t)*100, 2)
+# en différence. Rajoute 1 pour le mois de janvier
+d <- c(1 ,diff(t))
+names(d[1]) <- "janvier" # marche pas ?
+barplot(d[1:11], col = ifelse(d > 0, "yellow", "green"), main = paste0("Variation du nombre de RPU en ", anc))
+
+```

@@ -70,7 +70,6 @@ plot(tx_hosp[2,], type = "l", ylim = c(0,25), col="red", xlab="semaines", ylab="
 lines(tx_hosp[1,], col = "blue", lwd=3)
 legend("bottomleft", legend=c("2013", "2014"), col=c("blue","red"), bty="n", lty=1)
 
-
-
 ```
+
 
