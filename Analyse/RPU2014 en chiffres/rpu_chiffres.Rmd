@@ -2,7 +2,9 @@
 title: "RPU 2014 en chiffres"
 author: "JcB"
 date: "31/12/2014"
-output: html_document
+output:
+  html_document:
+    toc: yes
 ---
 
 init
@@ -24,6 +26,30 @@ SEMAINE <- format(ISOdate(2007, 1, 1:7), "%A") # noms des jours de la semaine
 semaine <- format(ISOdate(2007, 1, 1:7), "%a") # noms des jours de la semaine abrégés
 
 ```
+
+Créer un calendrier
+===================
+
+Pb: on veut créer un vecteur de 365 ou 366 jours.
+
+```{r}
+date1 <- "2014-01-01"
+date2 <- "2014-12-31"
+calendrier <- seq(from = as.Date(date1), to = as.Date(date2), by = 1)
+
+```
+
+Compter les jours d'une semaine
+===============================
+
+Pb: on veut compter le nombre de lundi, merdi, ..., dimanche au cours d'une période de temps
+
+```{r}
+tapply(calendrier, wday(calendrier, label = TRUE), length)
+
+```
+
+
 
 Total RPU
 =========
@@ -51,3 +77,34 @@ names(d[1]) <- "janvier" # marche pas ?
 barplot(d[1:11], col = ifelse(d > 0, "yellow", "green"), main = paste0("Variation du nombre de RPU en ", anc))
 
 ```
+
+Nombre de RPU par semaine
+=========================
+
+Il y a deux méthodes possibles:
+
+- __weekday__s du package _main_:
+```{r}
+wd <- tapply(as.Date(dx$ENTREE), weekdays(as.Date(dx$ENTREE)), length)
+wd
+
+```
+- __wday__ du package _lubridate_. Inconvénient, la semaine commence le dimanche.
+```{r}
+# jours de semaine indicés par des entiers
+wd <- tapply(as.Date(dx$ENTREE), wday(as.Date(dx$ENTREE)), length)
+wd
+
+# jours indicés par leur nom
+wd <- tapply(as.Date(dx$ENTREE), wday(as.Date(dx$ENTREE), label = TRUE), length)
+wd
+```
+
+Possibilité de correction:
+```{r}
+a <- c(wd[2:7],wd[1]) # on met le dimanche en dernier
+names(a) <- SEMAINE
+a
+
+```
+
