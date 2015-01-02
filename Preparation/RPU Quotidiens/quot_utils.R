@@ -1,5 +1,8 @@
 # Ensemble de fonctions pour intégrer automatiquement les RPU
 
+# source("Preparation/RPU Quotidiens/quot_utils.R")
+
+
 # Liste des fonctions
 #' - rpu_jour
 #' - finess2hop
@@ -9,6 +12,13 @@
 #' - jour_consolide
 #' - lire_archive
 #' - assemble
+#' - normalise
+#' 
+#' - rpu2xts
+#' - plot.xts2
+#' - jours.manquants
+#' - normalise.caracteres
+#' - completude.item
 
 #=======================================
 #
@@ -397,13 +407,41 @@ normalise.caracteres <- function(dpr){
   dpr<-gsub("\xea","ê",as.character(dpr),fixed=FALSE)
   dpr<-gsub("\xe7","ç",as.character(dpr),fixed=FALSE)
   
-  
-  
-  
-  
-  
   # autres symboles
   dpr<-gsub(".","",as.character(dpr),fixed=TRUE)
   dpr<-gsub("+","",as.character(dpr),fixed=TRUE)
   return(dpr)
+}
+
+#=======================================
+#
+# completude.item
+#
+#=======================================
+#' calcule le % de réponses à un item
+#' @author jcb
+#' @date 2015-01-02
+#' @param data un vecteur 
+#' @param precision nombre de chiffre après la virgule
+#' @return pourcentage de data remplis (<> NA)
+#' @usage completude.iten(d2$DESTINATION)
+#' 
+completude.item <- function(data, precision = 2){
+  round(mean(!is.na(data)) * 100, precision)
+}
+
+#=======================================
+#
+# cim10
+#
+#=======================================
+#' retourne le vecteur des codes CIM10 du vecteur d
+#' et qui sont compris entre a et b (inclus)
+#' 
+#' @usage cim10(dx$DP, "S60", "S69")
+#' 
+cim10 <- function(d, a, b){
+  ncar <- nchar(a)
+  x <- d[substr(d, 1, ncar) >= a & substr(d, 1, ncar) <= b & !is.na(d)]
+
 }

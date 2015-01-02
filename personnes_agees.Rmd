@@ -1,6 +1,6 @@
 ---
 title: "Personnes_agees"
-output: html_document
+output: pdf_document
 ---
 
 Dans ce cadre, serait-il ainsi possible à travers une requête RPU d'avoir des données concernant  :
@@ -13,17 +13,67 @@ Dans ce cadre, serait-il ainsi possible à travers une requête RPU d'avoir des 
     en les rapportant au total de passages.
 
 - le mode d'arrivée et l'origine (mais il me semble qu'à travers les RPU, on ne peut avoir l'information origine domicile/EHPAD...?) (selon les classes d'âge ci-dessus si possible)
+
 - leur orientation à l'issue du passage aux urgences (selon les classes d'âge ci-dessus si possible)
  
 - des informations à travers les motifs et/ou les diagnostics (chute/trouble de la marche/trouble de l'équilibre) en regroupant certains codes ?
- 
+
+Codes CIM 10
+============
+
+Chutes
+------
+Y30  Chute, saut ou précipitation dans le vide, intention non déterminée, chute de la victime d'un niveau à un autre, intention non déterminée
+```{}
+    	 	Y30.0	Chute au domicile
+ 	 	 	 	Y30.1	Chute dans un établissement collectif
+ 	 	 	 	Y30.2	Chute dans une institution
+ 	 	 	 	Y30.3	Chute dans un lieu de sport
+ 	 	 	 	Y30.4	Chute sur la route
+ 	 	 	 	Y30.5	Chute, saut ou précipitation dans le vide, intention non déterminée, dans une zone de commerce et de services
+ 	 	 	 	Y30.6	Chute, saut ou précipitation dans le vide, intention non déterminée, dans un local industriel et chantier de construction
+ 	 	 	 	Y30.7	Chute, saut ou précipitation dans le vide, intention non déterminée, dans une exploitation agricole
+ 	 	 	 	Y30.8	Chute
+ 	 	 	 	Y30.9	Chute
+```
+Traumatisme
+-----------
+```{}
+    S00-S09	Lésions traumatiques de la tête
+ 	 	S10-S19	Lésions traumatiques du cou
+ 	 	S20-S29	Lésions traumatiques du thorax
+ 	 	S30-S39	Lésions traumatiques de l'abdomen, des lombes, du rachis lombaire et du bassin
+ 	 	S40-S49	Lésions traumatiques de l'épaule et du bras
+ 	 	S50-S59	Lésions traumatiques du coude et de l'avant-bras
+ 	 	S60-S69	Lésions traumatiques du poignet et de la main
+ 	 	S70-S79	Lésions traumatiques de la hanche et de la cuisse
+ 	 	S80-S89	Lésions traumatiques du genou et de la jambe
+ 	 	S90-S99	Lésions traumatiques de la cheville et du pied
+ 	 	T00-T07	Lésions traumatiques de plusieurs parties du corps
+ 	 	T08-T14	Lésions traumatiques de siège non précisé du tronc, membre ou autre région du corps 
+```
+
+Temps de travail: 2 x 8 heures
  
 ```{r init, cache=FALSE, echo=FALSE}
+if(as.character(Sys.info()["nodename"]) == "MacBook-Air-de-JCB.local")
+  path = "~/Documents/Stat Resural/RPU_2014/rpu2013-2014.Rda" else 
+if(as.character(Sys.info()["nodename"]) == "XPS")
+  path = "~/Documents/Resural/Stat Resural/RPU_2014"
+file <- "rpu2013-2014.Rda"
+load(paste(path, file, sep = "/"))
 
-# load("~/Documents/Stat Resural/RPU_2014/rpu2013-2014.Rda")
-# # on forme un dataframe ne comportant que les ages > 54 ans et les colonnes utiles:
-# g <- d2[d2$AGE > 54, c("AGE", "MODE_ENTREE", "PROVENANCE", "MODE_SORTIE", "DESTINATION", "ORIENTATION")]
-# save(g, file = "Personnes_agees.Rda")
+source("Preparation/RPU Quotidiens/quot_utils.R")
+library("epicalc")
+
+
+# on forme un dataframe ne comportant que les ages > 54 ans et les colonnes utiles:
+g <- d2[d2$AGE > 54, c("AGE", "MODE_ENTREE", "PROVENANCE", "MODE_SORTIE", "DESTINATION", "ORIENTATION", "DP", "MOTIF")]
+save(g, file = "Personnes_agees.Rda")
+
+# nb total de RPU
+n <- nrow(d2)
+# rm(d2)
 ```
 
 Définitions
@@ -32,6 +82,13 @@ Définitions
 - Domicile: domicile ou ce qui en tient lieu (voie publique)
 - Mutation: hospitalisation dans le même établissement que celui du SU
 - Transfert: hospitalisation dans un autre établissement que celui du SU.
+
+- PEO: désigne une prise en charge organisationnelle. Ce code est utilisé lorsque le patient n'est pas destiné aux urgences mais il y transite temporairement (par ex. en attente qu'un lit prévu se libère)
+- PEA: désigne une arrivée non programmée aux urgences (cas général)
+
+La FEDORU recommande d'identifier les personnes provenant des EHPAD par l'association MODE ENTREE = 8 (Domicile) + PROVENANCE = 7 (structure médico-sociale). Cependant ce dernier code n'est pas proposé dans la version officielle des RPU.
+
+On pourrait identifier indirectement les EHPAD par le mode de sorie: MODE SORTIE = 8 + DESTINATION = 7. Malheureusement l'item DESTINATION est mal renseigné: 21% sur 2 ans (round(mean(!is.na(d2$DESTINATION)) * 100, 2))
 
 Création des sous groupes
 --------------------------
@@ -51,16 +108,26 @@ b <- table(g$AGE2)
 
 barplot(b, cex.names = 0.6, las = 2, main = "Population de 55 ans et plus" )
 
-# nb total de RPU
-n <- nrow(d2)
-# bn total de RPU de 55 ans et plus
+# total de RPU de 55 ans et plus
 n2 <- nrow(g)
 
 # en pourcentage du total
 c <- round(table(a) * 100 / n, 2)
+# en pourcentage des plus de 55 ans
+c55 <- round(table(a) * 100 / n2, 2)
 # synthèse
-d <- rbind(b,c)
-rownames(d) <- c("effectif", "pourcentage")
+d <- rbind(b, c55, c)
+rownames(d) <- c("effectif", "% effectif", "% total RPU")
+
+# complétude des données
+c.entree <- completude.item(g$MODE_ENTREE, 0)
+c.provenance <- completude.item(g$PROVENANCE, 0)
+
+c.orientation <- completude.item(g$ORIENTATION, 0)
+
+c.sortie <- completude.item(g$MODE_SORTIE, 0)
+c.destination <- completude.item(g$DESTINATION, 0)
+
 ```
 
 Résultats
@@ -71,10 +138,18 @@ Résultats
 - Effectif total: `r n` RPU.
 - Nombre de RPU agés de 55 ans ou plus: `r n2`
 
-```{r results, echo=FALSE, results='asis'}
-#kable(d)
+#### Complétude des données
 
-print(xtable(d), type = "html")
+Pourcentage de RPU renseignés selon l'item:
+
+- MODE ENTREE: `r c.entree` %
+- PROVENANCE : `r c.provenance` %
+- MODE SORTIE: `r c.sortie` %
+- DESTINATION: `r c.destination` %
+
+```{r results, echo=FALSE, results='asis', comment="",message=FALSE}
+#kable(d)
+print(xtable(d), type = "latex")
 ```
 
 Selon le MODE_ENTREE et la PROVENANCE
@@ -85,11 +160,23 @@ Selon le MODE_ENTREE et la PROVENANCE
 a <- as.character(g$MODE_ENTREE)
 a[a == "Transfe  rt"] <- "Transfert"
 g$MODE_ENTREE <- as.factor(a)
-table(g$MODE_ENTREE)
+
+table(g$MODE_ENTREE, dnn = "MODE D'ENTREE")
 
 # suppression des facteurs vides dans PROVENANCE et MODE_SORTIE
 g$PROVENANCE <- factor(g$PROVENANCE)
 table(g$PROVENANCE, dnn = "PROVENANCE")
+
+table(g$AGE2, g$MODE_ENTREE, dnn = c("AGE", "MODE ENTREE"))
+
+table(g$AGE2, g$PROVENANCE, dnn = c("AGE", "PROVENANCE"))
+
+```
+
+Mode de sortie (par classes d'age)
+-------------------------------------
+
+```{r soertie, echo=FALSE}
 
 g$MODE_SORTIE <- factor(g$MODE_SORTIE)
 table(g$MODE_SORTIE, dnn = "MODE DE SORTIE")
@@ -100,20 +187,50 @@ table(g$DESTINATION, dnn = "DESTINATION")
 g$ORIENTATION <- factor(g$ORIENTATION)
 table(g$ORIENTATION, dnn = "ORIENTATION")
 
-table(g$AGE2, g$MODE_ENTREE, dnn = c("AGE", "MODE ENTREE"))
-
-table(g$AGE2, g$PROVENANCE, dnn = c("AGE", "PROVENANCE"))
-
-```
-
-Mode de sortie
---------------
-
-```{r soertie, echo=FALSE}
 table(g$AGE2,g$MODE_SORTIE, dnn = c("AGE", "MODE DE SORTIE"))
 
 table(g$AGE2,g$DESTINATION, dnn = c("AGE", "DESTINATION"))
+
+addmargins(table(g$AGE2, factor(g$ORIENTATION), dnn = c("AGE", "DESTINATION")), c(1,2))
+
+
 ```
 
+Analyse des codes CIM10
+========================
 
+```{r, echo=FALSE}
+g$DP <- normalise.caracteres(g$DP)
+#g$DP <- as.factor(g$DP)
+trauma <- g[substr(g$DP, 1, 3) == "S60" & !is.na(substr(g$DP, 1, 3)),]
+summary(as.factor(trauma$DP))
+
+trauma.tete <- g[substr(g$DP, 1, 3) >= "S60" & substr(g$DP, 1, 3) <= "S69" & !is.na(substr(g$DP, 1, 3)),]
+
+```
+
+Merging avec le fichier des recours de l'ORUMIP
+-----------------------------------------------
+
+```{r,echo=FALSE}
+file.reg <- "~/Documents/Resural/FEDORU/Codes_regroupement_ORUMIP/Regroupement_ORUMIP/Regroupements ORUMiP Thésaurus SFMU.csv"
+reg <- read.csv(file.reg, skip = 1)
+greg <- merge(g, reg, by.x = "DP", by.y = "CIM10", all.x)
+
+```
+Par type d'urgences
+-------------------
+```{r,echo=FALSE}
+tab1(greg$Code.Type.Urgences, sort.group = "increasing", main = "Type d'urgence", ylab = "Fréquence")
+table(greg$AGE2, greg$Code.Type.Urgences)
+```
+Traumatologie
+-------------
+```{r,echo=FALSE}
+gtrau <- greg[greg$Code.Type.Urgences == "TRAUMA", ]
+tab1(factor(gtrau$Code.Discipline...Topographie), sort.group = "increasing", main = "Traumatologie - Localisation", cex = 0.8, cex.names = 0.6)
+
+table(gtrau$AGE2, factor(gtrau$Code.Discipline...Topographie))
+
+```
 
