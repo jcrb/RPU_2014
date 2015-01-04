@@ -34,7 +34,7 @@ Chutes
 ------
 Y30  Chute, saut ou précipitation dans le vide, intention non déterminée, chute de la victime d'un niveau à un autre, intention non déterminée
 ```{}
-Y30.0	Chute au domicile
+Y30.0  Chute au domicile
 Y30.1	Chute dans un établissement collectif
 Y30.2	Chute dans une institution
 Y30.3	Chute dans un lieu de sport
@@ -159,72 +159,62 @@ Pourcentage de RPU renseignés selon l'item:
 - MODE SORTIE: `r c.sortie` %
 - DESTINATION: `r c.destination` %
 
-```{r results, echo=FALSE, results='asis', comment="",message=FALSE}
+```{r results, echo=FALSE, comment="",message=FALSE}
 #kable(d)
-print(xtable(d), type = "latex")
+d
 ```
 
 Selon le MODE_ENTREE et la PROVENANCE
 -------------------------------------
 
-```{r correction, echo=FALSE, results='asis'}
+```{r correction, echo=FALSE,}
 # correction de l'ortographe de transfert, parfois ortographié en 'transf  ert'
 a <- as.character(g$MODE_ENTREE)
 a[a == "Transfe  rt"] <- "Transfert"
 g$MODE_ENTREE <- as.factor(a)
 
 t <- table(g$MODE_ENTREE, dnn = "MODE D'ENTREE")
-x <- xtable(t, caption = "Mode d'entrée des patients de 55 ans et plus.", label = "entree", format.args = list(big.mark = " ", decimal.mark = ","))
-print(x, comment = FALSE)
+t
 
 t <- table(g$AGE2, g$MODE_ENTREE, dnn = c("AGE", "MODE ENTREE"))
-x <- xtable(t, caption = "Mode d'entrée des patients de 55 ans et plus selon l'age.", label = "entree_age", format.args = list(big.mark = " ", decimal.mark = ","))
-print(x, comment = FALSE)
+t
 
 # suppression des facteurs vides dans PROVENANCE et MODE_SORTIE
 g$PROVENANCE <- factor(g$PROVENANCE)
 t <- table(g$PROVENANCE, dnn = "PROVENANCE")
-x <- xtable(t, caption = "Provenance des patients de 55 ans et plus.", label = "provenance", format.args = list(big.mark = " ", decimal.mark = ","))
-print(x, comment = FALSE)
+t
 
 t <- table(g$AGE2, g$PROVENANCE, dnn = c("AGE", "PROVENANCE"))
-x <- xtable(t, caption = "Provenance des patients de 55 ans et plus selon l'age.", label = "provenance_et_age", format.args = list(big.mark = " ", decimal.mark = ","))
-print(x, comment = FALSE)
+t
 
 ```
 
 Mode de sortie (par classes d'age)
 -------------------------------------
 
-```{r sortie, echo=FALSE, results='asis', comment="", message=FALSE }
+```{r sortie, echo=FALSE, comment="", message=FALSE }
 
 g$MODE_SORTIE <- factor(g$MODE_SORTIE)
 t <- table(g$MODE_SORTIE, dnn = "MODE DE SORTIE")
-x <- xtable(t, caption = "Mode de sortie des patients de 55 ans et plus.", label = "mode_sortie", format.args = list(big.mark = " ", decimal.mark = ","))
-print(x, comment = FALSE)
+t
 
 g$DESTINATION <- factor(g$DESTINATION)
 t <- table(g$DESTINATION, dnn = "DESTINATION")
-x <- xtable(t, caption = "Destination des patients de 55 ans et plus.", label = "destination", format.args = list(big.mark = " ", decimal.mark = ","))
-print(x, comment = FALSE)
+t
 
 g$ORIENTATION <- factor(g$ORIENTATION)
 t <- table(g$ORIENTATION, dnn = "ORIENTATION")
-x <- xtable(t, caption = "Orientation des patients de 55 ans et plus.", label = "orientation", format.args = list(big.mark = " ", decimal.mark = ","))
-print(x, comment = FALSE)
+t
 
 
 t <- table(g$AGE2,g$MODE_SORTIE, dnn = c("AGE", "MODE DE SORTIE"))
-x <- xtable(t, caption = "Mode de sortie des patients de 55 ans et plus selon la classe d'age.", label = "sortie_age", format.args = list(big.mark = " ", decimal.mark = ","))
-print(x, comment = FALSE)
+t
 
 t <- table(g$AGE2,g$DESTINATION, dnn = c("AGE", "DESTINATION"))
-x <- xtable(t, caption = "Destination des patients de 55 ans et plus selon la classe d'age.", label = "destination_age", format.args = list(big.mark = " ", decimal.mark = ","))
-print(x, comment = FALSE)
+t
 
 t <- addmargins(table(g$AGE2, factor(g$ORIENTATION), dnn = c("AGE", "ORIENTATION")), c(1,2))
-x <- xtable(t, caption = "Orientation des patients de 55 ans et plus selon la classe d'age.", label = "orientation_age", format.args = list(big.mark = " ", decimal.mark = ","), digits = 0)
-print(x, comment = FALSE)
+t
 
 ```
 
