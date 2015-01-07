@@ -108,3 +108,73 @@ a
 
 ```
 
+Demande ARS 2015 02
+===================
+
+Date: 2014-01-07
+
+Dans le cadre de l'évaluation des CPOM des établissements, mais également en lien avec le travail qui s'initie en interne concernant la prise en charge de la personne âgée, nous souhaiterions pouvoir disposer des données par établissement concernant:
+- le nombre de primo passages, et la proportion des patients de 75 ans et plus, en incluant les données de l'année 2014 (en précisant le niveau d'exhaustivité atteint dans la base 2014 à ce jour de la requête).
+- la moyenne/médiane des temps de passages pour tout âge et pour les 75 ans et plus.
+ 
+En y incluant les Diaconesses et la clinique Roosevelt, et des totaux par territoires de santé et pour la région.
+ 
+Ci-joint un tableau pour clarifier la demande, avec certaines données déjà remplies à partir de la dernière version du rapport 2013.
+ 
+Avez-vous d'ores et déjà des éléments d'explication (liés au codage notamment) au regard des temps de passage très hétérogènes d'une SU à l'autre?
+
+Elements de réponse
+
+nombre de primo passages
+------------------------
+`r n`
+
+proportion de 75 ans et plus
+----------------------------
+```{r}
+pop_75ans <- dx[dx$AGE > 74, "AGE"]
+n_75ans <- length(pop_75ans)
+
+summary(pop_75ans)
+```
+Exhaustivité pour l'âge: `r mean(!is.na(n_75ans)) * 100)` %
+
+proportion des 75 ans: `r round(n_75ans * 100 / n, 2)` %.
+
+Durée de passage
+----------------
+```{r}
+dp <- dx[!is.na(dx$ENTREE) & !is.na(dx$SORTIE) & dx$AGE > 74, c("SORTIE", "ENTREE", "AGE", "FINESS")]
+mean(!is.na(dp$SORTIE))
+mean(!is.na(dp$ENTREE))
+sum(is.na(dp$ENTREE))
+sum(is.na(dp$SORTIE))
+dp <- dp[!is.na(dp$SORTIE) & !is.na(dp$ENTREE),]
+```
+Exhaustivité de 99%. Seuls 4 passages ne sont pas renseignés.
+
+```{r presence}
+# vecteur des heures d'entrées
+s <- ymd_hms(dp$SORTIE)
+# vecteurs des heures de sortie
+e <- ymd_hms(dp$ENTREE)
+# durée de présence en secondes
+p <- s - e
+length(p)
+summary(as.numeric(p))
+# résumé en minutes
+summary(as.numeric(p)/60)
+
+# vecteur des durée de présence en mn
+p_mn <- as.numeric(p)/60
+H48 <- 60 * 48
+# durée de présence comprises entre 0 et 48 heures
+p48 <- p_mn[p_mn < H48 + 1]
+summary(p48)
+length(p48)
+# histogramme par tranche d'une heure
+hist(p48, breaks = seq(0, 60*48, 60), main = "Durée de passage (par tranche d'une heure) \ndes patients de 75 ans et plus", xlab = "temps en minutes de 0 à 2880 minutes (48 heures)", ylab = "fréquence")
+
+
+```
+La durée de passage est bornée à 48 heures (recommandation FEDORU).
