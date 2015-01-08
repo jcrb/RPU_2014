@@ -5,8 +5,8 @@ On crée le fichier __d2__ concaténation de 2013 (d1) et 2014 (dx):
 
 ```{}
 load("../RPU_2013/rpu2013d0112.Rda")
-load("rpu2014d0111.Rda")
-d2 <- rbind(d1,dx)
+load("rpu2014d0112.Rda")
+d2 <- rbind(d1,d14)
 save(d2, file="rpu2013-2014.Rda")
 ```
 ou on charge directement __d2__
@@ -83,7 +83,7 @@ Je n'ai pas trouvé dans R en général et dans les séries temporelles de fonct
 # comparaison RPU 2013-2014
 
 #nb de rpu/jour 2014
-t <- tapply(as.Date(dx$ENTREE), as.Date(dx$ENTREE), length)
+t <- tapply(as.Date(d14$ENTREE), as.Date(d14$ENTREE), length)
 t2014 <- as.data.frame(cbind(names(t), as.numeric(t)), stringsAsFactors = FALSE)
 t2014$V1 <- as.Date(t2014$V1) # col. date
 t2014$V2 <- as.numeric(t2014$V2) # nb de RPU
@@ -99,14 +99,14 @@ t2013 <- as.data.frame(cbind(names(t2013), as.numeric(t2013)), stringsAsFactors 
 t2013$V1 <- as.Date(t2013$V1)
 t2013$V2 <- as.numeric(t2013$V2)
 t2013$V3 <- yday(t2013$V1)
-t2013$V4 <- rollmean(t2013$V2, 7)
+t2013$V4 <- rollmean(t2013$V2, 7, fill = NA)
 plot(t2013$V2, type="l")
 lines(t2013$V3, t2013$V4)
 
 # synthèse
 # png("fig1.png", width = 400, height = 300)
 source("constantes.R") # récupère le nom des mois
-plot(t2014$V4, type="l", xlim = c(0,365), ylim = c(650, 1400), axes = FALSE, xlab="", ylab="")
+plot(t2014$V4, type="l", xlim = c(0,365), ylim = c(650, 1500), axes = FALSE, xlab="", ylab="")
 axis(side = 1, at= seq(1,365,30), labels=NA)
 axis(side = 1, at= seq(1,365,30), labels= c(mois_c, "Jan"))
 axis(side=2, las = 1)

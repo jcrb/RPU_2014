@@ -172,8 +172,8 @@ file.remove(file.to.delete)
 ```
 
 ```{}
-date1 <- "2014-11-08"
-date2 <- "2014-12-15"
+date1 <- "2014-12-08"
+date2 <- "2015-01-07"
 
 mc <- substr(date1, 6, 7)
 ac <- substr(date1, 1,4)

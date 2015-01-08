@@ -257,3 +257,106 @@ table(gtrau$AGE2, factor(gtrau$Code.Discipline...Topographie))
 
 ```
 
+Demande 2: 7/01/2014
+====================
+
+Dans le cadre de l'évaluation des CPOM des établissements, mais également en lien avec le travail qui s'initie en interne concernant la prise en charge de la personne âgée, nous souhaiterions pouvoir disposer des données par établissement concernant:
+
+- le nombre de primo passages, et la proportion des patients de 75 ans et plus, en incluant les données de l'année 2014 (en précisant le niveau d'exhaustivité atteint dans la base 2014 à ce jour de la requête).
+
+- la moyenne/médiane des temps de passages pour tout âge et pour les 75 ans et plus.
+ 
+En y incluant les Diaconesses et la clinique Roosevelt, et des totaux par territoires de santé et pour la région.
+ 
+Ci-joint un tableau pour clarifier la demande, avec certaines données déjà remplies à partir de la dernière version du rapport 2013.
+ 
+Avez-vous d'ores et déjà des éléments d'explication (liés au codage notamment) au regard des temps de passage très hétérogènes d'une SU à l'autre?
+ 
+L'échéance souhaitée est le vendredi 16 janvier.
+Je vous remercie par avance, 
+
+
+nombre de primo passages, et la proportion des patients de 75 ans et plus
+-------------------------------------------------------------------------
+```{r}
+n_75ans <- d2[d2$AGE > 74, "AGE"]
+summary(n_75ans)
+
+pop_75ans <- d2[d2$AGE > 74, "AGE"]
+# n_75ans = nombre de passages de 75 ans
+n_75ans <- length(pop_75ans)
+# n = nb totaux de passages
+n <- nrow(d2)
+# proportion de 75 ans
+prop75 <- round(n_75ans * 100 / n, 2)
+exhaust.age <- mean(!is.na(n_75ans))
+```
+- nombre total de RPU (2013-2014): `r n`
+- nombre de patients de 75 ans et plus sur la période: `r n_75ans`
+- proportion de 75 ans: `r prop75` %.
+- exhaustivité pour l'age: `r round(exhaust.age * 100,2)
+
+Moyenne/médiane des temps de passages pour tout âge et pour les 75 ans et plus.
+------------------------------------------------------------------------------
+
+#### On sélectionne tous les enregistrements dont heure entréé et sortie ne sont pas NA
+
+```{r}
+dp.tot <- d2[!is.na(d2$ENTREE) & !is.na(d2$SORTIE), c("SORTIE", "ENTREE", "AGE", "FINESS")]
+# H48 = constante = nb de minutes dans 48 heures
+H48 <- 60 * 48
+# 1002 dates ne compoetent pas d'heures. Cela concerne exclusivemnt wissembourg pour le mois de novembre 2014. Pb de parsing ?
+# de <- dp.tot[is.na(ymd_hms(dp.tot$ENTREE)),]
+e <- ymd_hms(dp.tot$ENTREE)
+s <- ymd_hms(dp.tot$SORTIE)
+
+p.tot <- as.numeric((s - e)/60)  # durée présence en mn
+p <- p.tot[!is.na(p.tot)] # supprime les NA
+p <- p[p >= 0] # on ne garde que les valeurs positives
+p <- p[p < H48+1] # et de moins de 48h
+hist(p, breaks = seq(0, 60*48, 60))
+summary(p)
+
+# essai
+dp.tot$DUREE <- p.tot
+a <- dp.tot[!is.na(dp.tot$DUREE),]
+a <- a[a$DUREE >=0,]
+a <- a[a$DUREE < H48+1,]
+boxplot(a$DUREE ~ a$FINESS, outline = FALSE)
+
+
+
+```
+
+Dataframe (dp) avec heure d'entée, de sortie et __age > 74 ans__. L'exhaustivité est > 99%, 14 données sont manquantes
+```{r}
+dp <- d2[!is.na(d2$ENTREE) & !is.na(d2$SORTIE) & d2$AGE > 74, c("SORTIE", "ENTREE", "AGE", "FINESS")]
+mean(!is.na(dp$SORTIE))
+mean(!is.na(dp$ENTREE))
+sum(is.na(dp$ENTREE))
+sum(is.na(dp$SORTIE))
+
+# vecteur des entrées
+e <- ymd_hms(dp$ENTREE)
+# vecteur des sorties
+s <- ymd_hms(dp$SORTIE)
+# p = durée de présence en secondes
+p <- s - e
+head(p)
+length(p)
+summary(as.numeric(p))
+# résumé en minutes
+summary(as.numeric(p)/60)
+
+# p_nm = vecteur des durée de présence en minutes
+p_mn <- as.numeric(p)/60
+
+# p48 = vecteur des durées <= à 48 heures (recommandation de la FEDORU)
+p48 <- p_mn[p_mn < H48 + 1]
+summary(p48)
+length(p48)
+hist(p48, breaks = seq(0, 60*48, 60), main = "Durée de passage (par tranche d'une heure) \ndes patients de 75 ans et plus", xlab = "temps en minutes de 0 à 2880 minutes (48 heures)", ylab = "fréquence")
+
+
+```
+

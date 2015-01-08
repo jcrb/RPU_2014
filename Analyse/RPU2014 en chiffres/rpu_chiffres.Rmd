@@ -141,8 +141,8 @@ Exhaustivité pour l'âge: `r mean(!is.na(n_75ans)) * 100)` %
 
 proportion des 75 ans: `r round(n_75ans * 100 / n, 2)` %.
 
-Durée de passage
-----------------
+Durée de passage chez les plus de 75 ans
+----------------------------------------
 ```{r}
 dp <- dx[!is.na(dx$ENTREE) & !is.na(dx$SORTIE) & dx$AGE > 74, c("SORTIE", "ENTREE", "AGE", "FINESS")]
 mean(!is.na(dp$SORTIE))
@@ -175,6 +175,10 @@ length(p48)
 # histogramme par tranche d'une heure
 hist(p48, breaks = seq(0, 60*48, 60), main = "Durée de passage (par tranche d'une heure) \ndes patients de 75 ans et plus", xlab = "temps en minutes de 0 à 2880 minutes (48 heures)", ylab = "fréquence")
 
-
 ```
 La durée de passage est bornée à 48 heures (recommandation FEDORU).
+
+```{r}
+
+```
+
