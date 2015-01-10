@@ -62,6 +62,7 @@ finess2hop <- function(a){
   a[a=="670000397"]<-"Sel"
   a[a=="680000684"]<-"Col"
   a[a=="670016237"]<-"Odi"
+  a[a=="670780204"]<-"Odi" # Finess juridique
   a[a=="670000272"]<-"Wis"
   a[a=="680000700"]<-"Geb"
   a[a=="670780055"]<-"Hus"

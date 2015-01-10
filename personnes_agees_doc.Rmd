@@ -1,7 +1,7 @@
 ---
 title: "Personnes_agees"
 author: "RESURAL (JcB)"
-output: word_document
+output: html_document
 ---
 
 Date: 03/01/2015
@@ -13,6 +13,7 @@ Contacts: Dr [Schieber](Anne-Cecile.SCHIEBER@ars.sante.fr]), Dr [Pillay](Christi
 Demande
 =======
 Dans ce cadre, serait-il ainsi possible à travers une requête RPU d'avoir des données concernant  :
+
 - le nombre de passages en 2013 et en 2014 (jusqu'au mois de novembre) selon différentes classes d'âge suivantes:
 
     - entre >= 55 et <65 ans
@@ -78,6 +79,7 @@ source("Preparation/RPU Quotidiens/quot_utils.R")
 library("epicalc")
 library(xtable)
 library(knitr)
+library(lubridate)
 
 # options(xtable, comment = FALSE)
 
@@ -294,7 +296,7 @@ exhaust.age <- mean(!is.na(n_75ans))
 - nombre total de RPU (2013-2014): `r n`
 - nombre de patients de 75 ans et plus sur la période: `r n_75ans`
 - proportion de 75 ans: `r prop75` %.
-- exhaustivité pour l'age: `r round(exhaust.age * 100,2)
+- exhaustivité pour l'age: `r round(exhaust.age * 100,2)`
 
 Moyenne/médiane des temps de passages pour tout âge et pour les 75 ans et plus.
 ------------------------------------------------------------------------------
@@ -303,30 +305,41 @@ Moyenne/médiane des temps de passages pour tout âge et pour les 75 ans et plus
 
 ```{r}
 dp.tot <- d2[!is.na(d2$ENTREE) & !is.na(d2$SORTIE), c("SORTIE", "ENTREE", "AGE", "FINESS")]
+# intégration du Finess Juridique pour la clinique Ste Odile
+dp.tot$FINESS <- as.character(dp.tot$FINESS)
+dp.tot$FINESS[dp.tot$FINESS=="670780204"]<-"Odi"
+dp.tot$FINESS <-  factor(dp.tot$FINESS) # élimine les facteus vides
+
 # H48 = constante = nb de minutes dans 48 heures
 H48 <- 60 * 48
-# 1002 dates ne compoetent pas d'heures. Cela concerne exclusivemnt wissembourg pour le mois de novembre 2014. Pb de parsing ?
+# 1002 dates ne comportent pas d'heures. Cela concerne exclusivemnt wissembourg pour le mois de novembre 2014. Pb de parsing ?
 # de <- dp.tot[is.na(ymd_hms(dp.tot$ENTREE)),]
 e <- ymd_hms(dp.tot$ENTREE)
 s <- ymd_hms(dp.tot$SORTIE)
-
 p.tot <- as.numeric((s - e)/60)  # durée présence en mn
+
 p <- p.tot[!is.na(p.tot)] # supprime les NA
 p <- p[p >= 0] # on ne garde que les valeurs positives
 p <- p[p < H48+1] # et de moins de 48h
-hist(p, breaks = seq(0, 60*48, 60))
-summary(p)
+length(p)
+hist(p, breaks = seq(0, 60*48, 60), xlab = "Durée deprésence (minutes)", ylab = "Fréquence", main = "Histogrammme des durées de présence")
+sp <- summary(p)
+sp
 
-# essai
+# essai: on crée une colonne durée
 dp.tot$DUREE <- p.tot
 a <- dp.tot[!is.na(dp.tot$DUREE),]
 a <- a[a$DUREE >=0,]
 a <- a[a$DUREE < H48+1,]
-boxplot(a$DUREE ~ a$FINESS, outline = FALSE)
 
+# boxplot triée par médiane croissante ([ref](http://stackoverflow.com/questions/3765950/sorting-a-boxplot-based-on-median-value))
+x <- reorder(a$FINESS, a$DUREE, median)
+boxplot(a$DUREE ~ x, outline = FALSE, las = 2, tlab = "Durée de passage (mn)", main = "Durée de passage (2013-2014)", sub = "Les données ne sont pas interprétables pour les HUS")
 
 
 ```
+
+#### Même opération pour les plus de 74 ans
 
 Dataframe (dp) avec heure d'entée, de sortie et __age > 74 ans__. L'exhaustivité est > 99%, 14 données sont manquantes
 ```{r}
@@ -353,10 +366,93 @@ p_mn <- as.numeric(p)/60
 
 # p48 = vecteur des durées <= à 48 heures (recommandation de la FEDORU)
 p48 <- p_mn[p_mn < H48 + 1]
-summary(p48)
-length(p48)
+
+sp48 <- summary(p48)
+sp48
+
+length(p48) # nb de cas de 75 ans
+
 hist(p48, breaks = seq(0, 60*48, 60), main = "Durée de passage (par tranche d'une heure) \ndes patients de 75 ans et plus", xlab = "temps en minutes de 0 à 2880 minutes (48 heures)", ylab = "fréquence")
 
+```
 
+Par territoire de santé
+------------------------
+
+On crée une colonne supplémentaire pour les territoires de santé
+
+```{r}
+dp.tot$TERRITOIRE[dp.tot$FINESS %in% c("Wis","Sav","Hag")] <- "T1"
+dp.tot$TERRITOIRE[dp.tot$FINESS %in% c("Hus","Odi","Ane","Dts")] <- "T2"
+dp.tot$TERRITOIRE[dp.tot$FINESS %in% c("Sel","Col","Geb")] <- "T3"
+dp.tot$TERRITOIRE[dp.tot$FINESS %in% c("Mul","3Fr","Alk","Ros","Dia")] <- "T4"
+```
+
+Nettoyage de dp.tot:
+
+- supprimer les valeurs négatives
+- supprimer les durées > 48 heures
+- supprimer les NA
+
+```{r}
+dp.tot2 <- dp.tot[dp.tot$DUREE >= 0 & dp.tot$DUREE < H48+1 & !is.na(dp.tot$DUREE),]
+```
+
+Résultats sur données nettotyées
+```{r}
+tapply(dp.tot2$DUREE, dp.tot2$TERRITOIRE, mean, na.rm = TRUE)
+tapply(dp.tot2$DUREE, dp.tot2$TERRITOIRE, sd, na.rm = TRUE)
+tapply(dp.tot2$DUREE, dp.tot2$TERRITOIRE, median, na.rm = TRUE)
+boxplot(dp.tot2$DUREE ~ dp.tot2$TERRITOIRE, outline = FALSE, main = "Durée de passage par territoire de santé (tous ages)", ylab = "nombre de RPU")
+
+```
+- territoire 1: tiré vers le haut par Haguenau
+- territoire 2: tiré vers le bas par les HUS qui représentent le nombre le plus élevé de RPU du territoire et celui où les durées de passage sont fausses jusqu'en novembre 2014.
+
+Pour avoir une meilleure idée, on refait les mêmes calculs sur les mois de novembre et décembre 2014 qui sont les plus exacts en terme de remontée des RPU. On appelle dp.tot3 ce dataframe:
+
+```{r}
+dp.tot3 <- dp.tot2[dp.tot2$ENTREE > "2014-11-01"  & dp.tot2$ENTREE < "2015-01-01",]
+
+tapply(dp.tot3$DUREE, dp.tot3$TERRITOIRE, mean, na.rm = TRUE)
+tapply(dp.tot3$DUREE, dp.tot3$TERRITOIRE, sd, na.rm = TRUE)
+tapply(dp.tot3$DUREE, dp.tot3$TERRITOIRE, median, na.rm = TRUE)
+boxplot(dp.tot3$DUREE ~ dp.tot3$TERRITOIRE, outline = FALSE)
+
+# ANOVA
+library(multcomp)
+library(gplots)
+anova <- aov(dp.tot3$DUREE ~ dp.tot3$TERRITOIRE)
+summary(anova)
+plotmeans(dp.tot3$DUREE ~ dp.tot3$TERRITOIRE)
+
+# Kruskal-Wallis: la normalité n'étant pas sûre, les résultats de l'Anova ne le sont pas non plus
+# alternative non paramétrique
+kruskal.test(dp.tot3$DUREE ~ as.factor(dp.tot3$TERRITOIRE))
+
+```
+Sur cette même période (novembre-décembre 2014) on s'intéresse au plus de 74 ans. 
+
+dp3.75 = tous les RPU créés en novembre-décembre 2014 dont la durée de présence est comprise entre 0 mn et 48 heures
+```{r}
+dp3.75 <- dp.tot3[dp.tot3$AGE > 74,]
+
+nrow(dp3.75)
+summary(dp3.75$DUREE)
+
+boxplot(dp3.75$DUREE ~ dp3.75$TERRITOIRE, outline = FALSE)
+aov.75 <- aov(dp3.75$DUREE ~ dp3.75$TERRITOIRE)
+summary(aov.75)
+plotmeans(dp3.75$DUREE ~ dp3.75$TERRITOIRE)
+TukeyHSD(aov.75)
+
+```
+
+
+Synthèse
+--------
+
+```{r}
+r <- rbind(sp, sp48)
 ```
 
