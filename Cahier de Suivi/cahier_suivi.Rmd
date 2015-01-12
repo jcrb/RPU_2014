@@ -17,6 +17,16 @@ library("lubridate")
 anc <- year(data$ENTREE[1])
 
 ```
+
+Janvier 2015
+============
+
+- défaillance de Ste Odile. Ste Odile: plus de RPU depuis le 17/12. Message de Mr Nold: J’ai localisé l’origine du problème. Depuis le 18/12, la clinique St Odile nous envoie un fichier avec un nouveau numéro FINESS. En revanche je n’ai pas trouvé de trace ce numéro FINESS sur le site finess.sante.gouv.fr.. Ste Odile envoie des RPU anormaux depuis le 12/12/2014 où le n°FINESS est le n° jridique (670780204), alors que c'est le n°géographique qui est attendu. Le nombre de RPU avec ce mauvais N° est de l'ordre de 1 à 5 par jour. M. Combeau des cliniques de Strasbourg m’a informé que le nouveau numéro FINESS est une erreur de paramétrage. A partir de demain nous devrions à nouveau avoir les bon RPU. En revanche il ne pense pas pouvoir nous renvoyer les RPU entre le 17/12 et aujourd’hui.
+
+- défaillance de Ste Anne: plus de RPU depuis le 22/12/204
+
+- le reste sp.
+
 Décembre 2014
 =============
 

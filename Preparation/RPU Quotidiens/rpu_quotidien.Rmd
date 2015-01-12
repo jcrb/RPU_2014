@@ -1,3 +1,12 @@
+---
+title: "RPU Quotidiens"
+author: "JcB"
+date: "10/01/2014"
+output:
+  html_document:
+    toc: yes
+---
+
 Fichier RPU quotdien
 ========================================================
 
@@ -244,7 +253,7 @@ Résumé activité
 
 On peut aussi l'utiliser pour tracer le graphe correspondant.
 
-```{r activite}
+```{ activite}
 
 s <- rowSums(rpu)
 b <- rownames(rpu)
@@ -273,6 +282,39 @@ Activité 2013-2014
 ==================
 
 Voir __Activités_2013-2014.Rmd__
+
+
+Activités quotidienne
+=====================
+
+Objet: mesure de l'activité au jour le jour avant consolidation. En pratique revient à analyser le fichier du jour. Ce dernier contient les RPU de la veille et ceux des 7 derniers jours.
+
+1. récupérer le fichier source, le décompacter.
+2. appeler la fonction __parse_rpu__ avec la date du jour, qui le transforme en dataframe
+```{}
+d <- parse_rpu("2015-01-08")
+min(as.Date(d$ENTREE))
+max(as.Date(d$ENTREE))
+```
+3. puis la méthode __analyse_rpu__. Normalement on doit obtenir __16 valeurs__:
+```{}
+analyse_rpu_jour(d)
+```
+4. on peut obtenir une matrice établissement/nb rpu par date avec la formule suivante:
+```{}
+t <- tapply(as.Date(d$ENTREE), list(d$FINESS, as.Date(d$ENTREE)), length)
+t(t)
+
+           3Fr Alk Col Dia Dts Geb Hag Hus Mul Odi Ros Sav Sel Wis
+2015-01-01  48  51 190  59  29  52 129 306 220  15   9  83  85  28
+2015-01-02  45  52 210 102  27  43 115 292 200  10  25  94  81  30
+2015-01-03  31  42 203  85  30  64 125 323  NA  NA  12 106 103  42
+2015-01-04  43  39 175  79  21  48 102 291 186   2  12  81  76  31
+2015-01-05  45  50 183  74  29  34 155 277 196  72   2  99  71  34
+2015-01-06  37  37 153  82  31  48 131 283 176  61  12  84  76  22
+2015-01-07  42  41  NA  66  35  39 125 296 156  64   8  69  84  39
+```
+
 
 
 

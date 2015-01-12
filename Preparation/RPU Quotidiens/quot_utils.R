@@ -87,7 +87,8 @@ finess2hop <- function(a){
 # parse_rpu
 #
 #=======================================
-#'
+#' Utilise le fichier du jour au format SQL, l'injecte dans une base de données puis transforme le résultat en dataframe
+#' Le dataframe contient tous les RPU de la veille plus ceux des 7 derniers jours (j-1 à j-7)
 #' Préalable: disposer d'une base de donnée MySql avec une table appelée "archives".
 #' Cette base doit être référencée dans le fichier .my.conf
 #' 
@@ -95,7 +96,9 @@ finess2hop <- function(a){
 #'@title 2014-03-01
 #'@author JcB
 #'@param data date.jour nom du fichier. Pour une utilisation courante il s'agit de la date du jour au format ISO
-#'@usage 
+#'@usage d <- parse_rpu("2015-01-08")
+#'       t <- tapply(as.Date(d$ENTREE), list(d$FINESS, as.Date(d$ENTREE)), length)
+#'       t(t)
 #'@return dx une tidy dataframe
 #'
 parse_rpu <- function(date.jour){
@@ -162,7 +165,8 @@ rpu2factor <- function(dx){
 #'
 #' Analyse le dataframe correspondant à un fichier transmis. Permet de vérifier la cohérence de certaines données. 
 #' dx est le dataframe correspondant au fichier transmis.
-#' 
+#' @usage analyse_rpu_jour(parse_rpu("2015-01-08")) 
+
 analyse_rpu_jour <- function(dx){
   print(paste("Nombre de RPU: ",nrow(dx)))
   print(paste("Date de début: ",min(as.Date(dx$ENTREE))))

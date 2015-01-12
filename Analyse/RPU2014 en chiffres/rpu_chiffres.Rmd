@@ -7,16 +7,25 @@ output:
     toc: yes
 ---
 
+Chiffres pour l'année 2014
+==========================
+
 init
 ----
-Le fichier source s'appelle __dx__.
+Le fichier source s'appelle __d14__.
 
 ```{r init, echo=FALSE}
-load("~/Documents/Resural/Stat Resural/RPU_2014/rpu2014d0112_provisoire.Rda")
+load("~/Documents/Resural/Stat Resural/RPU_2014/rpu2014d0112.Rda")
+
+# intégration du Finess Juridique pour la clinique Ste Odile. Erreur signalée par Mr Nold: certains RPU de Ste Odile contiennent le Finess juridique au lieu du géographique
+d14$FINESS <- as.character(d14$FINESS)
+d14$FINESS[d14$FINESS=="670780204"]<-"Odi"
+d14$FINESS <-  factor(d14$FINESS) # élimine les facteus vides
+
 library(lubridate)
 library(knitr)
 
-anc <- year(as.Date(dx$ENTREE[1])) # année courante
+anc <- year(as.Date(d14$ENTREE[1])) # année courante
 
 MOIS <- format(ISOdate(anc, 1:12, 1), "%B") # noms des mois
 mois <- format(ISOdate(anc, 1:12, 1), "%b") # noms des mois abrégés
@@ -54,7 +63,7 @@ tapply(calendrier, wday(calendrier, label = TRUE), length)
 Total RPU
 =========
 ```{r total, echo=FALSE}
-n <- nrow(dx)
+n <- nrow(d14)
 
 ```
 Total RPU: `r n`
@@ -66,7 +75,7 @@ Pb: on veut connaître le nombre de RPU par mois en 2014. Utilisé par le site i
 
 ```{r}
 # en valeur absolue
-t <- tapply(as.Date(dx$ENTREE), month(as.Date(dx$ENTREE)), length)
+t <- tapply(as.Date(d14$ENTREE), month(as.Date(d14$ENTREE)), length)
 names(t) <- format(ISOdate(2000, 1:12, 1), "%B")
 t
 # en pourcentage
@@ -85,18 +94,18 @@ Il y a deux méthodes possibles:
 
 - __weekday__s du package _main_:
 ```{r}
-wd <- tapply(as.Date(dx$ENTREE), weekdays(as.Date(dx$ENTREE)), length)
+wd <- tapply(as.Date(d14$ENTREE), weekdays(as.Date(d14$ENTREE)), length)
 wd
 
 ```
 - __wday__ du package _lubridate_. Inconvénient, la semaine commence le dimanche.
 ```{r}
 # jours de semaine indicés par des entiers
-wd <- tapply(as.Date(dx$ENTREE), wday(as.Date(dx$ENTREE)), length)
+wd <- tapply(as.Date(d14$ENTREE), wday(as.Date(d14$ENTREE)), length)
 wd
 
 # jours indicés par leur nom
-wd <- tapply(as.Date(dx$ENTREE), wday(as.Date(dx$ENTREE), label = TRUE), length)
+wd <- tapply(as.Date(d14$ENTREE), wday(as.Date(d14$ENTREE), label = TRUE), length)
 wd
 ```
 
@@ -107,6 +116,30 @@ names(a) <- SEMAINE
 a
 
 ```
+
+Nombre de RPU par établissements
+--------------------------------
+```{r}
+tapply(as.Date(d14$ENTREE), d14$FINESS, length)
+
+```
+
+Nombre de RPU par territoires de santé
+--------------------------------------
+On crée une colonne supplémentaire pour les territoires de santé. La colonne crée est de type character.
+
+```{r}
+d14$TERRITOIRE[d14$FINESS %in% c("Wis","Sav","Hag")] <- "T1"
+d14$TERRITOIRE[d14$FINESS %in% c("Hus","Odi","Ane","Dts")] <- "T2"
+d14$TERRITOIRE[d14$FINESS %in% c("Sel","Col","Geb")] <- "T3"
+d14$TERRITOIRE[d14$FINESS %in% c("Mul","3Fr","Alk","Ros","Dia")] <- "T4"
+
+tapply(as.Date(d14$ENTREE), d14$TERRITOIRE, length)
+
+```
+
+
+
 
 Demande ARS 2015 02
 ===================
@@ -132,19 +165,19 @@ nombre de primo passages
 proportion de 75 ans et plus
 ----------------------------
 ```{r}
-pop_75ans <- dx[dx$AGE > 74, "AGE"]
+pop_75ans <- d14[d14$AGE > 74, "AGE"]
 n_75ans <- length(pop_75ans)
 
 summary(pop_75ans)
 ```
-Exhaustivité pour l'âge: `r mean(!is.na(n_75ans)) * 100)` %
+Exhaustivité pour l'âge: `r mean(!is.na(n_75ans) * 100)` %
 
 proportion des 75 ans: `r round(n_75ans * 100 / n, 2)` %.
 
 Durée de passage chez les plus de 75 ans
 ----------------------------------------
 ```{r}
-dp <- dx[!is.na(dx$ENTREE) & !is.na(dx$SORTIE) & dx$AGE > 74, c("SORTIE", "ENTREE", "AGE", "FINESS")]
+dp <- d14[!is.na(d14$ENTREE) & !is.na(d14$SORTIE) & d14$AGE > 74, c("SORTIE", "ENTREE", "AGE", "FINESS")]
 mean(!is.na(dp$SORTIE))
 mean(!is.na(dp$ENTREE))
 sum(is.na(dp$ENTREE))
@@ -182,3 +215,12 @@ La durée de passage est bornée à 48 heures (recommandation FEDORU).
 
 ```
 
+
+Demande 3 2015-01-12
+====================
+
+Suite à notre conversation téléphonique, pouvez-vous en priorité, me communiquer cette semaine les totaux de priomopassages par établissement/et territoire de santé pour l'année 2014?
+ 
+En cas de difficulté en termes de délais, les précisions concernant les personnes de plus de 75 ans demandées dans cette présente requête (ci-dessous), ainsi que les précisions concernant la requête précédente (dans le cadre du groupe de travail sur les chutes des personnes âgées), pourront attendre la semaine prochaine (avant le 22).
+
+réponse le 2015-01-12 (cf supra)
