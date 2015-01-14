@@ -190,7 +190,16 @@ plot(tx_hosp[2,], type = "l", ylim = c(0,25), col="red", xlab="semaines", ylab="
 lines(tx_hosp[1,], col = "blue", lwd=3)
 legend("bottomleft", legend=c("2013", "2014"), col=c("blue","red"), bty="n", lty=1)
 
+```
+Depuis quand les établissements produisent des RPU
+--------------------------------------------------
 
+On applique tapply qui retourne une liste de dates en secondes, qu'il faut convertir en date ISO (t2). cbind permet de présenter le résultat en colonne:
+
+```{r debut_rpu}
+t <- tapply(as.Date(d2$ENTREE), factor(d2$FINESS), min)
+t2 <- as.Date(t, origin = "1970-01-01")
+cbind(as.character(t2))
 
 ```
 
