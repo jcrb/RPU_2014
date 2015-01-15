@@ -68,6 +68,7 @@ T08-T14	Lésions traumatiques de siège non précisé du tronc, membre ou autre 
 
  
 ```{r init, cache=FALSE, echo=FALSE, message=FALSE}
+# choisit le path en fonction de l'ordinateur
 if(as.character(Sys.info()["nodename"]) == "MacBook-Air-de-JCB.local")
   path = "~/Documents/Stat Resural/RPU_2014/rpu2013-2014.Rda" else 
 if(as.character(Sys.info()["nodename"]) == "XPS")
@@ -281,6 +282,13 @@ Je vous remercie par avance,
 nombre de primo passages, et la proportion des patients de 75 ans et plus
 -------------------------------------------------------------------------
 ```{r}
+# d2 dataframe des données 2013-2014
+# n_75ans vecteur des 75 ans
+# pop_75ans vecteur des 75 ans
+# n_75ans = nombre de passages de 75 ans
+# n = nb totaux de passages
+# prop75 = proportion de 75 ans
+
 n_75ans <- d2[d2$AGE > 74, "AGE"]
 summary(n_75ans)
 
@@ -289,7 +297,7 @@ pop_75ans <- d2[d2$AGE > 74, "AGE"]
 n_75ans <- length(pop_75ans)
 # n = nb totaux de passages
 n <- nrow(d2)
-# proportion de 75 ans
+# prop75 = proportion de 75 ans
 prop75 <- round(n_75ans * 100 / n, 2)
 exhaust.age <- mean(!is.na(n_75ans))
 ```
@@ -304,11 +312,18 @@ Moyenne/médiane des temps de passages pour tout âge et pour les 75 ans et plus
 #### On sélectionne tous les enregistrements dont heure entréé et sortie ne sont pas NA
 
 ```{r}
+# dp.tot = dataframe 4 colonnes et tous les enregistrements
+# H48 = constante = nb de minutes dans 48 heures
+# p.tot = durée présence en mn 
+# p = durée présence en mn de plus de 0 mn et moins de 48 h
+# dp.tot$DUREE = colonne supplémentaire avec les durées de présence
+# p48 = idem mais limité à 48 heures
+
 dp.tot <- d2[!is.na(d2$ENTREE) & !is.na(d2$SORTIE), c("SORTIE", "ENTREE", "AGE", "FINESS")]
 # intégration du Finess Juridique pour la clinique Ste Odile
 dp.tot$FINESS <- as.character(dp.tot$FINESS)
 dp.tot$FINESS[dp.tot$FINESS=="670780204"]<-"Odi"
-dp.tot$FINESS <-  factor(dp.tot$FINESS) # élimine les facteus vides
+dp.tot$FINESS <-  factor(dp.tot$FINESS) # élimine les facteurs vides
 
 # H48 = constante = nb de minutes dans 48 heures
 H48 <- 60 * 48
@@ -328,18 +343,19 @@ sp
 
 # essai: on crée une colonne durée
 dp.tot$DUREE <- p.tot
-a <- dp.tot[!is.na(dp.tot$DUREE),]
-a <- a[a$DUREE >=0,]
-a <- a[a$DUREE < H48+1,]
+p48 <- dp.tot[!is.na(dp.tot$DUREE),]
+p48 <- p48[p48$DUREE >=0,]
+p48 <- p48[p48$DUREE < H48+1,]
 
 # boxplot triée par médiane croissante ([ref](http://stackoverflow.com/questions/3765950/sorting-a-boxplot-based-on-median-value))
-x <- reorder(a$FINESS, a$DUREE, median)
-boxplot(a$DUREE ~ x, outline = FALSE, las = 2, tlab = "Durée de passage (mn)", main = "Durée de passage (2013-2014)", sub = "Les données ne sont pas interprétables pour les HUS")
+x <- reorder(p48$FINESS, p48$DUREE, median)
+boxplot(p48$DUREE ~ x, outline = FALSE, las = 2, ylab = "Durée de passage (mn)", main = "Durée de passage (2013-2014)", sub = "Les données ne sont pas interprétables pour les HUS")
 
 
 ```
 
-#### Même opération pour les plus de 74 ans
+Même opération pour les plus de 74 ans
+--------------------------------------
 
 Dataframe (dp) avec heure d'entée, de sortie et __age > 74 ans__. L'exhaustivité est > 99%, 14 données sont manquantes
 ```{r}
@@ -357,6 +373,8 @@ s <- ymd_hms(dp$SORTIE)
 p <- s - e
 head(p)
 length(p)
+
+# résumé des durées de passage en secondes
 summary(as.numeric(p))
 # résumé en minutes
 summary(as.numeric(p)/60)
@@ -365,16 +383,56 @@ summary(as.numeric(p)/60)
 p_mn <- as.numeric(p)/60
 
 # p48 = vecteur des durées <= à 48 heures (recommandation de la FEDORU)
-p48 <- p_mn[p_mn < H48 + 1]
+vp48 <- p_mn[p_mn < H48 + 1]
 
+
+# résumé des durées de passage (en mn) de moins de 48 heures
 sp48 <- summary(p48)
 sp48
 
-length(p48) # nb de cas de 75 ans
+length(vp48) # nb de cas de 75 ans
 
-hist(p48, breaks = seq(0, 60*48, 60), main = "Durée de passage (par tranche d'une heure) \ndes patients de 75 ans et plus", xlab = "temps en minutes de 0 à 2880 minutes (48 heures)", ylab = "fréquence")
+hist(vp48, breaks = seq(0, 60*48, 60), main = "Durée de passage (par tranche d'une heure) \ndes patients de 75 ans et plus", xlab = "temps en minutes de 0 à 2880 minutes (48 heures)", ylab = "fréquence")
+
+# p48.75 = dataframe des 75 ans dont la durée de présence est tronquée à 48 heures
+p48.75 <- p48[p48$AGE > 74,]
+x <- reorder(p48.75$FINESS, p48.75$DUREE, median) # pour trier les données par ordre croissant
+boxplot(p48.75$DUREE ~ x, outline = FALSE, las = 2, ylab = "Durée de passage (mn)", main = "Durée de passage (2013-2014) des 75 ans", sub = "Les données ne sont pas interprétables pour les HUS")
+```
+
+162 données sont incomplètes (il manque l'heure). Correspondent toutes à Wissembourg et au mois de novembre 2014 où a eu lieu un problème de transmission.
+
+Pour les patients agés de 75 ans ou plus:
+
+- moyenne: `r sp48["Mean"]` minutes
+- écart-type: `r sd(vp48)` minutes
+- médiane: `r sp48["Median"]` minutes
+
+Corrélation durée de passage / nombre de passages
+-------------------------------------------------
+```{r cor_passage_duree}
+# vecteur des moyennes des temps de passage
+mean.p75 <- tapply(p48.75$DUREE, p48.75$FINESS, mean)
+# vecteur du nombre de passages par FINESS
+np75 <- tapply(p48.75$DUREE, p48.75$FINESS, length)
+# on forme une matrice en accolant les 2 vecteurs
+x <- cbind(np75, mean.p75)
+# corrélation
+cor(x)
+# graphe
+plot(x, ylab = "Durée de passage moyenne (en mn)", xkab = "Nombre de passages", main = "Relation entre la durée de passage et le nombre de passages\n et l'âge supérieur ou égal à 75 ans")
+# on retire les HUS
+y <- x[-9,]
+plot(y, ylab = "Durée de passage moyenne (en mn)", xlab = "Nombre de passages", main = "Relation entre la durée de passage et le nombre de passages\n et l'âge supérieur ou égal à 75 ans", col="blue", pch = 19, sub = "les HUS ne sont pas pris en compte")
+text(y, row.names(y), cex=0.6, pos=4, col="red")
+# modèle linéaire en retirant les HUS (ligne 9)
+fit <- lm(mean.p75[-9] ~ np75[-9])
+summary(fit)
+lines(np75[-9], fitted(fit))
 
 ```
+
+Il existe ue relation linéaire entre la durée de passage et le nombre de passage. Cette liaison est statistiquement significative. Il faudrait standardiser sur le nombre de passages pour comparer les durées de passage.
 
 Par territoire de santé
 ------------------------
@@ -398,26 +456,55 @@ Nettoyage de dp.tot:
 dp.tot2 <- dp.tot[dp.tot$DUREE >= 0 & dp.tot$DUREE < H48+1 & !is.na(dp.tot$DUREE),]
 ```
 
-Résultats sur données nettotyées
-```{r}
-tapply(dp.tot2$DUREE, dp.tot2$TERRITOIRE, mean, na.rm = TRUE)
-tapply(dp.tot2$DUREE, dp.tot2$TERRITOIRE, sd, na.rm = TRUE)
-tapply(dp.tot2$DUREE, dp.tot2$TERRITOIRE, median, na.rm = TRUE)
-boxplot(dp.tot2$DUREE ~ dp.tot2$TERRITOIRE, outline = FALSE, main = "Durée de passage par territoire de santé (tous ages)", ylab = "nombre de RPU")
+Résultats sur données nettoyées:
 
+- durée moyenne de passage par territoire
+```{r mean_t, echo=FALSE, comment=""}
+tapply(dp.tot2$DUREE, dp.tot2$TERRITOIRE, mean, na.rm = TRUE)
 ```
+- écart-type
+```{r sd_t, echo=FALSE, comment=""}
+tapply(dp.tot2$DUREE, dp.tot2$TERRITOIRE, sd, na.rm = TRUE)
+```
+- médiane
+```{r median_t, echo=FALSE, comment="" }
+tapply(dp.tot2$DUREE, dp.tot2$TERRITOIRE, median, na.rm = TRUE)
+```
+- boxplot durée de passage par territoire
+```{r box_t, echo=FALSE, comment=""}
+boxplot(dp.tot2$DUREE ~ dp.tot2$TERRITOIRE, outline = FALSE, main = "Durée de passage par territoire de santé (tous ages)", ylab = "nombre de RPU")
+```
+
+
+
 - territoire 1: tiré vers le haut par Haguenau
 - territoire 2: tiré vers le bas par les HUS qui représentent le nombre le plus élevé de RPU du territoire et celui où les durées de passage sont fausses jusqu'en novembre 2014.
 
 Pour avoir une meilleure idée, on refait les mêmes calculs sur les mois de novembre et décembre 2014 qui sont les plus exacts en terme de remontée des RPU. On appelle dp.tot3 ce dataframe:
-
-```{r}
+```{r dp3, echo=FALSE}
 dp.tot3 <- dp.tot2[dp.tot2$ENTREE > "2014-11-01"  & dp.tot2$ENTREE < "2015-01-01",]
+```
 
+- durée moyenne de passage par territoire en novembre-déembre 2014
+```{r tot3_mean, echo=FALSE, comment=""}
 tapply(dp.tot3$DUREE, dp.tot3$TERRITOIRE, mean, na.rm = TRUE)
+```
+- ecart-type
+```{r tot_sd, echo=FALSE, comment=""}
 tapply(dp.tot3$DUREE, dp.tot3$TERRITOIRE, sd, na.rm = TRUE)
+```
+- médiane
+```{r tot_med, echo=FALSE, comment=""}
 tapply(dp.tot3$DUREE, dp.tot3$TERRITOIRE, median, na.rm = TRUE)
-boxplot(dp.tot3$DUREE ~ dp.tot3$TERRITOIRE, outline = FALSE)
+```
+- box plot
+```{r tot_box, echo=FALSE, comment=""}
+boxplot(dp.tot3$DUREE ~ dp.tot3$TERRITOIRE, outline = FALSE, ylab="Durée de passage", main="Duréee de passage par territoire\n en novembre-décembre 2014")
+```
+
+Analyse de la variance: existe t il une durée de passage différente selon le territoire ?
+
+```{r aov75_nov.dec, echo=FALSE, comment="", message=FALSE}
 
 # ANOVA
 library(multcomp)
@@ -426,28 +513,35 @@ anova <- aov(dp.tot3$DUREE ~ dp.tot3$TERRITOIRE)
 summary(anova)
 plotmeans(dp.tot3$DUREE ~ dp.tot3$TERRITOIRE)
 
-# Kruskal-Wallis: la normalité n'étant pas sûre, les résultats de l'Anova ne le sont pas non plus
-# alternative non paramétrique
-kruskal.test(dp.tot3$DUREE ~ as.factor(dp.tot3$TERRITOIRE))
-
 ```
-Sur cette même période (novembre-décembre 2014) on s'intéresse au plus de 74 ans. 
+La normalité n'étant pas sûre, les résultats de l'Anova ne le sont pas non plus. On vérifie avec un test non paramétrique (Kruskall-Wallis):
+
+```{r kw, echo=FALSE, comment=""}
+kruskal.test(dp.tot3$DUREE ~ as.factor(dp.tot3$TERRITOIRE))
+```
+Il existe bien une did=fférence entre les territoires.
+
+
+#### Sur cette même période (novembre-décembre 2014) on s'intéresse au plus de 74 ans. 
 
 dp3.75 = tous les RPU créés en novembre-décembre 2014 dont la durée de présence est comprise entre 0 mn et 48 heures
-```{r}
+
+```{r aov75_nov.dec_2, echo=FALSE, comment=""}
 dp3.75 <- dp.tot3[dp.tot3$AGE > 74,]
 
 nrow(dp3.75)
 summary(dp3.75$DUREE)
 
-boxplot(dp3.75$DUREE ~ dp3.75$TERRITOIRE, outline = FALSE)
+boxplot(dp3.75$DUREE ~ dp3.75$TERRITOIRE, outline = FALSE, ylab = "temps de passage (mn)")
+
+# analyse de la variance comparant les 4 territoires
 aov.75 <- aov(dp3.75$DUREE ~ dp3.75$TERRITOIRE)
 summary(aov.75)
-plotmeans(dp3.75$DUREE ~ dp3.75$TERRITOIRE)
+plotmeans(dp3.75$DUREE ~ dp3.75$TERRITOIRE, xlab = "Territoires de santé", ylab = "Moyenne des durées de passage (mn)", main = "Comparaison des durées de passage moyennes entre les territoires de santé")
 TukeyHSD(aov.75)
 
 ```
-
+Sur cette période test, l'analyse de la variance (ANOVA) révèle qu'au moins 1 territoire à une durée de passage différente des autres (p < 0.001). Le test de Tukey montre que c'est essentiellement le territoire 2 qui a la durée de passage la plus longue, puis le territoire 2. Les durée de passage sont les plus courtes dans les territoire 3 et 4 et il n'y a pas de différence entre ces deux territoires.
 
 Synthèse
 --------
