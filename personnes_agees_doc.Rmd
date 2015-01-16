@@ -550,3 +550,54 @@ Synthèse
 r <- rbind(sp, sp48)
 ```
 
+Travai 3: demande de Frank Breysse (Diaconat Fonderie)
+======================================================
+
+durée: 30 mn
+
+Diaconat Fonderie (2014)
+------------------------
+
+Calcul du ratio mediane temps passage si age > 74 ans / mediane temps passage :
+```{r median_fonderie, echo=FALSE, comment=""}
+# médiane et age > 74 ans
+load("~/Documents/Resural/Stat Resural/RPU_2014/rpu2014d0112.Rda")
+dia.75 <- d14[d14$FINESS == "Dia" & d14$AGE > 74, c("ENTREE", "SORTIE", "FINESS")]
+e <- ymd_hms(dia.75$ENTREE)
+s <- ymd_hms(dia.75$SORTIE)
+p.tot <- as.numeric((s - e)/60)  # durée présence en mn
+s.75 <- summary(p.tot)
+
+# idem pour toute les RPU
+dia.tot <- d14[d14$FINESS == "Dia", c("ENTREE", "SORTIE", "FINESS")]
+e <- ymd_hms(dia.tot$ENTREE)
+s <- ymd_hms(dia.tot$SORTIE)
+p.tot <- as.numeric((s - e)/60)  # durée présence en mn
+s.tot <- summary(p.tot)
+
+# Rapport
+s.75["Median"] / s.tot["Median"]
+```
+
+Généralisation à tous les établissements
+
+```{r median_finess, echo=FALSE, comment=""}
+s <- ymd_hms(d14$SORTIE)
+e <- ymd_hms(d14$ENTREE)
+p.tot <- as.numeric((s - e)/60)
+d14$DELAI <- p.tot # nouvelle colonne
+median.tot <- tapply(d14$DELAI, factor(d14$FINESS), median, na.rm=TRUE)
+median.75 <- tapply(d14$DELAI[d14$AGE > 74], factor(d14$FINESS[d14$AGE > 74]), median, na.rm=TRUE)
+round(median.75/median.tot, 2)
+
+```
+
+Uniquement sur le dernier trimestre 2014 (octobre-décembre):
+
+```{r, echo=FALSE, comment=""}
+median.tot <- tapply(d14$DELAI[as.Date(d14$ENTREE) > "2014-09-30"], factor(d14$FINESS[as.Date(d14$ENTREE) > "2014-09-30"]), median, na.rm=TRUE)
+median.75 <- tapply(d14$DELAI[d14$AGE > 74 & as.Date(d14$ENTREE) > "2014-09-30"], factor(d14$FINESS[d14$AGE > 74 & as.Date(d14$ENTREE) > "2014-09-30"]), median, na.rm=TRUE)
+round(median.75/median.tot, 2)
+
+```
+

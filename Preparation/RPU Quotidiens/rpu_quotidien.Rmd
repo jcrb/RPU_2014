@@ -176,14 +176,17 @@ Si on a une collection de fichiers:
 -----------------------------------
 
 #### NB: SUPPRIMER LE FICHIER /home/jcb/Documents/Resural/Stat Resural/Archives_Sagec/dataQ/archivesCsv/rpu2014.data
+
+Il faut également, à mois échu, créer un dossier pour le mois dans le dossier __archivesCSV__ et y ranger les fichiers _.csv_ du mois échu (sinon ils sont repris dans les calcule).
+
 ```{}
 file.to.delete <- "/home/jcb/Documents/Resural/Stat Resural/Archives_Sagec/dataQ/archivesCsv/rpu2014.data"
 file.remove(file.to.delete)
 ```
 
 ```{}
-date1 <- "2014-12-08"
-date2 <- "2015-01-07"
+date1 <- "2015-01-08"
+date2 <- "2015-01-15"
 
 mc <- substr(date1, 6, 7)
 ac <- substr(date1, 1,4)
@@ -199,12 +202,16 @@ max(as.Date(dx$ENTREE))
 ```
 
 #### Sélectionner une période particulière (ie. mai 2014)
+
+num.mc <- 1 # numéro du mois courant
+mois.c <- paste("d", )
+
 ```{}
-d12 <- dx[as.Date(dx$ENTREE) >= "2014-12-01" & as.Date(dx$ENTREE) < "2015-01-01",]
-max(as.Date(d12$ENTREE))
-min(as.Date(d12$ENTREE))
-d12 <- normalise(d12)
-save(d12, file="rpu2014d12_provisoire.Rda")
+d01 <- dx[as.Date(dx$ENTREE) >= "2014-01-01" & as.Date(dx$ENTREE) < "2015-01-31",]
+max(as.Date(d01$ENTREE))
+min(as.Date(d01$ENTREE))
+d01 <- normalise(d01)
+save(d01, file="rpu2015d01_provisoire.Rda")
 rm(dx)
 
 load("rpu2014d0111.Rda")
@@ -213,9 +220,9 @@ dx <- rbind(dx, d12)
 min(as.Date(dx$ENTREE))
 max(as.Date(dx$ENTREE))
 
-save(dx, file="rpu2014d0112_provisoire.Rda")
+save(dx, file="rpu2015d0112_provisoire.Rda")
 
-table(as.Date(d12$ENTREE), d12$FINESS)
+table(as.Date(d01$ENTREE), d01$FINESS)
 ```
 
 
@@ -292,7 +299,7 @@ Objet: mesure de l'activité au jour le jour avant consolidation. En pratique re
 1. récupérer le fichier source, le décompacter.
 2. appeler la fonction __parse_rpu__ avec la date du jour, qui le transforme en dataframe
 ```{}
-d <- parse_rpu("2015-01-08")
+d <- parse_rpu("2015-01-15")
 min(as.Date(d$ENTREE))
 max(as.Date(d$ENTREE))
 ```
