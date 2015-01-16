@@ -19,6 +19,8 @@
 #' - jours.manquants
 #' - normalise.caracteres
 #' - completude.item
+#' - cim10
+#' - choose.path
 
 #=======================================
 #
@@ -449,4 +451,22 @@ cim10 <- function(d, a, b){
   ncar <- nchar(a)
   x <- d[substr(d, 1, ncar) >= a & substr(d, 1, ncar) <= b & !is.na(d)]
 
+}
+
+
+#=======================================
+#
+# choose.path
+#
+#=======================================
+#' choisit le path en fonction de l'ordinateur
+#' deux machines sont reconnues: mac et xps
+#' @usage path <- choose.path()
+#' 
+choose.path <- function(){
+  
+  if(as.character(Sys.info()["nodename"]) == "MacBook-Air-de-JCB.local")
+    path = "~/Documents/Stat Resural/RPU_2014" else 
+      if(as.character(Sys.info()["nodename"]) == "XPS")
+        path = "~/Documents/Resural/Stat Resural/RPU_2014"
 }

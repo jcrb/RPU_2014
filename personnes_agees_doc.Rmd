@@ -1,7 +1,9 @@
 ---
 title: "Personnes_agees"
 author: "RESURAL (JcB)"
-output: html_document
+output:
+  html_document:
+    toc: yes
 ---
 
 Date: 03/01/2015
@@ -68,15 +70,17 @@ T08-T14	Lésions traumatiques de siège non précisé du tronc, membre ou autre 
 
  
 ```{r init, cache=FALSE, echo=FALSE, message=FALSE}
+source("Preparation/RPU Quotidiens/quot_utils.R")
 # choisit le path en fonction de l'ordinateur
-if(as.character(Sys.info()["nodename"]) == "MacBook-Air-de-JCB.local")
-  path = "~/Documents/Stat Resural/RPU_2014/rpu2013-2014.Rda" else 
-if(as.character(Sys.info()["nodename"]) == "XPS")
-  path = "~/Documents/Resural/Stat Resural/RPU_2014"
+path <- choose.path()
+# if(as.character(Sys.info()["nodename"]) == "MacBook-Air-de-JCB.local")
+#   path = "~/Documents/Stat Resural/RPU_2014" else 
+# if(as.character(Sys.info()["nodename"]) == "XPS")
+#   path = "~/Documents/Resural/Stat Resural/RPU_2014"
 file <- "rpu2013-2014.Rda"
 load(paste(path, file, sep = "/"))
 
-source("Preparation/RPU Quotidiens/quot_utils.R")
+
 library("epicalc")
 library(xtable)
 library(knitr)
@@ -239,7 +243,9 @@ Merging avec le fichier des recours de l'ORUMIP
 -----------------------------------------------
 
 ```{r,echo=FALSE}
-file.reg <- "~/Documents/Resural/FEDORU/Codes_regroupement_ORUMIP/Regroupement_ORUMIP/Regroupements ORUMiP Thésaurus SFMU.csv"
+if(as.character(Sys.info()["nodename"]) == "MacBook-Air-de-JCB.local")
+  file.reg <- "~/Documents/FEDORU/Codes_regroupement_ORUMIP/Regroupements ORUMiP Thésaurus SFMU.csv" else
+  file.reg <- "~/Documents/Resural/FEDORU/Codes_regroupement_ORUMIP/Regroupement_ORUMIP/Regroupements ORUMiP Thésaurus SFMU.csv"
 reg <- read.csv(file.reg, skip = 1)
 greg <- merge(g, reg, by.x = "DP", by.y = "CIM10", all.x)
 
@@ -281,7 +287,7 @@ Je vous remercie par avance,
 
 nombre de primo passages, et la proportion des patients de 75 ans et plus
 -------------------------------------------------------------------------
-```{r}
+```{r nprimo, echo=FALSE, comment=""}
 # d2 dataframe des données 2013-2014
 # n_75ans vecteur des 75 ans
 # pop_75ans vecteur des 75 ans
@@ -311,7 +317,7 @@ Moyenne/médiane des temps de passages pour tout âge et pour les 75 ans et plus
 
 #### On sélectionne tous les enregistrements dont heure entréé et sortie ne sont pas NA
 
-```{r}
+```{r moy_med, echo=FALSE, comment="", warning=FALSE}
 # dp.tot = dataframe 4 colonnes et tous les enregistrements
 # H48 = constante = nb de minutes dans 48 heures
 # p.tot = durée présence en mn 
@@ -336,9 +342,13 @@ p.tot <- as.numeric((s - e)/60)  # durée présence en mn
 p <- p.tot[!is.na(p.tot)] # supprime les NA
 p <- p[p >= 0] # on ne garde que les valeurs positives
 p <- p[p < H48+1] # et de moins de 48h
+
+print("nombre de RPU compris entre 0 minutes et 48 heures")
 length(p)
+
 hist(p, breaks = seq(0, 60*48, 60), xlab = "Durée deprésence (minutes)", ylab = "Fréquence", main = "Histogrammme des durées de présence")
 sp <- summary(p)
+print("Résumé du groupe 48 heures:")
 sp
 
 # essai: on crée une colonne durée
@@ -358,11 +368,15 @@ Même opération pour les plus de 74 ans
 --------------------------------------
 
 Dataframe (dp) avec heure d'entée, de sortie et __age > 74 ans__. L'exhaustivité est > 99%, 14 données sont manquantes
-```{r}
+```{r plus74, echo=FALSE, comment=""}
 dp <- d2[!is.na(d2$ENTREE) & !is.na(d2$SORTIE) & d2$AGE > 74, c("SORTIE", "ENTREE", "AGE", "FINESS")]
+print("exhaustivité des heures de sortie:")
 mean(!is.na(dp$SORTIE))
+print("exhaustivité des heures d'entrée:")
 mean(!is.na(dp$ENTREE))
+print("nombre d'heures dentrée manquantes:")
 sum(is.na(dp$ENTREE))
+print("nombre d'heures de sortie manquantes:")
 sum(is.na(dp$SORTIE))
 
 # vecteur des entrées
@@ -371,12 +385,14 @@ e <- ymd_hms(dp$ENTREE)
 s <- ymd_hms(dp$SORTIE)
 # p = durée de présence en secondes
 p <- s - e
-head(p)
+print("nombre de RPU dont la durée est exploitable")
 length(p)
 
 # résumé des durées de passage en secondes
-summary(as.numeric(p))
+# summary(as.numeric(p))
+
 # résumé en minutes
+print("Résumé des durées de passage en minutes")
 summary(as.numeric(p)/60)
 
 # p_nm = vecteur des durée de présence en minutes
@@ -387,9 +403,11 @@ vp48 <- p_mn[p_mn < H48 + 1]
 
 
 # résumé des durées de passage (en mn) de moins de 48 heures
-sp48 <- summary(p48)
+sp48 <- summary(vp48)
+print("résumé des durées de passage (en mn) de moins de 48 heures")
 sp48
 
+print("Nombre de RPU dont age > 74 ans et la durée de présence =< 48h:")
 length(vp48) # nb de cas de 75 ans
 
 hist(vp48, breaks = seq(0, 60*48, 60), main = "Durée de passage (par tranche d'une heure) \ndes patients de 75 ans et plus", xlab = "temps en minutes de 0 à 2880 minutes (48 heures)", ylab = "fréquence")
@@ -408,9 +426,12 @@ Pour les patients agés de 75 ans ou plus:
 - écart-type: `r sd(vp48)` minutes
 - médiane: `r sp48["Median"]` minutes
 
-Corrélation durée de passage / nombre de passages
+Relation durée de passage / nombre de passages
 -------------------------------------------------
-```{r cor_passage_duree}
+
+### Avec les HUS
+
+```{r cor_passage_duree_avec_hus, echo=FALSE}
 # vecteur des moyennes des temps de passage
 mean.p75 <- tapply(p48.75$DUREE, p48.75$FINESS, mean)
 # vecteur du nombre de passages par FINESS
@@ -420,7 +441,15 @@ x <- cbind(np75, mean.p75)
 # corrélation
 cor(x)
 # graphe
-plot(x, ylab = "Durée de passage moyenne (en mn)", xkab = "Nombre de passages", main = "Relation entre la durée de passage et le nombre de passages\n et l'âge supérieur ou égal à 75 ans")
+plot(x, ylab = "Durée de passage moyenne (en mn)", xlab = "Nombre de passages", main = "Relation entre la durée de passage et le nombre de passages\n et l'âge supérieur ou égal à 75 ans", col="green", pch=19)
+text(x, row.names(x), cex=0.6, pos=4, col="red")
+```
+
+### Sans les HUS
+
+Les HUS ne remontent correctement les durées de passages que depuis novembre 2014. Auparavant plus de la moitié des durées sont égales à 1 minute, ce qui fausse les résultats. La même estimation est refaite en retirant les HUS.
+
+```{r  cor_passage_duree, echo=FALSE, comment=""}
 # on retire les HUS
 y <- x[-9,]
 plot(y, ylab = "Durée de passage moyenne (en mn)", xlab = "Nombre de passages", main = "Relation entre la durée de passage et le nombre de passages\n et l'âge supérieur ou égal à 75 ans", col="blue", pch = 19, sub = "les HUS ne sont pas pris en compte")
@@ -429,10 +458,10 @@ text(y, row.names(y), cex=0.6, pos=4, col="red")
 fit <- lm(mean.p75[-9] ~ np75[-9])
 summary(fit)
 lines(np75[-9], fitted(fit))
-
 ```
 
-Il existe ue relation linéaire entre la durée de passage et le nombre de passage. Cette liaison est statistiquement significative. Il faudrait standardiser sur le nombre de passages pour comparer les durées de passage.
+
+Il existe ue relation linéaire entre la durée de passage et le nombre de passage. Cette liaison est statistiquement significative. Dans ce modèle, le nombre de passages explique environ 60% du temps de passage aux urgences. Il faudrait standardiser sur le nombre de passages pour comparer les durées de passage.
 
 Par territoire de santé
 ------------------------
@@ -543,10 +572,5 @@ TukeyHSD(aov.75)
 ```
 Sur cette période test, l'analyse de la variance (ANOVA) révèle qu'au moins 1 territoire à une durée de passage différente des autres (p < 0.001). Le test de Tukey montre que c'est essentiellement le territoire 2 qui a la durée de passage la plus longue, puis le territoire 2. Les durée de passage sont les plus courtes dans les territoire 3 et 4 et il n'y a pas de différence entre ces deux territoires.
 
-Synthèse
---------
 
-```{r}
-r <- rbind(sp, sp48)
-```
 
