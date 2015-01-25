@@ -15,7 +15,7 @@ init
 Le fichier source s'appelle __d14__.
 
 ```{r init, echo=FALSE}
-load("~/Documents/Resural/Stat Resural/RPU_2014/rpu2014d0112.Rda")
+load("~/Documents/Resural/Stat Resural/RPU_2014/rpu2014d0112_c.Rda")
 
 # intégration du Finess Juridique pour la clinique Ste Odile. Erreur signalée par Mr Nold: certains RPU de Ste Odile contiennent le Finess juridique au lieu du géographique
 d14$FINESS <- as.character(d14$FINESS)

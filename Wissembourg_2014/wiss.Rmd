@@ -9,6 +9,7 @@ Récupération des données de Wissembourg à partir d'un fichier XML
 
 ```{r}
 source("../Preparation/RPU Quotidiens/quot_utils.R")
+library(lubridate)
 
 file <- "../../Archives_Sagec/RPU2014_Wissembourg/RPU_670000272_141201(1).csv"
 w <- read.table(file, header=TRUE, sep="\t")
@@ -17,15 +18,17 @@ w <- read.table(file, header=TRUE, sep="\t")
 
 Nettoyage et formatage
 
+23/01/2015: correction pour les dates d'entrée et de sortie. as.Date est remplacé par dmy_hm pour conserver les horaires. Idem pour l'extraction où il faut utiliser dmy_hms.
+
 ```{r}
 w$FINESS <- finess2hop(w$FINESS)
 
-w$ENTREE <- as.Date(w$ENTREE, "%j/%m/%Y")
-w$SORTIE <- as.Date(w$SORTIE, "%j/%m/%Y")
-w$EXTRACT <- as.Date(w$EXTRACT, "%j/%m/%Y")
-w$NAISSANCE <- as.Date(w$NAISSANCE, "%j/%m/%Y")
+w$ENTREE <- dmy_hm(w$ENTREE) # ancienne formulation fait disparaitre les heures: as.Date(w$ENTREE, "%j/%m/%Y")
+w$SORTIE <- dmy_hm(w$SORTIE) # idem: as.Date(w$SORTIE, "%j/%m/%Y")
+w$EXTRACT <- dmy_hms(w$SORTIE) # as.Date(w$EXTRACT, "%j/%m/%Y")
+w$NAISSANCE <- as.Date(w$NAISSANCE, "%d/%m/%Y")
 
-w$AGE<-floor(as.numeric(w$ENTREE - w$NAISSANCE)/365)
+w$AGE<-floor(as.numeric(as.Date(w$ENTREE) - as.Date(w$NAISSANCE))/365)
 w$AGE[w$AGE > 120] <- NA
 w$AGE[w$AGE < 0] <- NA
 
@@ -43,6 +46,9 @@ w$DIAG_ASS <- w$ACTES_ASS <- NULL
 w <- w[, c("ID", "CODE_POSTAL", "COMMUNE", "DESTINATION", "DP", "ENTREE", "EXTRACT", "FINESS", "GRAVITE", "MODE_ENTREE", "MODE_SORTIE", "MOTIF", "NAISSANCE", "ORIENTATION", "PROVENANCE", "SEXE", "SORTIE", "TRANSPORT", "TRANSPORT_PEC", "AGE")]
 names(w)[1] <- "id"
 
+# sauvegarde à toutes fins utiles
+write.csv(w, file = "wissembourg_2014_corrige.csv")
+
 ```
 
 Le fichier __w__ est prêt à être exploité
@@ -58,7 +64,9 @@ Remplacement
 
 ```{}
 # on récupère les données du mois de novembre
-load("../rpu2014d11_provisoire.Rda") # d11
+# load("../rpu2014d11_provisoire.Rda") # d11
+load("../../Archives 2014/rpu2014d11.Rda") # d11
+
 # on retire celles concernant Wissembourg
 temp <- d11[d11$FINESS != "Wis",]
 # on ajoute les nouvelles données wissembourg
@@ -66,7 +74,26 @@ n <- rbind(temp, w_2014.11)
 # on modifie le nom du fichier 
 d11 <- n
 # on sauvegarde le tout
-save(d11, file="rpu2014d11_provisoire.Rda")
+#save(d11, file="rpu2014d11_provisoire.Rda")
+save(d11, file="../Archives 2014/rpu2014d11_c.Rda")
+
+# correction dans le fichier annuel 2014
+load("rpu2014d0112.Rda") # fichier 2014
+# on retire les données du mois de novembre
+temp <- d14[month(as.Date(d14$ENTREE)) != 11,]
+# on vérifie que temp + novembre = total 2014
+nrow(temp) + nrow(d11)
+# fusion des 2
+n <- rbind(temp, d11)
+d14 <- n
+# sauvegarde prudente
+save(d14, file = "rpu2014d0112_c.Rda")
+
+# correction du fichier 2013-2014
+load("../RPU_2013/rpu2013d0112.Rda")
+d2 <- rbind(d1,d14)
+save(d2, file="rpu2013-2014.Rda")
+
 
 ```
 
