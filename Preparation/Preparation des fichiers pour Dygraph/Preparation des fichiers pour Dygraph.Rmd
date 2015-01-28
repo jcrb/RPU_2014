@@ -38,6 +38,8 @@ todo: tester le dataframe avec dygraph
 
 Le dataframe s'appelle __devenir__ et il s'enregistre dans _devenir.csv_ [read.csv("devenir.csv")]
 
+Expérimentation d'un graphe avec 2 courbes ayant des échelles différentes. Référence [Multiple Y-axis in a R plot](http://www.r-bloggers.com/multiple-y-axis-in-a-r-plot/)
+
 ```{r tx_hosp}
 load("~/Documents/Resural/Stat Resural/RPU_2014/rpu2014d0112_c.Rda") # d14
 load("~/Documents/Resural/Stat Resural/RPU_2014/rpu2015d0112_provisoire.Rda")
@@ -73,7 +75,8 @@ sd(taux.hosp)
 
 # création d'un ojet xts
 d.xts <- xts(devenir, order.by = devenir$date)
-# graphe avec 2 axes y pour les passages et le taux d'hospitalisation
+
+# graphe avec 2 axes y pour les passages et le taux d'hospitalisation. 
 plot(d.xts$passages, minor.ticks = FALSE, main = "")
 par(new = T) # permet de dessiner un second graphique avec ses propres paramètres
 plot(d.xts$taux, axes = F, ylim = c(0, 100),  col = "blue", main="")
