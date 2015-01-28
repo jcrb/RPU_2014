@@ -186,7 +186,7 @@ file.remove(file.to.delete)
 
 ```{}
 date1 <- "2015-01-08"
-date2 <- "2015-01-15"
+date2 <- "2015-01-26"
 
 mc <- substr(date1, 6, 7)
 ac <- substr(date1, 1,4)
@@ -214,7 +214,10 @@ d01 <- normalise(d01)
 save(d01, file="rpu2015d01_provisoire.Rda")
 rm(dx)
 
-load("rpu2014d0111.Rda")
+# uniquement le premier mois
+save(d01, file="rpu2015d0112_provisoire.Rda")
+
+load("rpu2015d0112_provisoire.Rda")
 
 dx <- rbind(dx, d12)
 min(as.Date(dx$ENTREE))

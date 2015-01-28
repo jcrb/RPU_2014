@@ -9,12 +9,78 @@ __Dygraph__ (DG) est une bibliothèque Javascript permettant d'afficher des cour
  
  L'application test se trouve dans le dossier DyGraph.
 
+Passages et taux d'hospitalisation
+----------------------------------
+
+Fabrique et affichage d'un dataframe de 6 colonnes:
+
+- date du jour
+- nombre total de passages = mutation + transferts
+- nombre d'hospitalisation 
+- nombre de mutation
+- nombre de transferts
+- taux d'hospitalisation = hospitalisation / passages
+
+todo: tester le dataframe avec dygraph
+
+Le dataframe s'appelle __devenir__ et il s'enregistre dans _devenir.csv_ [read.csv("devenir.csv")]
+
+```{r tx_hosp}
+load("~/Documents/Resural/Stat Resural/RPU_2014/rpu2014d0112_c.Rda") # d14
+load("~/Documents/Resural/Stat Resural/RPU_2014/rpu2015d0112_provisoire.Rda")
+source("new_functions.R") # f0nctopn mode.sotie()
+
+
+# création d'une table date, passages, hospitalisation, mutation, transfert
+# hospitalisation = mutation + transfert
+# remplacé par la fonction mode.sortie:
+# passages.jour <- tapply(as.Date(d14$ENTREE), as.Date(d14$ENTREE), length)
+# mut <- d14[d14$MODE_SORTIE == "Mutation", "ENTREE"]
+# mutations.jour <- tapply(as.Date(mut),  as.Date(mut), length)
+# trans <- d14[d14$MODE_SORTIE == "Transfert", "ENTREE"]
+# transfert.jour <- tapply(as.Date(trans),  as.Date(trans), length)
+# hospit.jour <- mutations.jour + transfert.jour
+# date <- unique(sort(as.Date(d14$ENTREE)))
+# devenir <- data.frame(date, passages.jour, hospit.jour, mutations.jour, transfert.jour)
+
+ms2014 <- mode.sortie(d14)
+ms2015 <- mode.sortie(d01)
+devenir <- rbind(ms2014, ms2015) # on lie les 2 années
+
+# paramètres dérivés
+apply(devenir[2:5], 2, mean, na.rm = TRUE)
+apply(devenir[2:5], 2, median, na.rm = TRUE)
+apply(devenir[2:5], 2, sd, na.rm = TRUE)
+apply(devenir[2:5], 2, min, na.rm = TRUE)
+apply(devenir[2:5], 2, max, na.rm = TRUE)
+taux.hosp <- round(devenir$hospit.jour * 100 / devenir$passages.jour, 2)
+summary(taux.hosp)
+sd(taux.hosp)
+
+# création d'un ojet xts
+d.xts <- xts(devenir, order.by = devenir$date)
+# graphe avec 2 axes y pour les passages et le taux d'hospitalisation
+plot(d.xts$passages, minor.ticks = FALSE, main = "")
+par(new = T) # permet de dessiner un second graphique avec ses propres paramètres
+plot(d.xts$taux, axes = F, ylim = c(0, 100),  col = "blue", main="")
+axis(4, ylim = c(0, 100),  col = "blue" ) # utilise l'axe de droite. Prévoir plus de marge
+legend("topleft", legend = c("Passages","Taux d'hospitalisation"), col = c("black", "blue"), lty = 1, bty = "n")
+
+# enregistrement du dataframe en csv:
+write.csv(devenir, file = "devenir.csv")
+
+```
+
+
 Circuit rapide
 --------------
 
 NB: write.csv insère "" comme nom de la première colonne qui correspond aux dates.
 
 ```{r}
+
+
+# autr chose
 k <- table(as.Date(dx$ENTREE), factor(dx$FINESS))
 total <- apply(k,1,sum)
 hop <- cbind(k, total)
