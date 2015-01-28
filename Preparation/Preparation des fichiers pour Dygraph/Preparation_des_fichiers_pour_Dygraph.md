@@ -1,14 +1,6 @@
----
-title: "Digraph"
-author: "JcB"
-date: "18/12/2014"
-output:
-  html_document:
-    fig_caption: yes
-    keep_md: yes
-    toc: yes
-  word_document: default
----
+# Digraph
+JcB  
+18/12/2014  
 
 Préparation des fichiers pour Dygraph
 =====================================
@@ -37,13 +29,25 @@ todo: tester le dataframe avec dygraph
 
 Le dataframe s'appelle __devenir__ et il s'enregistre dans _devenir.csv_ [read.csv("devenir.csv")]
 
-```{r tx_hosp}
+
+```r
 load("~/Documents/Resural/Stat Resural/RPU_2014/rpu2014d0112_c.Rda") # d14
 load("~/Documents/Resural/Stat Resural/RPU_2014/rpu2015d0112_provisoire.Rda")
 source("../../new_functions.R") # f0nctopn mode.sotie()
 library(xts)
+```
 
+```
+## Loading required package: zoo
+## 
+## Attaching package: 'zoo'
+## 
+## The following objects are masked from 'package:base':
+## 
+##     as.Date, as.Date.numeric
+```
 
+```r
 # création d'une table date, passages, hospitalisation, mutation, transfert
 # hospitalisation = mutation + transfert
 # remplacé par la fonction mode.sortie:
@@ -62,14 +66,68 @@ devenir <- rbind(ms2014, ms2015) # on lie les 2 années
 
 # paramètres dérivés
 apply(devenir[2:5], 2, mean, na.rm = TRUE)
+```
+
+```
+##  passages.jour    hospit.jour mutations.jour transfert.jour 
+##     1148.41406      227.02083      210.66406       16.35677
+```
+
+```r
 apply(devenir[2:5], 2, median, na.rm = TRUE)
+```
+
+```
+##  passages.jour    hospit.jour mutations.jour transfert.jour 
+##           1137            225            209             16
+```
+
+```r
 apply(devenir[2:5], 2, sd, na.rm = TRUE)
+```
+
+```
+##  passages.jour    hospit.jour mutations.jour transfert.jour 
+##     154.739073      27.061377      25.632860       4.905403
+```
+
+```r
 apply(devenir[2:5], 2, min, na.rm = TRUE)
+```
+
+```
+##  passages.jour    hospit.jour mutations.jour transfert.jour 
+##            768            162            155              5
+```
+
+```r
 apply(devenir[2:5], 2, max, na.rm = TRUE)
+```
+
+```
+##  passages.jour    hospit.jour mutations.jour transfert.jour 
+##           1689            341            321             49
+```
+
+```r
 taux.hosp <- round(devenir$hospit.jour * 100 / devenir$passages.jour, 2)
 summary(taux.hosp)
-sd(taux.hosp)
+```
 
+```
+##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+##   12.57   17.85   20.20   20.05   22.32   30.12
+```
+
+```r
+sd(taux.hosp)
+```
+
+```
+## [1] 3.075179
+```
+
+```r
 # création d'un ojet xts
 d.xts <- xts(devenir, order.by = devenir$date)
 # graphe avec 2 axes y pour les passages et le taux d'hospitalisation
@@ -78,10 +136,13 @@ par(new = T) # permet de dessiner un second graphique avec ses propres paramètr
 plot(d.xts$taux, axes = F, ylim = c(0, 100),  col = "blue", main="")
 axis(4, ylim = c(0, 100),  col = "blue" ) # utilise l'axe de droite. Prévoir plus de marge
 legend("topleft", legend = c("Passages","Taux d'hospitalisation"), col = c("black", "blue"), lty = 1, bty = "n")
+```
 
+![](Preparation_des_fichiers_pour_Dygraph_files/figure-html/tx_hosp-1.png) 
+
+```r
 # enregistrement du dataframe en csv:
 write.csv(devenir, file = "devenir.csv")
-
 ```
 
 
@@ -90,8 +151,8 @@ Circuit rapide
 
 NB: write.csv insère "" comme nom de la première colonne qui correspond aux dates.
 
-```{r}
 
+```r
 dx <- d14
 
 # autr chose
@@ -223,7 +284,8 @@ lines(moy.mobile-sd.mobile, col="blue")
 legend("topleft", legend=c("moyenne mobile","écart-type"), col=c("blue","blue"), lty=c(2,1))
 ```
 On refait la même manip mais en ajoutant les hospitalisations = somme mutation + transferts:
-```{r test2}
+
+```r
 d <- read.table("../../data2.csv", header=TRUE, sep=",")
 library("lubridate")
 
@@ -234,11 +296,36 @@ hosp <- dx[dx$MODE_SORTIE == "Mutation" | dx$MODE_SORTIE == "Transfert", 6] # 6 
 hospitalisation <- tapply(hosp, as.Date(hosp), length) # nb hospit par jour
 
 hop <- data.frame(cbind(hop, hospitalisation))
-head(hop)
+```
 
+```
+## Warning in cbind(hop, hospitalisation): number of rows of result is not a
+## multiple of vector length (arg 2)
+```
+
+```r
+head(hop)
+```
+
+```
+##            X3Fr Alk Col Dia Geb Hag Hus Mul Odi Sav Sel Wis Dts Ros Ane
+## 2014-01-01   46   0 177  76  44  99  90 130  73  97 101  39   0   0   0
+## 2014-01-02   34  31 181  77  33 101 134 189  71  83  84  37   0   0   0
+## 2014-01-03   36  38 199  82  34  86 117 187  61  93  75  30   0   0   0
+## 2014-01-04   38  17 169  92  31  89  95 177  71  84  87  32   0   0   0
+## 2014-01-05   42   1 164  75  38  85  79 183  76  64  76  35   0   0   0
+## 2014-01-06   40  11 160  90  51  87 128 179  77  78  76  23   0   0   0
+##            X670780204 total    mean hosp hospitalisation
+## 2014-01-01          0   972 60.7500  194             222
+## 2014-01-02          0  1055 65.9375  265             204
+## 2014-01-03          0  1038 64.8750  264             184
+## 2014-01-04          0   982 61.3750  237             194
+## 2014-01-05          0   918 57.3750  184             167
+## 2014-01-06          0  1000 62.5000  242             143
+```
+
+```r
 t <- data.frame(rownames(hop), hop$total, hop$hospitalisation)
 colnames(t)<-c("date","passages","hospitalisations")
 write.csv(t, file="data2.csv", row.names = FALSE)
-
-
 ```

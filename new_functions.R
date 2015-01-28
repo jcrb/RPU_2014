@@ -61,6 +61,7 @@ sort.data.frame <- function(x, decreasing=FALSE, by=1, ... ){
 #'@return dataframe contenant une colonne date, passage.jour, hospit.jour, mutations.jour, transfert.jour, taux.hosp
 #'@details hospitalisation = mutation + transfert
 #'@details taux hospitalisation = hospitalisation / passages
+#'@usage dd <- mode.sortie(d14)
 #'
 mode.sortie <- function(dx){
   passages.jour <- tapply(as.Date(dx$ENTREE), as.Date(dx$ENTREE), length)
