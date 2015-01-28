@@ -16,6 +16,7 @@ Préparation des fichiers pour Dygraph
 __Dygraph__ (DG) est une bibliothèque Javascript permettant d'afficher des courbes dynamiques. DG affiche des données de séries temporelles à partir d'une matrice dont la première colonne est obligatoirement une colonne __date__ au format ISO. Chaque colonne qui suit sera affichée individuellement.  
 
  Deux tables sont préparées pour _Resural_:
+ 
  - __hop_2014.csv__ nombre de passages par jour pour l'ensemble des SU d'Alsace et nombre d'hospitalisations.
  - __SU_2014.csv__ nombre de passages par jour et par SU + total, moyenne et nb hospitalisation => fichier complet pour __Dygraph__.
  
