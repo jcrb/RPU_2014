@@ -49,3 +49,28 @@ sort.data.frame <- function(x, decreasing=FALSE, by=1, ... ){
   i <- do.call(f,x[by])
   x[i,,drop=FALSE]
 }
+
+##============================
+#
+#   mode.sortie
+#
+#=============================
+#'@description crée un dataframe contenant le total de passages, d'hospitalisation, de mutation, de transferts par jour
+#'@author JcB
+#'@param dx dataframe contenant au minimum les colonnes ENTREE, MODE_SORTIE
+#'@return dataframe contenant une colonne date, passage.jour, hospit.jour, mutations.jour, transfert.jour, taux.hosp
+#'@details hospitalisation = mutation + transfert
+#'@details taux hospitalisation = hospitalisation / passages
+#'@usage dd <- mode.sortie(d14)
+#'
+mode.sortie <- function(dx){
+  passages.jour <- tapply(as.Date(dx$ENTREE), as.Date(dx$ENTREE), length)
+  mut <- dx[dx$MODE_SORTIE == "Mutation", "ENTREE"]
+  mutations.jour <- tapply(as.Date(mut),  as.Date(mut), length)
+  trans <- dx[dx$MODE_SORTIE == "Transfert", "ENTREE"]
+  transfert.jour <- tapply(as.Date(trans),  as.Date(trans), length)
+  hospit.jour <- mutations.jour + transfert.jour
+  date <- unique(sort(as.Date(dx$ENTREE)))
+  taux.hosp <- round(hospit.jour * 100 / passages.jour, 2)
+  sortie <- data.frame(date, passages.jour, hospit.jour, mutations.jour, transfert.jour, taux.hosp)
+}
