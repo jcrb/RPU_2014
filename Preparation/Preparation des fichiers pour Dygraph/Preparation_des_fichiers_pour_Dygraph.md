@@ -30,6 +30,8 @@ todo: tester le dataframe avec dygraph
 
 Le dataframe s'appelle __devenir__ et il s'enregistre dans _devenir.csv_ [read.csv("devenir.csv")]
 
+Expérimentation d'un graphe avec 2 courbes ayant des échelles différentes. Référence [Multiple Y-axis in a R plot](http://www.r-bloggers.com/multiple-y-axis-in-a-r-plot/)
+
 
 ```r
 load("~/Documents/Resural/Stat Resural/RPU_2014/rpu2014d0112_c.Rda") # d14
@@ -71,7 +73,7 @@ apply(devenir[2:5], 2, mean, na.rm = TRUE)
 
 ```
 ##  passages.jour    hospit.jour mutations.jour transfert.jour 
-##     1148.41406      227.02083      210.66406       16.35677
+##     1148.96382      226.94315      210.57364       16.36951
 ```
 
 ```r
@@ -80,7 +82,7 @@ apply(devenir[2:5], 2, median, na.rm = TRUE)
 
 ```
 ##  passages.jour    hospit.jour mutations.jour transfert.jour 
-##           1137            225            209             16
+##           1138            225            209             16
 ```
 
 ```r
@@ -89,7 +91,7 @@ apply(devenir[2:5], 2, sd, na.rm = TRUE)
 
 ```
 ##  passages.jour    hospit.jour mutations.jour transfert.jour 
-##     154.739073      27.061377      25.632860       4.905403
+##     154.309136      26.991399      25.578623       4.888964
 ```
 
 ```r
@@ -117,7 +119,7 @@ summary(taux.hosp)
 
 ```
 ##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-##   12.57   17.85   20.20   20.05   22.32   30.12
+##   12.57   17.83   20.11   20.03   22.30   30.12
 ```
 
 ```r
@@ -125,13 +127,14 @@ sd(taux.hosp)
 ```
 
 ```
-## [1] 3.075179
+## [1] 3.071935
 ```
 
 ```r
 # création d'un ojet xts
 d.xts <- xts(devenir, order.by = devenir$date)
-# graphe avec 2 axes y pour les passages et le taux d'hospitalisation
+
+# graphe avec 2 axes y pour les passages et le taux d'hospitalisation. 
 plot(d.xts$passages, minor.ticks = FALSE, main = "")
 par(new = T) # permet de dessiner un second graphique avec ses propres paramètres
 plot(d.xts$taux, axes = F, ylim = c(0, 100),  col = "blue", main="")
