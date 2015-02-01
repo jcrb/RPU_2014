@@ -2,10 +2,22 @@
 title: "Rapport 2014 - version FEDORU"
 author: "JcB"
 date: "28/01/2015"
-output: html_document
+output:
+  html_document:
+    toc: yes
 ---
 
 Rapport 2014 respectant les préconisations de la FEDORU
+=======================================================
+
+```{r prerequis, echo=FALSE}
+load("../rpu2014d0112_c.Rda") # d14 = données 2014 corrigées
+dx <- d14                     # dx est le terme générique pour désigner le dataframe de l'année courante
+
+anc <- 2014    # année courante
+anp <- anc - 1 # année précédente
+```
+
 
 le ‘préambule’ 
 ==============
@@ -28,15 +40,42 @@ Volume global d’activité, cumul de passages
 historique du nombre de passages
 --------------------------------
 
-- [1][2] par année et de la moyenne quotidienne du nombre de passages
+#### [1][2] par année et de la moyenne quotidienne du nombre de passages
+```{r1, echo=FALSE}
+n <- nrow(dx) # nb de RPU = nb passages
+mean.rpu.jour <- n / 365
 
-- [3] % d’augmentation annuelle sur les années disponibles
+n2014 <- n
+n2013 <- 344073
+```
+- nombre de passages en `r anc`: `r n` soit en moyenne `r round(mean.rpu.jour, 0)` par jour.
+
+#### [3] % d’augmentation annuelle sur les années disponibles
+
+```{r3, echo=FALSE}
+p <- n * 100 / n2013
+```
+% de variation 2014/2013 = `r round(p, 2)` %
 
 croisements :
 
-- [4][5] nombre de passages et % par type de structures (CH, CHU, privé), année N
+#### [4][5] nombre de passages et % par type de structures (CH, CHU, privé), année N
+```{r4, echo=FALSE, comment=""}
+pass <- dx[,c("ENTREE", "FINESS")]
+file <- "../../RPU_Doc/Hopitaux_Alsace2.csv"
+hop <- read.csv(file)
+d <- merge(pass, hop, by.x = "FINESS", by.y = "RPU_NAME", all.x = TRUE)
+t <- tapply(as.Date(d$ENTREE), d$TYPE, length)
+x <- cbind(t, round(t*100/sum(t), 2))
+x <- rbind(x, apply(x, 2, sum))
+colnames(x) <- c("n", "%")
+x
+rm(pass, d)
 
-- [6] % CH, CHU, privé sur les années disponibles
+```
+
+
+#### [6] % CH, CHU, privé sur les années disponibles
 
 Caractéristique des patients : âge
 -----------------------------------
