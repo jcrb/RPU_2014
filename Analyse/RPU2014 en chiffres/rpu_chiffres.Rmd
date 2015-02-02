@@ -245,3 +245,25 @@ Suite à notre conversation téléphonique, pouvez-vous en priorité, me communi
 En cas de difficulté en termes de délais, les précisions concernant les personnes de plus de 75 ans demandées dans cette présente requête (ci-dessous), ainsi que les précisions concernant la requête précédente (dans le cadre du groupe de travail sur les chutes des personnes âgées), pourront attendre la semaine prochaine (avant le 22).
 
 réponse le 2015-01-12 (cf supra)
+
+Nombre d'hospitalisés
+=====================
+
+Info de Carine Pailler-Pradeau: Notre DIM nous disait jeudi en cellule de crise, qu’en janvier sur Sélestat,il y avait eu 100 hospitalisations en plus, par rapport à janvier 2014.
+
+Question: quel est le nombre d'hospitalisation à Sélestat en janvier 2013, 2014, 2015 ?
+
+```{ hosp_sel}
+load("~/Documents/Resural/Stat Resural/RPU_2014/rpu2013-2014.Rda") # d2
+load("~/Documents/Resural/Stat Resural/RPU_2014/rpu2015d0112_provisoire.Rda") # d01
+
+sel2013 <- d2[d2$MODE_SORTIE == "Mutation" & d2$FINESS == "Sel" & as.Date(d2$ENTREE) < "2013-02-01", c("ENTREE", "FINESS", "MODE_SORTIE")]
+sel2014 <- d2[d2$MODE_SORTIE == "Mutation" & d2$FINESS == "Sel" & as.Date(d2$ENTREE) > "2013-12-31" & as.Date(d2$ENTREE) < "2014-02-01", c("ENTREE", "FINESS", "MODE_SORTIE")]
+sel2015 <- d01[d01$MODE_SORTIE == "Mutation" & d01$FINESS == "Sel" & as.Date(d01$ENTREE) > "2014-12-31" & as.Date(d01$ENTREE) < "2015-02-01", c("ENTREE", "FINESS", "MODE_SORTIE")]
+
+```
+Résultats:
+
+- 2013: 556
+- 2014: 515
+- 2015: 406 au 22 janvier soit 572 au 31/1 par extrapolation
