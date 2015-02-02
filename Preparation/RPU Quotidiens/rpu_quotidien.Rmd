@@ -182,11 +182,9 @@ Il faut également, à mois échu, créer un dossier pour le mois dans le dossie
 ```{}
 file.to.delete <- "/home/jcb/Documents/Resural/Stat Resural/Archives_Sagec/dataQ/archivesCsv/rpu2014.data"
 file.remove(file.to.delete)
-```
 
-```{}
 date1 <- "2015-01-08"
-date2 <- "2015-01-26"
+date2 <- "2015-01-29"
 
 mc <- substr(date1, 6, 7)
 ac <- substr(date1, 1,4)
@@ -325,6 +323,27 @@ t(t)
 2015-01-07  42  41  NA  66  35  39 125 296 156  64   8  69  84  39
 ```
 
+On peut fabriquer un fichier provisoire constitué par la fusion des jours consolidés (d01) et des 7 dernier jours (d). Il faut supprimer dans le fichier d le premier jour qui correspond au dernier jour consolidé.
+
+> max(as.Date(d01$ENTREE))
+[1] "2015-01-22"
+
+```{}
+d <- d[as.Date(d$ENTREE) > max(as.Date(d01$ENTREE)),]
+d01.p <- rbind(d01, d)
+max(as.Date(d01.p$ENTREE))
+
+```
+et l'afficher sous forme de série temporelle
+```{}
+a <-tapply(as.Date(d01.p$ENTREE), as.Date(d01.p$ENTREE), length)
+xts.a <- xts(a, order.by = unique(as.Date(d01.p$ENTREE)))
+plot(xts.a, las = 2)
+abline(h = 1141.734, col = "red") # nb moyende RPU en 2014
+abline(h = 1141.734 + 154.7858, col = "red", lty = 2) # 1 écrt-type
+abline(h = 1141.734 + 154.7858 * 2, col = "red", lty = 2) # 2 écart-type
+
+```
 
 
 

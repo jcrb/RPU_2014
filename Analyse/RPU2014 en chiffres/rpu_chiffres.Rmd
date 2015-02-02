@@ -74,6 +74,27 @@ n <- nrow(d14)
 ```
 Total RPU: `r n`
 
+Nombre de RPU par jour
+=======================
+
+```{r jour, echo=FALSE}
+
+nb.rpu.par.jour <- tapply(as.Date(d14$ENTREE), as.Date(d14$ENTREE), length)
+mean(nb.rpu.par.jour)
+sd(nb.rpu.par.jour)
+median(nb.rpu.par.jour)
+
+# nb RPU par semaine ET jour de semaine. Nécessite Lubridate. Génère une latrice 52  x 7
+a <- tapply(as.Date(d14$ENTREE), list(week(as.Date(d14$ENTREE)), wday(as.Date(d14$ENTREE))), length)
+# moyenne par type de jour (1 = dimanche)
+apply(a, 2, mean, na.rm = TRUE)
+apply(a, 2, sd, na.rm = TRUE)
+# moyenne par semaine
+mean.week <- apply(a, 1, mean, na.rm = TRUE)
+sd.week <- apply(a, 1, sd, na.rm = TRUE)
+```
+
+
 Nombre de RPU par mois
 ======================
 

@@ -1,0 +1,22 @@
+---
+title: "Test dygraph"
+author: "JcB"
+date: "31/01/2015"
+output: html_document
+---
+
+Xts et Dygraphs
+===============
+
+```{r xts_dygraphs, echo=FALSE}
+
+library(dygraphs)
+library(xts)
+path <- "../../RPU_2014/Analyse/Activite_SAMU/" # pour lancer depuis la console
+file <- "samu67_2014.csv"
+d67 <- read.csv(paste0(path,file))
+d67$date <- as.Date(d67$date, "%d/%m/%Y")
+a <- xts(d67, order.by = d67$date)
+d <- dygraph(a[,3:4], main = "SAMU 67 - 2014", ylab = "Affaires")
+d
+```
