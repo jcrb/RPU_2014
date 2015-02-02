@@ -585,7 +585,8 @@ Diaconat Fonderie (2014)
 Calcul du ratio mediane temps passage si age > 74 ans / mediane temps passage :
 ```{r median_fonderie, echo=FALSE, comment=""}
 # médiane et age > 74 ans
-load("~/Documents/Resural/Stat Resural/RPU_2014/rpu2014d0112_c.Rda")
+# load("~/Documents/Resural/Stat Resural/RPU_2014/rpu2014d0112_c.Rda")
+load("rpu2014d0112_c.Rda")
 dia.75 <- d14[d14$FINESS == "Dia" & d14$AGE > 74, c("ENTREE", "SORTIE", "FINESS")]
 e <- ymd_hms(dia.75$ENTREE)
 s <- ymd_hms(dia.75$SORTIE)

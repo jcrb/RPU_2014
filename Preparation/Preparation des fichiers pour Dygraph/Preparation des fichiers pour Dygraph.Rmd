@@ -41,11 +41,12 @@ Le dataframe s'appelle __devenir__ et il s'enregistre dans _devenir.csv_ [read.c
 Expérimentation d'un graphe avec 2 courbes ayant des échelles différentes. Référence [Multiple Y-axis in a R plot](http://www.r-bloggers.com/multiple-y-axis-in-a-r-plot/)
 
 ```{r tx_hosp}
-load("~/Documents/Resural/Stat Resural/RPU_2014/rpu2014d0112_c.Rda") # d14
-load("~/Documents/Resural/Stat Resural/RPU_2014/rpu2015d0112_provisoire.Rda")
-source("../../new_functions.R") # f0nctopn mode.sotie()
+path <- "../../"
+load(paste0(path, "rpu2014d0112_c.Rda")) # d14
+load(paste0(path, "rpu2015d0112_provisoire.Rda")) # d01
+source(paste0(path, "new_functions.R")) # f0nctopn mode.sotie()
 library(xts)
-
+library(dygraphs)
 
 # création d'une table date, passages, hospitalisation, mutation, transfert
 # hospitalisation = mutation + transfert
@@ -75,6 +76,9 @@ sd(taux.hosp)
 
 # création d'un ojet xts
 d.xts <- xts(devenir, order.by = devenir$date)
+anim <- dygraph(d.xts[,2:6], main = "SU 2014", ylab = "Affaires")
+anim
+
 
 # graphe avec 2 axes y pour les passages et le taux d'hospitalisation. 
 plot(d.xts$passages, minor.ticks = FALSE, main = "")
