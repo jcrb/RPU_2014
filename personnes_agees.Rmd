@@ -68,7 +68,7 @@ T08-T14	Lésions traumatiques de siège non précisé du tronc, membre ou autre 
  
 ```{r init, cache=FALSE, echo=FALSE, message=FALSE}
 if(as.character(Sys.info()["nodename"]) == "MacBook-Air-de-JCB.local")
-  path = "~/Documents/Stat Resural/RPU_2014/rpu2013-2014.Rda" else 
+  path = "~/Documents/Stat Resural/RPU_2014" else 
 if(as.character(Sys.info()["nodename"]) == "XPS")
   path = "~/Documents/Resural/Stat Resural/RPU_2014"
 file <- "rpu2013-2014.Rda"

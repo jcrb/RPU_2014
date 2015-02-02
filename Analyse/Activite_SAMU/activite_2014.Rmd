@@ -20,8 +20,8 @@ d67 <- read.csv(file)
 Nombre moyen d'affaires
 ------------------------
 ```{r mean_affaires, echo=FALSE}
-mean(d67$affaires)
-sd(d67$affaires)
+m <- mean(d67$affaires)
+s <- sd(d67$affaires)
 # calcul de la moyenne avec 1, 2 ou 3 écarts-types
 m1sd.sup <- round(m + s, 0)
 m1sd.inf <- round(m - s, 0)
@@ -33,7 +33,6 @@ m3sd.inf <- round(m - 3*s, 0)
 affaires <- data.frame(x = "SAMU 67", y = 890)
 g <- gvisGauge(affaires, options=list(min=0, max=2000, greenFrom=0, greenTo=m1sd.sup, yellowFrom=m1sd.sup, yellowTo=m2sd.sup, redFrom=m2sd.sup, redTo=2000))
 
-
-
 ```
+
 
