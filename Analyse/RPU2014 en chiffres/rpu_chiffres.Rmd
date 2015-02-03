@@ -308,3 +308,19 @@ Résultats:
 - 2013: 556
 - 2014: 515
 - 2015: 406 au 22 janvier soit 572 au 31/1 par extrapolation
+
+# tableau mensuel provisoire = jours consolidés + 6 derniers jours
+sel <- d01.p[d01.p$FINESS == "Sel",]
+sel <- sel[as.Date(sel$ENTREE) < "2015-02-01",] # on se limite à janvier
+
+# période équivalente en 2014
+sel14 <- d14[d14$FINESS == "Sel" & month(as.Date(d14$ENTREE)) == 1,]
+# on isole les hospitalisations de sélestat
+t.sel15 <- tapply(sel[sel$MODE_SORTIE=="Mutation", "MODE_SORTIE"], as.Date(sel$ENTREE[sel$MODE_SORTIE=="Mutation"]), length)
+t.sel14 <- tapply(sel14[sel14$MODE_SORTIE=="Mutation", "MODE_SORTIE"], as.Date(sel14$ENTREE[sel14$MODE_SORTIE=="Mutation"]), length)
+bilan <- cbind(t.sel15, t.sel14, t.sel15 - t.sel14)
+barplot(bilan[,3], las=2, main = "Hospitalisation Sélestat 2015-2014", ifelse(bilan[,3] > 0, col="green", col="blue"))
+# somme des 3 colonnes
+apply(bilan, 2, sum)
+
+voir la fonction _mutation_ dans new_fonction.R
