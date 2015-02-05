@@ -180,11 +180,12 @@ Si on a une collection de fichiers:
 Il faut également, à mois échu, créer un dossier pour le mois dans le dossier __archivesCSV__ et y ranger les fichiers _.csv_ du mois échu (sinon ils sont repris dans les calcule).
 
 ```{}
+source("Preparation/RPU Quotidiens/quot_utils.R")
 file.to.delete <- "/home/jcb/Documents/Resural/Stat Resural/Archives_Sagec/dataQ/archivesCsv/rpu2014.data"
 file.remove(file.to.delete)
 
 date1 <- "2015-01-08"
-date2 <- "2015-01-29"
+date2 <- "2015-02-02"
 
 mc <- substr(date1, 6, 7)
 ac <- substr(date1, 1,4)
@@ -217,11 +218,11 @@ save(d01, file="rpu2015d0112_provisoire.Rda")
 
 load("rpu2015d0112_provisoire.Rda")
 
-dx <- rbind(dx, d12)
-min(as.Date(dx$ENTREE))
-max(as.Date(dx$ENTREE))
+dx <- rbind(d15, d01)
+min(as.Date(d15$ENTREE))
+max(as.Date(d15$ENTREE))
 
-save(dx, file="rpu2015d0112_provisoire.Rda")
+save(15, file="rpu2015d0112_provisoire.Rda")
 
 table(as.Date(d01$ENTREE), d01$FINESS)
 ```
@@ -330,18 +331,23 @@ On peut fabriquer un fichier provisoire constitué par la fusion des jours conso
 
 ```{}
 d <- d[as.Date(d$ENTREE) > max(as.Date(d01$ENTREE)),]
+d <- rpu2factor(d) # transforme les chiffres en facteurs cohérent avec d01
+
 d01.p <- rbind(d01, d)
 max(as.Date(d01.p$ENTREE))
 
 ```
 et l'afficher sous forme de série temporelle
 ```{}
+library(xts)
 a <-tapply(as.Date(d01.p$ENTREE), as.Date(d01.p$ENTREE), length)
 xts.a <- xts(a, order.by = unique(as.Date(d01.p$ENTREE)))
-plot(xts.a, las = 2)
-abline(h = 1141.734, col = "red") # nb moyende RPU en 2014
-abline(h = 1141.734 + 154.7858, col = "red", lty = 2) # 1 écrt-type
-abline(h = 1141.734 + 154.7858 * 2, col = "red", lty = 2) # 2 écart-type
+plot(xts.a, las = 2, main = "Activité des SU d'Alsace", ylab = "nombre de RPU créés")
+mean2014 <- 1141.734
+sd2014 <- 154.7858
+abline(h = mean2014, col = "red") # nb moyende RPU en 2014
+abline(h = mean2014 + sd2014, col = "red", lty = 2) # 1 écrt-type
+abline(h = mean2014 + sd2014 * 2, col = "red", lty = 2) # 2 écart-type
 
 ```
 

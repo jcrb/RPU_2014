@@ -74,3 +74,47 @@ mode.sortie <- function(dx){
   taux.hosp <- round(hospit.jour * 100 / passages.jour, 2)
   sortie <- data.frame(date, passages.jour, hospit.jour, mutations.jour, transfert.jour, taux.hosp)
 }
+
+
+# en cours: y a t'il plus d'hospitalisation en 2015 qu'en 2014 ?
+
+# tableau mensuel provisoire = jours consolidés + 6 derniers jours
+sel <- d01.p[d01.p$FINESS == "Sel",]
+# période équivalente en 2014
+sel14 <- d14[d14$FINESS == "Sel" & month(as.Date(d14$ENTREE)) == 1,]
+# on isole les hospitalisations de sélestat
+t.sel15 <- tapply(sel[sel$MODE_SORTIE=="Mutation", "MODE_SORTIE"], as.Date(sel$ENTREE[sel$MODE_SORTIE=="Mutation"]), length)
+t.sel14 <- tapply(sel14[sel14$MODE_SORTIE=="Mutation", "MODE_SORTIE"], as.Date(sel14$ENTREE[sel14$MODE_SORTIE=="Mutation"]), length)
+bilan <- cbind(t.sel15, t.sel14, t.sel15 - t.sel14)
+barplot(bilan[,3], las=2, main = "Hospitalisation Sélestat 2015-2014", ifelse(bilan[,3] > 0, col="green", col="blue"))
+# somme des 3 colonnes
+apply(bilan, 2, sum)
+
+
+# d1 <- d01.p[d01.p$FINESS == "Sel", c("ENTREE", "MODE_SORTIE")]
+# d2 <- d14[d14$FINESS == "Sel" & as.Date(d14$ENTREE) < "2014-02-01" , c("ENTREE", "MODE_SORTIE")]
+# a <- mutation(d1, d2)
+
+# idem avec Colmar
+# d1 <- d01.p[d01.p$FINESS == "Col", c("ENTREE", "MODE_SORTIE")]
+# d2 <- d14[d14$FINESS == "Col" & as.Date(d14$ENTREE) < "2014-02-01" , c("ENTREE", "MODE_SORTIE")]
+# a <- mutation(d1, d2)
+# barplot(a[,3], las=2, main = "Hospitalisation Colmar 2015-2014")
+# apply(a, 2, sum)
+
+
+# fonction pour essayer de créer automatiquement d1 et d2
+col.date <- function(d){
+  d1 <- d[d$FINESS == "Sel", c("ENTREE", "MODE_SORTIE")]
+}
+
+mutation <- function(d1, d2){
+  t.d1 <- tapply(d1[d1$MODE_SORTIE=="Mutation", "MODE_SORTIE"], as.Date(d1$ENTREE[d1$MODE_SORTIE=="Mutation"]), length)
+  t.d2 <- tapply(d2[d2$MODE_SORTIE=="Mutation", "MODE_SORTIE"], as.Date(d2$ENTREE[d2$MODE_SORTIE=="Mutation"]), length)
+  bilan <- cbind(t.d1, t.d2, t.d1 - t.d2)
+  return(bilan)
+}
+
+a <- mutation(d1, d2)
+barplot(a[,3], las=2, main = "Hospitalisation Sélestat 2015-2014")
+apply(a, 2, sum)
