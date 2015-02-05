@@ -302,6 +302,18 @@ sel2013 <- d2[d2$MODE_SORTIE == "Mutation" & d2$FINESS == "Sel" & as.Date(d2$ENT
 sel2014 <- d2[d2$MODE_SORTIE == "Mutation" & d2$FINESS == "Sel" & as.Date(d2$ENTREE) > "2013-12-31" & as.Date(d2$ENTREE) < "2014-02-01", c("ENTREE", "FINESS", "MODE_SORTIE")]
 sel2015 <- d01[d01$MODE_SORTIE == "Mutation" & d01$FINESS == "Sel" & as.Date(d01$ENTREE) > "2014-12-31" & as.Date(d01$ENTREE) < "2015-02-01", c("ENTREE", "FINESS", "MODE_SORTIE")]
 
+Origine patient
+---------------
+```{r}
+c57 <- d14[substr(d14$CODE_POSTAL, 1, 2) == "57",]
+summary(c57$COMMUNE)
+c54 <- d14[substr(d14$CODE_POSTAL, 1, 2) == "54",]
+c88 <- d14[substr(d14$CODE_POSTAL, 1, 2) == "88",]
+c90 <- d14[substr(d14$CODE_POSTAL, 1, 2) == "90",]
+
+```
+
+
 ```
 Résultats:
 
