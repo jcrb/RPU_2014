@@ -21,6 +21,7 @@
 #' - completude.item
 #' - cim10
 #' - choose.path
+#' - create.col.territoire
 
 #=======================================
 #
@@ -469,4 +470,50 @@ choose.path <- function(){
     path = "~/Documents/Stat Resural/RPU_2014" else 
       if(as.character(Sys.info()["nodename"]) == "XPS")
         path = "~/Documents/Resural/Stat Resural/RPU_2014"
+}
+
+#=======================================
+#
+# create.col.territoire
+#
+#=======================================
+#' ajoute une colonne TERRITOIRE à un dataframe de RPU
+#' @param dx dataframe. Doit comprter au moins une colonne appelée FINESS
+#' @usage a <- create.col.territoire(j2015)
+#'        tapply(as.Date(a$ENTREE), a$TERRITOIRE, length)
+#' 
+create.col.territoire <- function(dx){
+  dx$TERRITOIRE[dx$FINESS %in% c("Wis","Sav","Hag")] <- "T1"
+  dx$TERRITOIRE[dx$FINESS %in% c("Hus","Odi","Ane","Dts")] <- "T2"
+  dx$TERRITOIRE[dx$FINESS %in% c("Sel","Col","Geb")] <- "T3"
+  dx$TERRITOIRE[dx$FINESS %in% c("Mul","3Fr","Alk","Ros","Dia","Tan")] <- "T4"
+  return(dx)
+}
+
+
+#=======================================
+#
+# rpu.par.jour
+#
+#=======================================
+#' A partir d'un vecteur de dates, calcule le nombre de RPU par jour
+#' @param d vecteur de dates compatible avec le format Date
+#' @param roll: nb de jours pour la moyenne lissée. Défaut = 7
+#' @include xts, lubridate
+#' @return un dataframe de 4 colonnes: date calendaire, nb de RPU du joir, le n° du jour de l'année (1 à 365), la moyennne lissée
+#' @todo RAJOUTER LES SOMMES   CUMuLEES
+#' @usage p2013 <- rpu.par.jour(j2013$ENTREE)
+#'        plot(p2013$V2, type="l") # les RPU
+#'        lines(p2013$V3, p2013$V4) # moyenne mobile
+
+rpu.par.jour <- function(d, roll = 7){
+  # janvier 2013
+  t <- tapply(as.Date(d), as.Date(d), length)
+  df <- as.data.frame(cbind(names(t), as.numeric(t)), stringsAsFactors = FALSE)
+  df$V1 <- as.Date(df$V1) # col. date
+  df$V2 <- as.numeric(df$V2) # nb de RPU
+  df$V3 <- yday(df$V1) # date du jour en n° du jour dans l'année
+  df$V4 <- rollmean(df$V2, 7, fill = NA) # moyenne mobile sur 7 jours. rollmean crée un vecteur plus petit. Pour obtenir un vecteur de la même longueur, on remplace les valeurs manquantes par NA
+  df$V5 <- df$V2 - df$V4 # pour CUSUM
+  return(df)
 }

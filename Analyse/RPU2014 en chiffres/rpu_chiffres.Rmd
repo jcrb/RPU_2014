@@ -15,21 +15,19 @@ init
 Le fichier source s'appelle __d14__.
 
 ```{r init, echo=FALSE}
-<<<<<<< HEAD
 # XPS load("~/Documents/Resural/Stat Resural/RPU_2014/rpu2014d0112.Rda")
 # MAc
 load("../../rpu2014d0112.Rda")
-=======
 load("~/Documents/Resural/Stat Resural/RPU_2014/rpu2014d0112_c.Rda")
->>>>>>> bceb26baa9cadd95dcb95df9b503359a64c1769f
+source("Preparation/RPU Quotidien/quot_utils.R")
+
 
 # intégration du Finess Juridique pour la clinique Ste Odile. Erreur signalée par Mr Nold: certains RPU de Ste Odile contiennent le Finess juridique au lieu du géographique
 d14$FINESS <- as.character(d14$FINESS)
 d14$FINESS[d14$FINESS=="670780204"]<-"Odi"
 d14$FINESS <-  factor(d14$FINESS) # élimine les facteus vides
 
-library(lubridate)
-library(knitr)
+
 
 anc <- year(as.Date(d14$ENTREE[1])) # année courante
 
@@ -156,10 +154,12 @@ Nombre de RPU par territoires de santé
 On crée une colonne supplémentaire pour les territoires de santé. La colonne crée est de type character.
 
 ```{r}
-d14$TERRITOIRE[d14$FINESS %in% c("Wis","Sav","Hag")] <- "T1"
-d14$TERRITOIRE[d14$FINESS %in% c("Hus","Odi","Ane","Dts")] <- "T2"
-d14$TERRITOIRE[d14$FINESS %in% c("Sel","Col","Geb")] <- "T3"
-d14$TERRITOIRE[d14$FINESS %in% c("Mul","3Fr","Alk","Ros","Dia")] <- "T4"
+# d14$TERRITOIRE[d14$FINESS %in% c("Wis","Sav","Hag")] <- "T1"
+# d14$TERRITOIRE[d14$FINESS %in% c("Hus","Odi","Ane","Dts")] <- "T2"
+# d14$TERRITOIRE[d14$FINESS %in% c("Sel","Col","Geb")] <- "T3"
+# d14$TERRITOIRE[d14$FINESS %in% c("Mul","3Fr","Alk","Ros","Dia","Tan")] <- "T4"
+
+d14 <- create.col.territoire(d14)
 
 tapply(as.Date(d14$ENTREE), d14$TERRITOIRE, length)
 
@@ -336,3 +336,85 @@ barplot(bilan[,3], las=2, main = "Hospitalisation Sélestat 2015-2014", ifelse(b
 apply(bilan, 2, sum)
 
 voir la fonction _mutation_ dans new_fonction.R
+
+Demande du 5/2/2015
+===================
+
+Dans la continuité de notre échange ce matin, pouvez-vous nous adresser :
+- le nombre de passages pour chaque établissement, avec le total pour chaque territoire de santé, et le total régional
+- pour chaque jour
+- du 1er au 31 janvier 2013
+- du 1er au 31 janvier 2014
+- du 1er au 31 janvier 2015
+ 
+Sous format Excel s'il vous plait.
+ 
+Selon la charge que cela représente, un retour pour le vendredi 13 février est-il envisageable?
+ 
+Si vous avez par ailleurs d'autres éléments que vous jugez utiles ou pertinents, n'hésitez pas à me les communiquer. Je reste disponible pour en discuter. 
+
+```{r}
+load("../RPU_2013/rpu2013d0112.Rda") # d1
+load("rpu2014d0112_c.Rda") # d14
+load("d01_provisoire.Rda") # d01.p
+
+j2013 <-d1[as.Date(d1$ENTREE) < "2013-02-01",]
+j2014 <-d14[as.Date(d14$ENTREE) < "2014-02-01",]
+j2015 <- d01.p[as.Date(d01.p$ENTREE) < "2015-02-01",]
+# ajout d'une colonne TERRITOIRE
+j2013 <- create.col.territoire(j2013)
+j2014 <- create.col.territoire(j2014)
+j2015 <- create.col.territoire(j2015)
+
+# total par territoire et par an
+tot2013 <- tapply(as.Date(j2013$ENTREE), j2013$TERRITOIRE, length)
+tot2014 <- tapply(as.Date(j2014$ENTREE), j2014$TERRITOIRE, length)
+tot2015 <- tapply(as.Date(j2015$ENTREE), j2015$TERRITOIRE, length)
+tot <- rbind(tot2013, tot2014, tot2015)
+tot <- cbind(tot, apply(tot, 1, sum)) # ajout col total ligne
+colnames(tot)[5] <- "Total"
+nb_SU <- rbind(length(levels(j2013$FINESS)), length(levels(factor(j2014$FINESS))), length(levels(factor(j2015$FINESS))))
+tot <- cbind(tot, nb_SU)
+colnames(tot)[6] <- "Nb de SU"
+tot
+write.csv(tot, file = "Analyse/ARS/total_par_territoires.csv")
+
+
+# passages par jour et par établissement
+f2013 <- tapply(as.Date(j2013$ENTREE), list(as.Date(j2013$ENTREE), j2013$FINESS), length)
+f2014 <- tapply(as.Date(j2014$ENTREE), list(as.Date(j2014$ENTREE), factor(j2014$FINESS)), length)
+f2015 <- tapply(as.Date(j2015$ENTREE), list(as.Date(j2015$ENTREE), factor(j2015$FINESS)), length)
+
+
+# enregistrement au format csv
+write.csv(f2013, file = "Analyse/ARS/RPU_janvier_2013.xls")
+write.csv(f2014, file = "Analyse/ARS/RPU_janvier_2014.xls")
+write.csv(f2015, file = "Analyse/ARS/RPU_janvier_2015.xls")
+```
+Extension au tracé de courbes
+-------------------------------
+
+On crée un dataframe à 4 colonnes:
+
+- V1: date calendaire
+- V2: nombre de RPU
+- V3: date sous forme de n° du jour de l'année
+- V4: moyenne mobile sur 7 jours
+
+```{r}
+library(lubridate)
+library(xts)
+
+# janvier 2013
+t <- tapply(as.Date(j2013$ENTREE), as.Date(j2013$ENTREE), length)
+t2013 <- as.data.frame(cbind(names(t), as.numeric(t)), stringsAsFactors = FALSE)
+t2013$V1 <- as.Date(t2013$V1) # col. date
+t2013$V2 <- as.numeric(t2013$V2) # nb de RPU
+t2013$V3 <- yday(t2013$V1) # date du jour en n° du jour dans l'année
+t2013$V4 <- rollmean(t2013$V2, 7, fill = NA) # moyenne mobile
+
+plot(t2013$V2, type="l")
+lines(t2013$V3, t2013$V4) # moyenne mobile
+
+```
+

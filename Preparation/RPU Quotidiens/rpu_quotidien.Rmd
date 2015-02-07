@@ -185,7 +185,7 @@ file.to.delete <- "/home/jcb/Documents/Resural/Stat Resural/Archives_Sagec/dataQ
 file.remove(file.to.delete)
 
 date1 <- "2015-01-08"
-date2 <- "2015-02-02"
+date2 <- "2015-02-05"
 
 mc <- substr(date1, 6, 7)
 ac <- substr(date1, 1,4)
@@ -214,7 +214,8 @@ save(d01, file="rpu2015d01_provisoire.Rda")
 rm(dx)
 
 # uniquement le premier mois
-save(d01, file="rpu2015d0112_provisoire.Rda")
+d15 <- d01
+save(d15, file="rpu2015d0112_provisoire.Rda")
 
 load("rpu2015d0112_provisoire.Rda")
 
@@ -301,7 +302,7 @@ Objet: mesure de l'activité au jour le jour avant consolidation. En pratique re
 1. récupérer le fichier source, le décompacter.
 2. appeler la fonction __parse_rpu__ avec la date du jour, qui le transforme en dataframe
 ```{}
-d <- parse_rpu("2015-01-15")
+d <- parse_rpu("2015-02-05")
 min(as.Date(d$ENTREE))
 max(as.Date(d$ENTREE))
 ```
@@ -335,6 +336,9 @@ d <- rpu2factor(d) # transforme les chiffres en facteurs cohérent avec d01
 
 d01.p <- rbind(d01, d)
 max(as.Date(d01.p$ENTREE))
+
+# sauvegarde
+save(d01.p, file = "d01_provisoire.Rda")
 
 ```
 et l'afficher sous forme de série temporelle
