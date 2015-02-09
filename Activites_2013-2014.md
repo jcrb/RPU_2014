@@ -177,7 +177,7 @@ axis(side=2, las = 1)
 lines(p2013$V3, p2013$V4, col="blue")
 lines(p2015$V3, p2015$V4, col="red")
 legend("topleft", legend=c("2013","2014", "2015"), col=c("blue","black", "red"), lty=1, bty="n")
-title(main="Comparaison 2013-2014-2015", ylab="nombre de RPU", xlab="mois")
+title(main="Nombre de RPU/J en 2013-2014-2015", ylab="nombre de RPU", xlab="mois")
 ```
 
 ![Comparaison 2013:2015](Activites_2013-2014_files/figure-html/comp-4.png) 

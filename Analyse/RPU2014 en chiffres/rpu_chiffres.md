@@ -1,13 +1,6 @@
----
-title: "RPU 2014 en chiffres"
-author: "JcB"
-date: "31/12/2014"
-output:
-  html_document:
-    fig_caption: yes
-    keep_md: yes
-    toc: yes
----
+# RPU 2014 en chiffres
+JcB  
+31/12/2014  
 
 Chiffres pour l'année 2014
 ==========================
@@ -16,32 +9,15 @@ init
 ----
 Le fichier source s'appelle __d14__.
 
-```{r init, echo=FALSE}
 
-library(lubridate)
-library(xts)
-
-path <- "../../"
-load(paste0(path, "rpu2014d0112_c.Rda"))
-source(paste0(path,"Preparation/RPU Quotidiens/quot_utils.R"))
-
-
-# intégration du Finess Juridique pour la clinique Ste Odile. Erreur signalée par Mr Nold: certains RPU de Ste Odile contiennent le Finess juridique au lieu du géographique
-d14$FINESS <- as.character(d14$FINESS)
-d14$FINESS[d14$FINESS=="670780204"]<-"Odi"
-d14$FINESS <-  factor(d14$FINESS) # élimine les facteus vides
-
-
-
-anc <- year(as.Date(d14$ENTREE[1])) # année courante
-
-MOIS <- format(ISOdate(anc, 1:12, 1), "%B") # noms des mois
-mois <- format(ISOdate(anc, 1:12, 1), "%b") # noms des mois abrégés
-
-# pour que la semaine commence un lundi, il faut choisir 2007 comme année de référence
-SEMAINE <- format(ISOdate(2007, 1, 1:7), "%A") # noms des jours de la semaine
-semaine <- format(ISOdate(2007, 1, 1:7), "%a") # noms des jours de la semaine abrégés
-
+```
+## Loading required package: zoo
+## 
+## Attaching package: 'zoo'
+## 
+## The following objects are masked from 'package:base':
+## 
+##     as.Date, as.Date.numeric
 ```
 
 Créer un calendrier
@@ -49,11 +25,11 @@ Créer un calendrier
 
 Pb: on veut créer un vecteur de 365 ou 366 jours.
 
-```{r}
+
+```r
 date1 <- "2014-01-01"
 date2 <- "2014-12-31"
 calendrier <- seq(from = as.Date(date1), to = as.Date(date2), by = 1)
-
 ```
 
 Compter les jours d'une semaine
@@ -61,39 +37,47 @@ Compter les jours d'une semaine
 
 Pb: on veut compter le nombre de lundi, merdi, ..., dimanche au cours d'une période de temps
 
-```{r}
-tapply(calendrier, wday(calendrier, label = TRUE), length)
 
+```r
+tapply(calendrier, wday(calendrier, label = TRUE), length)
+```
+
+```
+##   Sun   Mon  Tues   Wed Thurs   Fri   Sat 
+##    52    52    52    53    52    52    52
 ```
 
 
 
 Total RPU
 =========
-```{r total, echo=FALSE}
-n <- nrow(d14)
 
-```
-Total RPU: `r n`
+Total RPU: 416733
 
 Nombre de RPU par jour
 =======================
 
-```{r jour, echo=FALSE}
 
-nb.rpu.par.jour <- tapply(as.Date(d14$ENTREE), as.Date(d14$ENTREE), length)
-mean(nb.rpu.par.jour)
-sd(nb.rpu.par.jour)
-median(nb.rpu.par.jour)
+```
+## [1] 1141.734
+```
 
-# nb RPU par semaine ET jour de semaine. Nécessite Lubridate. Génère une latrice 52  x 7
-a <- tapply(as.Date(d14$ENTREE), list(week(as.Date(d14$ENTREE)), wday(as.Date(d14$ENTREE))), length)
-# moyenne par type de jour (1 = dimanche)
-apply(a, 2, mean, na.rm = TRUE)
-apply(a, 2, sd, na.rm = TRUE)
-# moyenne par semaine
-mean.week <- apply(a, 1, mean, na.rm = TRUE)
-sd.week <- apply(a, 1, sd, na.rm = TRUE)
+```
+## [1] 154.7858
+```
+
+```
+## [1] 1128
+```
+
+```
+##        1        2        3        4        5        6        7 
+## 1190.750 1233.442 1091.385 1085.226 1090.365 1126.615 1175.442
+```
+
+```
+##        1        2        3        4        5        6        7 
+## 162.7372 151.3186 144.7921 126.5598 134.1742 153.1959 147.7839
 ```
 
 
@@ -102,20 +86,52 @@ Nombre de RPU par mois
 
 Pb: on veut connaître le nombre de RPU par mois en 2014. Utilisé par le site internet. On utilise la fonction _tapply_ pour calculer la répartition mensuelle.
 
-```{r}
+
+```r
 # en valeur absolue
 t <- tapply(as.Date(d14$ENTREE), month(as.Date(d14$ENTREE)), length)
 names(t) <- format(ISOdate(2000, 1:12, 1), "%B")
 t
+```
+
+```
+##   janvier   février      mars     avril       mai      juin   juillet 
+##     29237     29799     32427     33253     33630     35295     34772 
+##      août septembre   octobre  novembre  décembre 
+##     32563     33937     40940     40238     40642
+```
+
+```r
 # en pourcentage
 round(prop.table(t)*100, 2)
+```
+
+```
+##   janvier   février      mars     avril       mai      juin   juillet 
+##      7.02      7.15      7.78      7.98      8.07      8.47      8.34 
+##      août septembre   octobre  novembre  décembre 
+##      7.81      8.14      9.82      9.66      9.75
+```
+
+```r
 # en différence. Rajoute 1 pour le mois de janvier
 d <- c(1 ,diff(t))
 d
-names(d[1]) <- "janvier" # marche pas ?
-barplot(d[1:12], col = ifelse(d > 0, "yellow", "green"), main = paste0("Variation du nombre de RPU en ", anc), las = 2)
+```
 
 ```
+##             février      mars     avril       mai      juin   juillet 
+##         1       562      2628       826       377      1665      -523 
+##      août septembre   octobre  novembre  décembre 
+##     -2209      1374      7003      -702       404
+```
+
+```r
+names(d[1]) <- "janvier" # marche pas ?
+barplot(d[1:12], col = ifelse(d > 0, "yellow", "green"), main = paste0("Variation du nombre de RPU en ", anc), las = 2)
+```
+
+![](rpu_chiffres_files/figure-html/unnamed-chunk-3-1.png) 
 
 Nombre de RPU par semaine
 =========================
@@ -123,42 +139,73 @@ Nombre de RPU par semaine
 Il y a deux méthodes possibles:
 
 - __weekday__s du package _main_:
-```{r}
+
+```r
 wd <- tapply(as.Date(d14$ENTREE), weekdays(as.Date(d14$ENTREE)), length)
 wd
+```
 
 ```
+## dimanche    jeudi    lundi    mardi mercredi   samedi vendredi 
+##    61919    56699    64139    56752    57517    61123    58584
+```
 - __wday__ du package _lubridate_. Inconvénient, la semaine commence le dimanche.
-```{r}
+
+```r
 # jours de semaine indicés par des entiers
 wd <- tapply(as.Date(d14$ENTREE), wday(as.Date(d14$ENTREE)), length)
 wd
+```
 
+```
+##     1     2     3     4     5     6     7 
+## 61919 64139 56752 57517 56699 58584 61123
+```
+
+```r
 # jours indicés par leur nom
 wd <- tapply(as.Date(d14$ENTREE), wday(as.Date(d14$ENTREE), label = TRUE), length)
 wd
 ```
 
+```
+##   Sun   Mon  Tues   Wed Thurs   Fri   Sat 
+## 61919 64139 56752 57517 56699 58584 61123
+```
+
 Possibilité de correction:
-```{r}
+
+```r
 a <- c(wd[2:7],wd[1]) # on met le dimanche en dernier
 names(a) <- SEMAINE
 a
+```
 
+```
+##    lundi    mardi mercredi    jeudi vendredi   samedi dimanche 
+##    64139    56752    57517    56699    58584    61123    61919
 ```
 
 Nombre de RPU par établissements
 --------------------------------
-```{r}
-tapply(as.Date(d14$ENTREE), d14$FINESS, length)
 
+```r
+tapply(as.Date(d14$ENTREE), d14$FINESS, length)
+```
+
+```
+##   3Fr   Alk   Ane   Col   Dia   Dts   Geb   Hag   Hus   Mul   Odi   Ros 
+## 16134 12660  7418 67378 29410  3910 16024 39938 61793 59471 24956  7210 
+##   Sav   Sel   Wis 
+## 29445 28828 12158
 ```
 
 Nombre de RPU par territoires de santé
 --------------------------------------
 On crée une colonne supplémentaire pour les territoires de santé. La colonne crée est de type character.
 
-```{r}
+
+```r
 # d14$TERRITOIRE[d14$FINESS %in% c("Wis","Sav","Hag")] <- "T1"
 # d14$TERRITOIRE[d14$FINESS %in% c("Hus","Odi","Ane","Dts")] <- "T2"
 # d14$TERRITOIRE[d14$FINESS %in% c("Sel","Col","Geb")] <- "T3"
@@ -167,43 +214,79 @@ On crée une colonne supplémentaire pour les territoires de santé. La colonne 
 d14 <- create.col.territoire(d14)
 
 tapply(as.Date(d14$ENTREE), d14$TERRITOIRE, length)
+```
 
+```
+##     T1     T2     T3     T4 
+##  81541  98077 112230 124885
 ```
 Nombre de RPU par établissements
 -------------------------------
-```{r rpu_etab, echo=FALSE, comment=""}
-summary(factor(d14$FINESS))
+
+```
+  3Fr   Alk   Ane   Col   Dia   Dts   Geb   Hag   Hus   Mul   Odi   Ros 
+16134 12660  7418 67378 29410  3910 16024 39938 61793 59471 24956  7210 
+  Sav   Sel   Wis 
+29445 28828 12158 
 ```
 
 Nombre de RPU par mois et par établissement
 -------------------------------------------
-```{r mois_etab, echo=FALSE, comment=""}
-tapply(as.Date(d14$ENTREE), list(month(as.Date(d14$ENTREE)), factor(d14$FINESS)), length)
 
+```
+    3Fr  Alk  Ane  Col  Dia Dts  Geb  Hag  Hus  Mul  Odi Ros  Sav  Sel
+1  1243  745   NA 5384 2463  NA 1129 2943 3383 5162 1001  NA 2505 2305
+2  1207 1048   NA 5184 2228 102 1181 2706 3240 4879 2063 471 2426 2099
+3  1368 1250   NA 5400 2507  NA 1361 3029 3745 4581 2333 690 2629 2415
+4  1313 1068   NA 5602 2479  NA 1391 3004 4091 5148 2355 609 2511 2513
+5  1366  907  413 5848 2538  NA 1470 3109 4030 4952 2492 675 2407 2346
+6  1478 1026  956 6086 2571  NA 1521 3174 4036 4935 2444 708 2566 2632
+7  1383 1325 1286 5789 2475  NA 1388 3829 3710 4604 2185 645 2354 2680
+8  1324  793  576 5377 2393 411 1314 3456 3723 4780 2008 690 2168 2514
+9  1268  369  906 5696 2408 849 1420 3470 3775 4785 2335 721 2379 2477
+10 1448 1382  970 5854 2508 929 1334 3707 9439 5079 2369 741 2490 2242
+11 1308 1321 1396 5302 2363 871 1242 3651 9141 5193 2223 652 2339 2234
+12 1428 1426  915 5856 2477 748 1273 3860 9480 5373 1148 608 2671 2371
+    Wis
+1   974
+2   965
+3  1119
+4  1169
+5  1077
+6  1162
+7  1119
+8  1036
+9  1079
+10  448
+11 1002
+12 1008
 ```
 
 
 HUS
 ===
 
-```{r hus, echo=FALSE, comment=""}
-hus <- d14[d14$FINESS == "Hus",]
 
-```
 
 Activité mensuelle
 ------------------
-```{r hus_mois, echo=FALSE, comment=""}
-tapply(as.Date(hus$ENTREE), month(as.Date(hus$ENTREE)), length)
 
+```
+   1    2    3    4    5    6    7    8    9   10   11   12 
+3383 3240 3745 4091 4030 4036 3710 3723 3775 9439 9141 9480 
 ```
 Activité pédiatrique mensuelle
 ------------------------------
-```{r}
+
+```r
 hus.ped <- hus[hus$AGE < 18,]
 
 tapply(as.Date(hus.ped$ENTREE), month(as.Date(hus.ped$ENTREE)), length)
+```
 
+```
+##    1    2    3    4    5    6    7    8    9   10   11   12 
+##  322  423  574 1073  968  879  636  679  782 3170 3307 3501
 ```
 
 
@@ -227,33 +310,69 @@ Elements de réponse
 
 nombre de primo passages
 ------------------------
-`r n`
+416733
 
 proportion de 75 ans et plus
 ----------------------------
-```{r}
+
+```r
 pop_75ans <- d14[d14$AGE > 74, "AGE"]
 n_75ans <- length(pop_75ans)
 
 summary(pop_75ans)
 ```
-Exhaustivité pour l'âge: `r mean(!is.na(n_75ans) * 100)` %
 
-proportion des 75 ans: `r round(n_75ans * 100 / n, 2)` %.
+```
+##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max.    NA's 
+##   75.00   79.00   83.00   83.62   88.00  120.00       4
+```
+Exhaustivité pour l'âge: 1 %
+
+proportion des 75 ans: 13.74 %.
 
 Durée de passage chez les plus de 75 ans
 ----------------------------------------
-```{r}
+
+```r
 dp <- d14[!is.na(d14$ENTREE) & !is.na(d14$SORTIE) & d14$AGE > 74, c("SORTIE", "ENTREE", "AGE", "FINESS")]
 mean(!is.na(dp$SORTIE))
+```
+
+```
+## [1] 0.9999199
+```
+
+```r
 mean(!is.na(dp$ENTREE))
+```
+
+```
+## [1] 0.9999199
+```
+
+```r
 sum(is.na(dp$ENTREE))
+```
+
+```
+## [1] 4
+```
+
+```r
 sum(is.na(dp$SORTIE))
+```
+
+```
+## [1] 4
+```
+
+```r
 dp <- dp[!is.na(dp$SORTIE) & !is.na(dp$ENTREE),]
 ```
 Exhaustivité de 99%. Seuls 4 passages ne sont pas renseignés.
 
-```{r presence}
+
+```r
 # vecteur des heures d'entrées
 s <- ymd_hms(dp$SORTIE)
 # vecteurs des heures de sortie
@@ -261,26 +380,62 @@ e <- ymd_hms(dp$ENTREE)
 # durée de présence en secondes
 p <- s - e
 length(p)
+```
+
+```
+## [1] 49946
+```
+
+```r
 summary(as.numeric(p))
+```
+
+```
+##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+##       0    4500   11040   13000   18480  314000
+```
+
+```r
 # résumé en minutes
 summary(as.numeric(p)/60)
+```
 
+```
+##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+##     0.0    75.0   184.0   216.6   308.0  5233.0
+```
+
+```r
 # vecteur des durée de présence en mn
 p_mn <- as.numeric(p)/60
 H48 <- 60 * 48
 # durée de présence comprises entre 0 et 48 heures
 p48 <- p_mn[p_mn < H48 + 1]
 summary(p48)
+```
+
+```
+##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+##     0.0    75.0   184.0   215.9   308.0  2880.0
+```
+
+```r
 length(p48)
+```
+
+```
+## [1] 49937
+```
+
+```r
 # histogramme par tranche d'une heure
 hist(p48, breaks = seq(0, 60*48, 60), main = "Durée de passage (par tranche d'une heure) \ndes patients de 75 ans et plus", xlab = "temps en minutes de 0 à 2880 minutes (48 heures)", ylab = "fréquence")
-
 ```
+
+![](rpu_chiffres_files/figure-html/presence-1.png) 
 La durée de passage est bornée à 48 heures (recommandation FEDORU).
 
-```{r}
 
-```
 
 
 Demande 3 2015-01-12
@@ -309,13 +464,87 @@ sel2015 <- d01[d01$MODE_SORTIE == "Mutation" & d01$FINESS == "Sel" & as.Date(d01
 
 Origine patient
 ---------------
-```{r}
+
+```r
 c57 <- d14[substr(d14$CODE_POSTAL, 1, 2) == "57",]
 summary(c57$COMMUNE)
+```
+
+```
+##            PHALSBOURG            SARREBOURG                  DABO 
+##                  1271                   299                   233 
+##           LUTZELBOURG DANNE ET QUATRE VENTS           DANNELBOURG 
+##                   189                   162                   147 
+##            GARREBOURG           MITTELBRONN                BITCHE 
+##                   140                   134                   117 
+##            HULTEHOUSE               METTING            BAERENTHAL 
+##                   107                   106                    99 
+##              VILSBERG              VESCHEIM              ST LOUIS 
+##                    91                    87                    85 
+##            HENRIDORFF                REDING         SARREGUEMINES 
+##                    83                    83                    76 
+##         PHILIPPSBOURG          GOETZENBRUCK             WALSCHEID 
+##                    72                    70                    70 
+##            HANGVILLER            HASELBOURG   ST JEAN KOURTZERODE 
+##                    68                    67                    63 
+##               BERLING            BROUVILLER           SCHAEFERHOF 
+##                    62                    62                    61 
+##          WINTERSBOURG                  METZ                SOUCHT 
+##                    61                    58                    56 
+##               LIXHEIM               ZILLING             SCHALBACH 
+##                    55                    55                    51 
+##               FORBACH               LEMBERG              SARRALBE 
+##                    47                    45                    43 
+##           HARTZVILLER      PLAINE DE WALSCH             ARZVILLER 
+##                    42                    40                    39 
+##         VECKERSVILLER            HOMMARTING            HILBESHEIM 
+##                    38                    37                    35 
+##        TROISFONTAINES           NIDERVILLER           GUNTZVILLER 
+##                    35                    34                    33 
+##             MONTBRONN         ABRESCHVILLER           WALTEMBOURG 
+##                    33                    31                    31 
+##          BROUDERDORFF         BUHL LORRAINE           EGUELSHARDT 
+##                    30                    29                    29 
+##            MEISENTHAL             FLEISHEIM              ST AVOLD 
+##                    28                    27                    26 
+##            ENCHENBERG             HARREBERG           BICKENHOLTZ 
+##                    25                    24                    22 
+##   ROHRBACH LES BITCHE            THIONVILLE         VIEUX LIXHEIM 
+##                    22                    21                    21 
+##            BOURSCHEID                IMLING               HELLERT 
+##                    20                    20                    20 
+##               RAHLING                 VOYER      PETIT REDERCHING 
+##                    19                    19                    18 
+##           SARRALTROFF           MOUTERHOUSE            HOTTVILLER 
+##                    18                    18                    17 
+##              LANGATTE           BERTHELMING                HEMING 
+##                    17                    16                    16 
+##    FREYMING MERLEBACH             XOUAXANGE             ROMELFING 
+##                    16                    15                    15 
+##        FAREBERSVILLER              BETTBORN      DANNE ET 4 VENTS 
+##                    15                    14                    14 
+##   ST LOUIS LES BITCHE               HOMMERT            CREUTZWALD 
+##                    14                    14                    14 
+##             ST QUIRIN        STIRING WENDEL                BINING 
+##                    13                    13                    12 
+##               HAYANGE                ETTING            GOSSELMING 
+##                    12                    12                    11 
+##           MITTERSHEIM           SAINT LOUIS            FENETRANGE 
+##                    11                    11                    11 
+##               HAMBACH         HASPELSCHIEDT           LENGELSHEIM 
+##                    10                    10                    10 
+##          STURZELBRONN              POSTROFF            VOLMUNSTER 
+##                    10                    10                    10 
+##            WILLERWALD             SIERSTHAL           WOUSTVILLER 
+##                    10                    10                    10 
+##               (Other) 
+##                   816
+```
+
+```r
 c54 <- d14[substr(d14$CODE_POSTAL, 1, 2) == "54",]
 c88 <- d14[substr(d14$CODE_POSTAL, 1, 2) == "88",]
 c90 <- d14[substr(d14$CODE_POSTAL, 1, 2) == "90",]
-
 ```
 
 
@@ -358,7 +587,8 @@ Selon la charge que cela représente, un retour pour le vendredi 13 février est
  
 Si vous avez par ailleurs d'autres éléments que vous jugez utiles ou pertinents, n'hésitez pas à me les communiquer. Je reste disponible pour en discuter. 
 
-```{r}
+
+```r
 # load("../RPU_2013/rpu2013d0112.Rda") # d1
 # load("rpu2014d0112_c.Rda") # d14
 # load("d01_provisoire.Rda") # d01.p
@@ -386,6 +616,16 @@ nb_SU <- rbind(length(levels(j2013$FINESS)), length(levels(factor(j2014$FINESS))
 tot <- cbind(tot, nb_SU)
 colnames(tot)[6] <- "Nb de SU"
 tot
+```
+
+```
+##           T1    T2   T3    T4 Total Nb de SU
+## tot2013 3983  5514 9146  8215 26858       12
+## tot2014 6422  4384 8818  9613 29237       12
+## tot2015 7384 12781 9498 10842 40505       15
+```
+
+```r
 # sauvegarde
 write.csv(tot, file = "../../Analyse/ARS/total_par_territoires.csv")
 
@@ -411,7 +651,8 @@ On crée un dataframe à 4 colonnes:
 - V3: date sous forme de n° du jour de l'année
 - V4: moyenne mobile sur 7 jours
 
-```{r}
+
+```r
 library(lubridate)
 library(xts)
 
@@ -425,6 +666,7 @@ t2013$V4 <- rollmean(t2013$V2, 7, fill = NA) # moyenne mobile
 
 plot(t2013$V2, type="l")
 lines(t2013$V3, t2013$V4) # moyenne mobile
-
 ```
+
+![](rpu_chiffres_files/figure-html/unnamed-chunk-15-1.png) 
 
