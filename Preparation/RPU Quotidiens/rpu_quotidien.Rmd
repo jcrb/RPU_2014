@@ -184,8 +184,8 @@ source("Preparation/RPU Quotidiens/quot_utils.R")
 file.to.delete <- "/home/jcb/Documents/Resural/Stat Resural/Archives_Sagec/dataQ/archivesCsv/rpu2014.data"
 file.remove(file.to.delete)
 
-date1 <- "2015-01-08"
-date2 <- "2015-02-05"
+date1 <- "2015-02-08"
+date2 <- "2015-02-09"
 
 mc <- substr(date1, 6, 7)
 ac <- substr(date1, 1,4)
@@ -206,16 +206,18 @@ num.mc <- 1 # numéro du mois courant
 mois.c <- paste("d", )
 
 ```{}
-d01 <- dx[as.Date(dx$ENTREE) >= "2014-01-01" & as.Date(dx$ENTREE) < "2015-01-31",]
-max(as.Date(d01$ENTREE))
-min(as.Date(d01$ENTREE))
-d01 <- normalise(d01)
-save(d01, file="rpu2015d01_provisoire.Rda")
+d02 <- dx[as.Date(dx$ENTREE) >= "2015-02-01" & as.Date(dx$ENTREE) < "2015-03-01",]
+max(as.Date(d02$ENTREE))
+min(as.Date(d02$ENTREE))
+d02 <- normalise(d02)
+save(d02, file="rpu2015d02_provisoire.Rda")
 rm(dx)
 
 # uniquement le premier mois
 d15 <- d01
 save(d15, file="rpu2015d0112_provisoire.Rda")
+# save(d15, file="rpu2015d0112.Rda")
+
 
 load("rpu2015d0112_provisoire.Rda")
 
