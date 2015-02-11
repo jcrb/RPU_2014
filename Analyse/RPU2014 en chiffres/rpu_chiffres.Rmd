@@ -53,8 +53,10 @@ Pb: on veut créer un vecteur de 365 ou 366 jours.
 date1 <- "2014-01-01"
 date2 <- "2014-12-31"
 calendrier <- seq(from = as.Date(date1), to = as.Date(date2), by = 1)
-
 ```
+Calendrier doit être transformé en dataframe pour être utilisé avec merge
+
+a <- data.frame(calendrier) 
 
 Compter les jours d'une semaine
 ===============================
