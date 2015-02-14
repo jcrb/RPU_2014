@@ -14,7 +14,7 @@ Depuis février 2014, Alsace e-sante transmet quotidiennement un fichier contena
 
 __Au mois de mai 2014 la clinique des 3 frontières (C3F) a changé de N°FINESS__. (voir le paragraphe C3F)
 
-#### Méthode rapide: voir __En Preatique__
+#### Méthode rapide: voir __En Pratique__
 
 Descriptif
 ----------
@@ -185,7 +185,7 @@ file.to.delete <- "/home/jcb/Documents/Resural/Stat Resural/Archives_Sagec/dataQ
 file.remove(file.to.delete)
 
 date1 <- "2015-02-08"
-date2 <- "2015-02-09"
+date2 <- "2015-02-11"
 
 mc <- substr(date1, 6, 7)
 ac <- substr(date1, 1,4)
@@ -214,20 +214,20 @@ save(d02, file="rpu2015d02_provisoire.Rda")
 rm(dx)
 
 # uniquement le premier mois
-d15 <- d01
-save(d15, file="rpu2015d0112_provisoire.Rda")
+# d15 <- d01
+# save(d15, file="rpu2015d0112_provisoire.Rda")
 # save(d15, file="rpu2015d0112.Rda")
-
 
 load("rpu2015d0112_provisoire.Rda")
 
-dx <- rbind(d15, d01)
+dx <- rbind(d15, d02)
 min(as.Date(d15$ENTREE))
 max(as.Date(d15$ENTREE))
 
-save(15, file="rpu2015d0112_provisoire.Rda")
+d15 <- dx
+save(d15, file="rpu2015d0112_provisoire.Rda")
 
-table(as.Date(d01$ENTREE), d01$FINESS)
+table(as.Date(d02$ENTREE), d02$FINESS)
 ```
 
 
@@ -304,7 +304,7 @@ Objet: mesure de l'activité au jour le jour avant consolidation. En pratique re
 1. récupérer le fichier source, le décompacter.
 2. appeler la fonction __parse_rpu__ avec la date du jour, qui le transforme en dataframe
 ```{}
-d <- parse_rpu("2015-02-05")
+d <- parse_rpu("2015-02-11")
 min(as.Date(d$ENTREE))
 max(as.Date(d$ENTREE))
 ```
@@ -333,29 +333,35 @@ On peut fabriquer un fichier provisoire constitué par la fusion des jours conso
 [1] "2015-01-22"
 
 ```{}
-d <- d[as.Date(d$ENTREE) > max(as.Date(d01$ENTREE)),]
+d <- d[as.Date(d$ENTREE) > max(as.Date(d15$ENTREE)),]
 d <- rpu2factor(d) # transforme les chiffres en facteurs cohérent avec d01
 
-d01.p <- rbind(d01, d)
-max(as.Date(d01.p$ENTREE))
+d15.p <- rbind(d15, d)
+max(as.Date(d15.p$ENTREE))
 
 # sauvegarde
-save(d01.p, file = "d01_provisoire.Rda")
+save(d15.p, file = "d15_p.Rda")
 
 ```
 et l'afficher sous forme de série temporelle
 ```{}
 library(xts)
-a <-tapply(as.Date(d01.p$ENTREE), as.Date(d01.p$ENTREE), length)
-xts.a <- xts(a, order.by = unique(as.Date(d01.p$ENTREE)))
-plot(xts.a, las = 2, main = "Activité des SU d'Alsace", ylab = "nombre de RPU créés")
+a <-tapply(as.Date(d15.p$ENTREE), as.Date(d15.p$ENTREE), length)
+xts.a <- xts(a, order.by = unique(as.Date(d15.p$ENTREE)))
+
+plot(xts.a, las = 2, main = "Activité des SU d'Alsace", ylab = "nombre de RPU créés par jour")
 mean2014 <- 1141.734
 sd2014 <- 154.7858
 abline(h = mean2014, col = "red") # nb moyende RPU en 2014
 abline(h = mean2014 + sd2014, col = "red", lty = 2) # 1 écrt-type
 abline(h = mean2014 + sd2014 * 2, col = "red", lty = 2) # 2 écart-type
+legend("topleft", legend = c("moyenne 2014", "écart-type 2014"), col = "red", lty = c(1,2), bty = "n")
+
 
 ```
+svg("activité SU alsace 2015.svg")
+plot()
+dev.off()
 
 
 

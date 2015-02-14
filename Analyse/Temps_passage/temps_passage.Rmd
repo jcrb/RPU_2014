@@ -2,7 +2,10 @@
 title: "Temps de passage"
 author: "JcB"
 date: "11/02/2015"
-output: html_document
+output:
+  html_document:
+    keep_md: yes
+    toc: yes
 ---
 
 Temps de passage est la durée entre l'heure d'entrée et l'heure de sortie.
@@ -15,30 +18,31 @@ library(xts)
 path <- "../../"
 load(paste0(path, "rpu2014d0112_c.Rda")) # 2014
 source(paste0(path,"Preparation/RPU Quotidiens/quot_utils.R"))
+source("passage.R") # Analyse/Temps_passage/passage.R
 
-# ajout de janvier 2015
-load(paste0(path, "rpu2015d01.Rda"))
-d14 <- rbind(d14, d01)
-
-# on enlève les HUS
-# d14 <- d14[d14$FINESS != "Hus",]
-
-# Uniquement Sélestat
-# d14 <- d14[d14$FINESS == "Sel",]
+# ajout de janvier-février 2015
+load(paste0(path, "d15_p.Rda"))
+d14 <- rbind(d14, d15.p)
 
 
 # intégration du Finess Juridique pour la clinique Ste Odile. Erreur signalée par Mr Nold: certains RPU de Ste Odile contiennent le Finess juridique au lieu du géographique
 d14$FINESS <- as.character(d14$FINESS)
 d14$FINESS[d14$FINESS=="670780204"]<-"Odi"
-d14$FINESS <-  factor(d14$FINESS) # élimine les facteus vides
+d14$FINESS <-  factor(d14$FINESS) # élimine les facteurs vides
+
+# ajout d'une colonne passages
+d <- as.numeric(duree.passage(d14$ENTREE, d14$SORTIE))
+d14$DPAS <- d # on crée une colonne sup
 ```
 
 Données générales
 -----------------
 ```{r}
-e <- ymd_hms(d14$ENTREE) # vecteur des entrées
-s <- ymd_hms(d14$SORTIE) # vecteur des sorties
-d <- as.numeric((s-e)/60) # vecteur des durées de passage en minutes
+# e <- ymd_hms(d14$ENTREE) # vecteur des entrées
+# s <- ymd_hms(d14$SORTIE) # vecteur des sorties
+# d <- as.numeric((s-e)/60) # vecteur des durées de passage en minutes
+# alternative: d <- difftime(s, e, unit = "mins") voir ?difftime pour plus de détails.
+
 sdp <- summary(d)
 sdp
 
@@ -54,7 +58,6 @@ sup5 <- d[d > 5*24*60 & !is.na(d)]
 sup6 <- d[d > 6*24*60 & !is.na(d)] # dp > 6 jour
 sup6/(24*60) # 3 dossiers > 6 jours
 
-d14$DPAS <- d # on crée une colonne sup
 
 # nb de durée de passage incomplète par établisement
 dp.na <- d14$FINESS[is.na(d14$DPAS)]
@@ -66,64 +69,162 @@ t <- rbind(sdp.na, nfiness, round(sdp.na * 100 / nfiness, 2))
 rownames(t) <- c("RPUa", "RPUt", "%")
 t
 
+
+```
+
+Choix de l'établissement
+------------------------
+```{r passage_finess, echo=FALSE}
+# on enlève les HUS
+# d14 <- d14[d14$FINESS != "Hus",]
+
+# Uniquement Sélestat
+ d14 <- d14[d14$FINESS == "Mul",]
+
+titre <- ""
+```
+
+
+RPU utilisés (reco FEDORU)
+--------------------------
+
+On ne garde que les RPU avec une durée de passage exploitable et qui soit positive et inférieure ou égale à 48 heures.
+
+```{r rpu_48heures, echo=FALSE}
 # finalement on ne garde que les RPU avec une durée de passage exploitable et qui soit positive et inférieure ou égale à 48 heures.
 p14 <- d14[!is.na(d14$DPAS) & d14$DPAS > 0 & d14$DPAS <= 2*24*60, ]
 # save(p14, file = "dpassage_2014.Rda")
 ```
 
-On ne garde que les RPU avec une durée de passage exploitable et qui soit positive et inférieure ou égale à 48 heures.
 
 - nombre de RPU exploitable: `r format(nrow(p14), big.mark = " ")`
 - nombre de RPU totaux: `r format(nrow(d14), big.mark = " ")`
 
+Durée moyenne de passage
+-------------------------
+
+```{r paddage_moyenne, echo=FALSE}
+mean.duree <- tapply(p14$DPAS, as.Date(p14$ENTREE), mean)
+
+plot(xts(mean.duree, order.by = as.Date(rownames(mean.duree))), minor.ticks = FALSE, ylab = "Durée moyenne de passage (mn)", main = "Evolution de la durée moyenne de passage par jour")
+lines(rollmean(xts(mean.duree, order.by = as.Date(rownames(mean.duree))), k = 7), col = "red", lwd = 2)
+copyright()
+
+median.duree <- tapply(p14$DPAS, as.Date(p14$ENTREE), median)
+plot(xts(median.duree, order.by = as.Date(rownames(median.duree))), minor.ticks = FALSE, ylab = "Durée médiane de passage (mn)", main = "Evolution de la durée médiane de passage par jour")
+lines(rollmean(xts(median.duree, order.by = as.Date(rownames(median.duree))), k = 7), col = "blue", lwd = 2)
+copyright()
+
+```
+
+
 Analyse des durées de passage > 6 heures
 ----------------------------------------
+
+- p6h: liste des RPU dont la durée de passage est supérieure à 6 heures
+- p6h.jour: total journalier des RPU dont la durée de passage est supérieure à 6 heures (vecteur de 365 jpours). Il peut y avoir des jours vides, soit parce que le jour n'a pas été renseigné, soit parce qu'aucun passage n'a dépassé 6 heures.
 
 ```{r}
 # RPU avec durée de passage > 6h. 
 p6h <- p14[p14$DPAS > 6*60, c("ENTREE", "FINESS")]
-t <- tapply(as.Date(p6h$ENTREE), as.Date(p6h$ENTREE), length) # RPU de plus de 6 heures par jour
+p6h.jour <- tapply(as.Date(p6h$ENTREE), as.Date(p6h$ENTREE), length) # RPU de plus de 6 heures par jour
 
 # PB: ILPEUT Y AVOIR DES JOURS SANS PASSAGE  > 6 HEURES (EX. SELESTAT) => FAIRE UN MERGING AVEC UN CALENDRIER.
 # OK: AJUSTER LE CALENDRIER 0 LA TAILLE DE D14
-# if (length(t) < 365){
-#   # creéer un calendrier
-#   date1 <- min(d14$ENTREE)
-#   date2 <- max(d14$ENTREE)
-#   calendrier <- seq(from = as.Date(date1), to = as.Date(date2), by = 1)
-#   a <- as.data.frame(calendrier)
-# 
-#   # transforme t en dataframe pour merger ATTENTION: ne pas mettre as.data.frame
-#   t <- data.frame(t, as.Date(names(t)))
-#   # merging
-#   b <- merge(a, t, by.y = "as.Date.names.t..", by.x = "calendrier", all.x = TRUE)
-#   t <- b
-# }
-summary(t) # résumé passage de plus de 6 heures"
-plot(t, type='l', main = "Nombre de RPU dont la durée de passage est supérieure à 6 heures", ylab = "Nombre de RPU", xlab = "Jours (2014)")
+
+p6h.jour <- aligne.sur.calendrier(min(d14$ENTREE), max(d14$ENTREE), p6h.jour)
+
+summary(p6h.jour) # résumé passage de plus de 6 heures"
+sum(is.na(p6h.jour)) # nb de jours sur la période sans passage > 6 heures
+mean(is.na(p6h.jour)) # idem en %
+
+```
+
+Aspect graphique
+----------------
+
+```{r passage_graphe, echo=FALSE}
+
+plot(p6h.jour$rpu, type='l', main = paste(titre, "Nombre de RPU dont la durée de passage est supérieure à 6 heures", sep = " - "), ylab = "Nombre de RPU", xlab = "Jours (2014)")
+copyright()
+
+barplot(p6h.jour$rpu, las = 2, main = "Nombre de RPU dont la durée de passage est supérieure à 6 heures", ylab = "Nombre de RPU", xlab = "Jours (2014)")
 
 
 # pour gommer l'effet lié à l'augmentation des RPU en cours d'année (HUS), on forme le rapport RPU avec passage de plus de 6 heures sur RPU totaux:
 ptot <- d14[, c("ENTREE", "FINESS")]
-t.tot <- tapply(as.Date(ptot$ENTREE), as.Date(ptot$ENTREE), length) # RPU totaux par jour
-# TODO: IL FAUT ÉGALEMENT FAIRE UN MERGING ENTRE CALENDRIER ET T.TOT CAR PEUT ÊTRE PLUS COURT +++ (pb avec Sélestat)
+rpu.par.jour <- tapply(as.Date(ptot$ENTREE), as.Date(ptot$ENTREE), length) # RPU totaux par jour
+rpu.par.jour <- aligne.sur.calendrier(min(d14$ENTREE), max(d14$ENTREE), rpu.par.jour)
+# TODO: IL FAUT ÉGALEMENT FAIRE UN MERGING ENTRE CALENDRIER ET rpu.par.jour CAR PEUT ÊTRE PLUS COURT +++ (pb avec Sélestat)
+#r <- as.numeric(t$t)/rpu.par.jour # rapport
+r <- as.numeric(p6h.jour$rpu)/rpu.par.jour$rpu # rapport
+r[is.na(r)] <- 0 # on remplace les NA par 0 sinon plantage avec rollmean
 
-#r <- as.numeric(t$t)/t.tot # rapport
-r <- as.numeric(t)/t.tot # rapport
 
 plot(r, type='l', main = "% de RPU dont la durée de passage est supérieure à 6 heures", ylab = "% de RPU avec DP > 6 heures", xlab = "Jours (2014)")
+copyright()
 
 # version xts
 rxps <- xts(r, order.by = as.Date(rownames(r)))
+
 # graphique seul
-plot(rxps, type='l', main = "% de RPU dont la durée de passage est supérieure à 6 heures", ylab = "% de RPU avec DP > 6 heures", minor.ticks = FALSE)
+plot(rxps, main = "% de RPU dont la durée de passage est supérieure à 6 heures", ylab = "% de RPU avec DP > 6 heures", minor.ticks = FALSE)
+copyright()
+
 # moyenne mobile seule
 plot(rollmean(rxps, k = 7), col = "blue", minor.ticks = FALSE, main = "% de RPU dont la durée de passage est supérieure à 6 heures", ylab = "% de RPU avec DP > 6 heures")
 legend("bottomleft", legend = "moyenne lissée", col = "blue", lty = 1, bty = "n")
+copyright()
+
 # les deux graphiques
 plot(rxps, type='l', main = "% de RPU dont la durée de passage est supérieure à 6 heures", ylab = "% de RPU avec DP > 6 heures", minor.ticks = FALSE)
 lines(rollmean(rxps, k = 7), col = "blue")
 legend("bottomleft", legend = "moyenne lissée", col = "blue", lty = 1, bty = "n")
+copyright()
+```
 
+Passages des plus de 75 ans
+===========================
+
+Patients agés de 75 ans ou plus.
+```{r}
+pop75 <- p14[p14$AGE > 74,]
+pop75.jour <- tapply(as.Date(pop75$ENTREE), as.Date(pop75$ENTREE), length)
+pop75.jour <- aligne.sur.calendrier(min(as.Date(pop75$ENTREE),na.rm=TRUE), max(as.Date(pop75$ENTREE),na.rm=TRUE), pop75.jour)
+
+# plot(xts(pop75.jour, order.by = as.Date(rownames(pop75.jour))), minor.ticks = FALSE, ylab = "Nombre de passage (mn)", main = "Evolution du nombre de passage par jour pour les 75 ans et plus")
+
+plot(xts(pop75.jour$rpu, order.by = as.Date(pop75.jour$calendrier)), minor.ticks = FALSE, ylab = "Nombre de passage (mn)", main = "Evolution du nombre de passage par jour pour les 75 ans et plus")
+
+lines(rollmean(xts(pop75.jour$rpu, order.by = as.Date(pop75.jour$calendrier)), k = 7), col = "red", lwd = 2)
+copyright()
+```
+Proportion des 75 ans par rapport à tous les RPU
+--------------------------------------------------
+
+```{r}
+pop.tot <- tapply(as.Date(p14$ENTREE), as.Date(p14$ENTREE), length)
+pop.tot <- aligne.sur.calendrier(min(as.Date(pop75$ENTREE),na.rm=TRUE), max(as.Date(pop75$ENTREE),na.rm=TRUE), pop.tot)
+r <- pop75.jour$rpu * 100 / pop.tot$rpu
+summary(r)
+
+plot(xts(r, order.by = as.Date(rownames(r))), minor.ticks = FALSE, ylab = "% de 75 ans", main = "Proportion de 75 ans et plus parmis des RPU")
+lines(rollmean(xts(r, order.by = as.Date(rownames(r))), k = 7), col = "blue", lwd = 2)
+
+```
+
+Taux hospitalisation
+====================
+
+Pour les plus de 75 ans
+-----------------------
+
+```{r}
+source(paste0(path, "new_functions.R")) # f0nctopn mode.sotie()
+ms <- mode.sortie(pop75) # plantage car les tableaux sont de taille inégale => rajouter aligne.sur.calendrier
+head(ms)
+
+hosp.xts <- xts(ms, order.by = as.Date(ms$date))
+plot(hosp.xts$taux.hosp, minor.ticks = FALSE, ylab = "Taux d'hospitalisaton pour les 75 ans", main = "Taux d'hospitalisation")
 ```
 

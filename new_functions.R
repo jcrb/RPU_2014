@@ -1,3 +1,11 @@
+# SOMMAIRE
+#----------
+#
+# complet
+# sort.data.frame
+# aligne.sur.calendrier
+# mode.sortie
+
 ##============================
 #
 #   complet
@@ -50,6 +58,37 @@ sort.data.frame <- function(x, decreasing=FALSE, by=1, ... ){
   x[i,,drop=FALSE]
 }
 
+#===========================================================================
+#
+#   aligne.sur.calendrier
+#
+#===========================================================================
+#'
+#'@description soit un vecteur x de dates non consécutives. Cette fonction insère
+#'             les jours manquants de façon à former un vecteur de dates continu.
+#'@param date1 date de début au format Date ou ISO
+#'@param x vecteur de nd de RPU/jour => rownames = date de chaque jour
+#'@usage  x <- seq("2015-01-10", "2015-01-20", 1)
+#'        aligne.sur.calendrier("2015-01-01", "2015-01-31", x)
+#'        sum(is.na(b)) # nb de jours sur la période sans passage > 6 heures
+#'        mean(is.na(b)) # idem en %
+
+aligne.sur.calendrier <- function(date1, date2, x){
+  # creéer un calendrier
+  calendrier <- seq(from = as.Date(date1), to = as.Date(date2), by = 1)
+  a <- as.data.frame(calendrier)
+  
+  # transforme p6h.jour en dataframe pour merger ATTENTION: ne pas mettre as.data.frame
+  # x <- dx[p14$DPAS > 6*60, "ENTREE"]
+  z <- data.frame(x, as.Date(names(x)))
+  names(z) <- c("rpu", "date")
+  
+  # merging
+  b <- merge(a, z, by.y = "date", by.x = "calendrier", all.x = TRUE)
+  
+  return(b)
+}
+
 ##============================
 #
 #   mode.sortie
@@ -64,57 +103,31 @@ sort.data.frame <- function(x, decreasing=FALSE, by=1, ... ){
 #'@usage dd <- mode.sortie(d14)
 #'
 mode.sortie <- function(dx){
+  date1 <- min(as.Date(dx$ENTREE), na.rm = TRUE)
+  date2 <- max(as.Date(dx$ENTREE), na.rm = TRUE)
+  
   passages.jour <- tapply(as.Date(dx$ENTREE), as.Date(dx$ENTREE), length)
+  passages.jour <- aligne.sur.calendrier(date1, date2, passages.jour)
+  
   mut <- dx[dx$MODE_SORTIE == "Mutation", "ENTREE"]
-  mutations.jour <- tapply(as.Date(mut),  as.Date(mut), length)
+  mutations.jour <- tapply(as.Date(mut),  as.Date(mut), length) # a ajuster sur calendrier
+  mutations.jour <- aligne.sur.calendrier(date1, date2, mutations.jour)
+  mutations.jour$rpu[is.na(mutations.jour$rpu)] <- 0 # remplace les NA par 0
+  
   trans <- dx[dx$MODE_SORTIE == "Transfert", "ENTREE"]
   transfert.jour <- tapply(as.Date(trans),  as.Date(trans), length)
-  hospit.jour <- mutations.jour + transfert.jour
-  date <- unique(sort(as.Date(dx$ENTREE)))
-  taux.hosp <- round(hospit.jour * 100 / passages.jour, 2)
-  sortie <- data.frame(date, passages.jour, hospit.jour, mutations.jour, transfert.jour, taux.hosp)
+  transfert.jour <- aligne.sur.calendrier(date1, date2, transfert.jour)
+  transfert.jour$rpu[is.na(transfert.jour$rpu)] <- 0 # remplace les NA par 0
+    
+  #hospit.jour <- mutations.jour + transfert.jour
+  hospit.jour <- mutations.jour$rpu + transfert.jour$rpu
+  
+  # date <- unique(sort(as.Date(dx$ENTREE)))
+  date <- passages.jour$calendrier
+  taux.hosp <- round(hospit.jour * 100 / passages.jour$rpu, 2)
+  # sortie <- data.frame(date, passages.jour, hospit.jour, mutations.jour, transfert.jour, taux.hosp)
+  sortie <- data.frame(date, passages.jour$rpu, hospit.jour, mutations.jour$rpu, transfert.jour$rpu, taux.hosp)
+  return(sortie)
 }
 
 
-# en cours: y a t'il plus d'hospitalisation en 2015 qu'en 2014 ?
-
-# tableau mensuel provisoire = jours consolidés + 6 derniers jours
-sel <- d01.p[d01.p$FINESS == "Sel",]
-# période équivalente en 2014
-sel14 <- d14[d14$FINESS == "Sel" & month(as.Date(d14$ENTREE)) == 1,]
-# on isole les hospitalisations de sélestat
-t.sel15 <- tapply(sel[sel$MODE_SORTIE=="Mutation", "MODE_SORTIE"], as.Date(sel$ENTREE[sel$MODE_SORTIE=="Mutation"]), length)
-t.sel14 <- tapply(sel14[sel14$MODE_SORTIE=="Mutation", "MODE_SORTIE"], as.Date(sel14$ENTREE[sel14$MODE_SORTIE=="Mutation"]), length)
-bilan <- cbind(t.sel15, t.sel14, t.sel15 - t.sel14)
-barplot(bilan[,3], las=2, main = "Hospitalisation Sélestat 2015-2014", ifelse(bilan[,3] > 0, col="green", col="blue"))
-# somme des 3 colonnes
-apply(bilan, 2, sum)
-
-
-# d1 <- d01.p[d01.p$FINESS == "Sel", c("ENTREE", "MODE_SORTIE")]
-# d2 <- d14[d14$FINESS == "Sel" & as.Date(d14$ENTREE) < "2014-02-01" , c("ENTREE", "MODE_SORTIE")]
-# a <- mutation(d1, d2)
-
-# idem avec Colmar
-# d1 <- d01.p[d01.p$FINESS == "Col", c("ENTREE", "MODE_SORTIE")]
-# d2 <- d14[d14$FINESS == "Col" & as.Date(d14$ENTREE) < "2014-02-01" , c("ENTREE", "MODE_SORTIE")]
-# a <- mutation(d1, d2)
-# barplot(a[,3], las=2, main = "Hospitalisation Colmar 2015-2014")
-# apply(a, 2, sum)
-
-
-# fonction pour essayer de créer automatiquement d1 et d2
-col.date <- function(d){
-  d1 <- d[d$FINESS == "Sel", c("ENTREE", "MODE_SORTIE")]
-}
-
-mutation <- function(d1, d2){
-  t.d1 <- tapply(d1[d1$MODE_SORTIE=="Mutation", "MODE_SORTIE"], as.Date(d1$ENTREE[d1$MODE_SORTIE=="Mutation"]), length)
-  t.d2 <- tapply(d2[d2$MODE_SORTIE=="Mutation", "MODE_SORTIE"], as.Date(d2$ENTREE[d2$MODE_SORTIE=="Mutation"]), length)
-  bilan <- cbind(t.d1, t.d2, t.d1 - t.d2)
-  return(bilan)
-}
-
-a <- mutation(d1, d2)
-barplot(a[,3], las=2, main = "Hospitalisation Sélestat 2015-2014")
-apply(a, 2, sum)

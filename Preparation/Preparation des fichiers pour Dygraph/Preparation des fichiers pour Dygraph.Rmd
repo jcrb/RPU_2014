@@ -43,7 +43,8 @@ Expérimentation d'un graphe avec 2 courbes ayant des échelles différentes. R�
 ```{r tx_hosp}
 path <- "../../"
 load(paste0(path, "rpu2014d0112_c.Rda")) # d14
-load(paste0(path, "rpu2015d0112_provisoire.Rda")) # d01
+# load(paste0(path, "rpu2015d0112_provisoire.Rda")) # d01
+load(paste0(path, "d15_p.Rda"))
 source(paste0(path, "new_functions.R")) # f0nctopn mode.sotie()
 library(xts)
 library(dygraphs)
