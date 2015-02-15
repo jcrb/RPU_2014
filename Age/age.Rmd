@@ -71,7 +71,8 @@ adultes_ans <- c(18, 30, 45, 65, 75, 85, 120)
 
 ```{r}
 library(lubridate)
-load("~/Documents/Resural/Stat Resural/RPU_2014/rpu2014d0110_provisoire.Rda")
+load("~/Documents/Resural/Stat Resural/RPU_2014/rpu2014d0112_c.Rda")
+dx <- d14
 N <- nrow(dx)
 ```
 

@@ -1,12 +1,10 @@
 \documentclass[]{article}
-\usepackage[T1]{fontenc}
 \usepackage{lmodern}
 \usepackage{amssymb,amsmath}
 \usepackage{ifxetex,ifluatex}
 \usepackage{fixltx2e} % provides \textsubscript
-% use upquote if available, for straight quotes in verbatim environments
-\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
 \ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
+  \usepackage[T1]{fontenc}
   \usepackage[utf8]{inputenc}
 \else % if luatex or xelatex
   \ifxetex
@@ -18,8 +16,13 @@
   \defaultfontfeatures{Mapping=tex-text,Scale=MatchLowercase}
   \newcommand{\euro}{€}
 \fi
+% use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
 % use microtype if available
-\IfFileExists{microtype.sty}{\usepackage{microtype}}{}
+\IfFileExists{microtype.sty}{%
+\usepackage{microtype}
+\UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
 \usepackage[margin=1in]{geometry}
 \usepackage{color}
 \usepackage{fancyvrb}
@@ -46,24 +49,14 @@
 \newcommand{\NormalTok}[1]{{#1}}
 \usepackage{longtable,booktabs}
 \usepackage{graphicx}
-% Redefine \includegraphics so that, unless explicit options are
-% given, the image width will not exceed the width of the page.
-% Images get their normal width if they fit onto the page, but
-% are scaled down if they would overflow the margins.
 \makeatletter
-\def\ScaleIfNeeded{%
-  \ifdim\Gin@nat@width>\linewidth
-    \linewidth
-  \else
-    \Gin@nat@width
-  \fi
-}
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
 \makeatother
-\let\Oldincludegraphics\includegraphics
-{%
- \catcode`\@=11\relax%
- \gdef\includegraphics{\@ifnextchar[{\Oldincludegraphics}{\Oldincludegraphics[width=\ScaleIfNeeded]}}%
-}%
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
 \ifxetex
   \usepackage[setpagesize=false, % page size defined by xetex
               unicode=false, % unicode breaks when used with xetex
@@ -85,6 +78,10 @@
 \setlength{\parskip}{6pt plus 2pt minus 1pt}
 \setlength{\emergencystretch}{3em}  % prevent overfull lines
 \setcounter{secnumdepth}{5}
+
+%%% Use protect on footnotes to avoid problems with footnotes in titles
+\let\rmarkdownfootnote\footnote%
+\def\footnote{\protect\rmarkdownfootnote}
 
 %%% Change title format to be more compact
 \usepackage{titling}
@@ -123,7 +120,7 @@ d'entree aux urgences pour permetttre le calcul de l'âge. Les âges de
 plus de $120$ ans sont considérés comme des valeurs aberrantes et sont
 exclus de l'analyse. Il en va de même pour les âges négatifs.
 
-Les \textbf{sexes} sont au format ``M/F/I''.
+Le \textbf{sexe} sont au format ``M/F/I''.
 
 \subsection{Recommandations FEDORU
 2014}\label{recommandations-fedoru-2014}
@@ -204,7 +201,8 @@ ref: {[}Introduction à R{]} pp 68 pour définir les intervalles
 \begin{Shaded}
 \begin{Highlighting}[]
 \KeywordTok{library}\NormalTok{(lubridate)}
-\KeywordTok{load}\NormalTok{(}\StringTok{"~/Documents/Resural/Stat Resural/RPU_2014/rpu2014d0110_provisoire.Rda"}\NormalTok{)}
+\KeywordTok{load}\NormalTok{(}\StringTok{"~/Documents/Resural/Stat Resural/RPU_2014/rpu2014d0112_c.Rda"}\NormalTok{)}
+\NormalTok{dx <-}\StringTok{ }\NormalTok{d14}
 \NormalTok{N <-}\StringTok{ }\KeywordTok{nrow}\NormalTok{(dx)}
 \end{Highlighting}
 \end{Shaded}
@@ -228,7 +226,7 @@ pédiatriques:}\label{tranches-dage-pediatriques}
 \end{Shaded}
 
 \begin{verbatim}
-## [1] 28
+## [1] 36
 \end{verbatim}
 
 \begin{Shaded}
@@ -240,7 +238,7 @@ pédiatriques:}\label{tranches-dage-pediatriques}
 
 \begin{figure}[htbp]
 \centering
-\includegraphics{./age_files/figure-latex/ped-1.pdf}
+\includegraphics{age_files/figure-latex/ped-1.pdf}
 \end{figure}
 
 \begin{Shaded}
@@ -256,7 +254,7 @@ pédiatriques:}\label{tranches-dage-pediatriques}
 
 \begin{figure}[htbp]
 \centering
-\includegraphics{./age_files/figure-latex/ped-2.pdf}
+\includegraphics{age_files/figure-latex/ped-2.pdf}
 \end{figure}
 
 \begin{Shaded}
@@ -276,7 +274,7 @@ pédiatriques:}\label{tranches-dage-pediatriques}
 \begin{verbatim}
 ## ped
 ##      <28j  28j-1an[   1-5ans[  5-10ans[ 10-15ans[ 15-18ans[ 
-##      1296      9446     26736     19480     21246     12225
+##      1791     13554     36287     24738     27012     15819
 \end{verbatim}
 
 \begin{Shaded}
@@ -287,7 +285,7 @@ pédiatriques:}\label{tranches-dage-pediatriques}
 
 \begin{figure}[htbp]
 \centering
-\includegraphics{./age_files/figure-latex/ped-3.pdf}
+\includegraphics{age_files/figure-latex/ped-3.pdf}
 \end{figure}
 
 \subsection{Tranches d'age adultes}\label{tranches-dage-adultes}
@@ -304,7 +302,7 @@ pédiatriques:}\label{tranches-dage-pediatriques}
 
 \begin{figure}[htbp]
 \centering
-\includegraphics{./age_files/figure-latex/adultes-1.pdf}
+\includegraphics{age_files/figure-latex/adultes-1.pdf}
 \end{figure}
 
 \begin{Shaded}
@@ -316,7 +314,7 @@ pédiatriques:}\label{tranches-dage-pediatriques}
 
 \begin{figure}[htbp]
 \centering
-\includegraphics{./age_files/figure-latex/adultes-2.pdf}
+\includegraphics{age_files/figure-latex/adultes-2.pdf}
 \end{figure}
 
 \section{Sexe (RPU)}\label{sexe-rpu}
@@ -334,7 +332,7 @@ pédiatriques:}\label{tranches-dage-pediatriques}
 
 \begin{figure}[htbp]
 \centering
-\includegraphics{./age_files/figure-latex/sexe-1.pdf}
+\includegraphics{age_files/figure-latex/sexe-1.pdf}
 \end{figure}
 
 \begin{Shaded}
@@ -350,15 +348,15 @@ pédiatriques:}\label{tranches-dage-pediatriques}
 
 \begin{figure}[htbp]
 \centering
-\includegraphics{./age_files/figure-latex/sexe-2.pdf}
+\includegraphics{age_files/figure-latex/sexe-2.pdf}
 \end{figure}
 
 \begin{itemize}
 \itemsep1pt\parskip0pt\parsep0pt
 \item
-  nombre d'hommes 170 424
+  nombre d'hommes 217 617
 \item
-  nombre de femmes 154 823
+  nombre de femmes 199 110
 \item
   sex-ratio 1.1
 \item
@@ -372,7 +370,7 @@ pédiatriques:}\label{tranches-dage-pediatriques}
 Variables & intitulé en clair & valeur
 \\\addlinespace
 \midrule\endhead
-N & nombre total de RPU & 325 249
+N & nombre total de RPU & 416 733
 \\\addlinespace
 age & ages des consultants en jours de 1 jour à 120 ans & \emph{vecteur}
 \\\addlinespace
@@ -385,15 +383,15 @@ r\_masculinite & taux de masculinité = nb hommes / (hommes + femmes) &
 \\\addlinespace
 sr\_age\_rpu & vecteur des sex-ratio & \emph{vecteur}
 \\\addlinespace
-h\_rpu & nombre d'hommes & 170 424
+h\_rpu & nombre d'hommes & 217 617
 \\\addlinespace
-f\_rpu & nombre de femmes & 154 823
+f\_rpu & nombre de femmes & 199 110
 \\\addlinespace
-n\_age1 & nombre de moins d'un an & 10 770
+n\_age1 & nombre de moins d'un an & 15 385
 \\\addlinespace
-p\_age1 & proportion de moins d'un an & 3.3
+p\_age1 & proportion de moins d'un an & 3.7
 \\\addlinespace
-n\_nour & nombre de nourrisons (\textless{} 28 jours) & 1 296
+n\_nour & nombre de nourrisons (\textless{} 28 jours) & 1 791
 \\\addlinespace
 adultes & vecteur ages \textgreater{} 18 ans selon FEDORU &
 \emph{vecteur}
@@ -540,7 +538,7 @@ load("pop_als_2014.Rda")
 
 \begin{figure}[htbp]
 \centering
-\includegraphics{./age_files/figure-latex/pop_als-1.pdf}
+\includegraphics{age_files/figure-latex/pop_als-1.pdf}
 \end{figure}
 
 \begin{Shaded}
@@ -558,7 +556,7 @@ load("pop_als_2014.Rda")
 
 \begin{figure}[htbp]
 \centering
-\includegraphics{./age_files/figure-latex/pop_als-2.pdf}
+\includegraphics{age_files/figure-latex/pop_als-2.pdf}
 \end{figure}
 
 \begin{Shaded}
@@ -580,7 +578,7 @@ load("pop_als_2014.Rda")
 
 \begin{figure}[htbp]
 \centering
-\includegraphics{./age_files/figure-latex/pop_als-3.pdf}
+\includegraphics{age_files/figure-latex/pop_als-3.pdf}
 \end{figure}
 
 \begin{Shaded}
@@ -611,7 +609,7 @@ load("pop_als_2014.Rda")
 
 \begin{figure}[htbp]
 \centering
-\includegraphics{./age_files/figure-latex/pop_als-4.pdf}
+\includegraphics{age_files/figure-latex/pop_als-4.pdf}
 \end{figure}
 
 \begin{Shaded}
@@ -623,7 +621,7 @@ load("pop_als_2014.Rda")
 
 \begin{figure}[htbp]
 \centering
-\includegraphics{./age_files/figure-latex/pop_als-5.pdf}
+\includegraphics{age_files/figure-latex/pop_als-5.pdf}
 \end{figure}
 
 Variables crées:
@@ -679,7 +677,7 @@ utilise le découpage de la FEDORU (adultes\_ans).
 \begin{verbatim}
 ## adultes_als_insee
 ## 18-30ans 30-45ans 45-65ans 65-75ans 75-85ans   >85ans 
-##    51465    54354    61021    22502    26610    18856
+##    65744    68900    77194    28407    33399    23872
 \end{verbatim}
 
 \begin{Shaded}
@@ -689,7 +687,7 @@ utilise le découpage de la FEDORU (adultes\_ans).
 \end{Shaded}
 
 \begin{verbatim}
-## [1] 234808
+## [1] 297516
 \end{verbatim}
 
 \begin{Shaded}
@@ -700,7 +698,7 @@ utilise le découpage de la FEDORU (adultes\_ans).
 
 \begin{figure}[htbp]
 \centering
-\includegraphics{./age_files/figure-latex/tranches_age_als-1.pdf}
+\includegraphics{age_files/figure-latex/tranches_age_als-1.pdf}
 \end{figure}
 
 \subsection{Comparaison des sex-ratio (RPU -
@@ -717,7 +715,7 @@ pop.Alsacienne)}\label{comparaison-des-sex-ratio-rpu---pop.alsacienne}
 
 \begin{figure}[htbp]
 \centering
-\includegraphics{./age_files/figure-latex/comp_sex_ratio-1.pdf}
+\includegraphics{age_files/figure-latex/comp_sex_ratio-1.pdf}
 \end{figure}
 
 suite
@@ -732,7 +730,7 @@ suite
 
 \begin{figure}[htbp]
 \centering
-\includegraphics{./age_files/figure-latex/unnamed-chunk-2-1.pdf}
+\includegraphics{age_files/figure-latex/unnamed-chunk-2-1.pdf}
 \end{figure}
 
 \paragraph{Comparaison Passages -
@@ -753,8 +751,8 @@ et plus.
 
 \begin{verbatim}
 ##        18-30ans 30-45ans 45-65ans 65-75ans 75-85ans >85ans
-## Alsace       26       34       46     13.7     10.4    4.3
-## RPU          16       17       19      6.9      8.2    5.8
+## Alsace       26       34       46     13.7       10    4.3
+## RPU          16       17       19      6.8        8    5.7
 \end{verbatim}
 
 \begin{Shaded}
@@ -766,7 +764,7 @@ et plus.
 
 \begin{figure}[htbp]
 \centering
-\includegraphics{./age_files/figure-latex/rpu_pop-1.pdf}
+\includegraphics{age_files/figure-latex/rpu_pop-1.pdf}
 \end{figure}
 
 \section{Taux de passage}\label{taux-de-passage}
@@ -783,7 +781,7 @@ Pour l'ensemble de l'Alsace:
 \end{Shaded}
 
 \begin{verbatim}
-## [1] 0.18
+## [1] 0.22
 \end{verbatim}
 
 Taux de passage par tranches d'age:
@@ -797,7 +795,7 @@ Taux de passage par tranches d'age:
 
 \begin{verbatim}
 ## 18-30ans 30-45ans 45-65ans 65-75ans 75-85ans   >85ans 
-##     0.18     0.15     0.12     0.15     0.23     0.39
+##     0.23     0.18     0.15     0.19     0.29     0.50
 \end{verbatim}
 
 A calculer également par SU.
