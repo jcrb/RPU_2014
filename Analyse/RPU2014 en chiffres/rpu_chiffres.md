@@ -31,6 +31,9 @@ date1 <- "2014-01-01"
 date2 <- "2014-12-31"
 calendrier <- seq(from = as.Date(date1), to = as.Date(date2), by = 1)
 ```
+Calendrier doit être transformé en dataframe pour être utilisé avec merge
+
+a <- data.frame(calendrier) 
 
 Compter les jours d'une semaine
 ===============================
@@ -146,7 +149,7 @@ wd
 ```
 
 ```
-## dimanche    jeudi    lundi    mardi mercredi   samedi vendredi 
+## Dimanche    Jeudi    Lundi    Mardi Mercredi   Samedi Vendredi 
 ##    61919    56699    64139    56752    57517    61123    58584
 ```
 - __wday__ du package _lubridate_. Inconvénient, la semaine commence le dimanche.
@@ -182,7 +185,7 @@ a
 ```
 
 ```
-##    lundi    mardi mercredi    jeudi vendredi   samedi dimanche 
+##    Lundi    Mardi Mercredi    Jeudi Vendredi   Samedi Dimanche 
 ##    64139    56752    57517    56699    58584    61123    61919
 ```
 

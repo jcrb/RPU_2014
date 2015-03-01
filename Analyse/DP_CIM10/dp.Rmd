@@ -2,42 +2,39 @@
 title: "DP"
 author: "JcB"
 date: "01/10/2014"
-output: html_document
+output:
+  html_document:
+    keep_md: yes
+    number_sections: yes
+    toc: yes
 ---
 
 Analyse des diagnostics principaux
 =================================
+
+Pour l'analyse, le fichier doit s'appeler dx. Ainsi pour 2014 on mettra dans le préambule dx <- d14.
 
 ```{r init, echo=FALSE}
 library("lubridate")
 library("epicalc")
 library("epitools")
 library("RColorBrewer")
-
-```
-
-
-Combien de sorte de DP sont crées par jour ?
---------------------------------------------
-
-ex. avec Sélestat: on crée un objet de type liste formé d'autant de listes qu'il y a de jours (1 liste par jour). Chaque liste est formée par les codes CIM10 du jour, lesquels ont regroupés par type grace à la méthode table. Au final on obtient pour chaque jour la liste des codes CIM et pour chaque code, le nombre de dossiiers correspondants. Par la fonction _length_ on compte le nombre de diagnostics uniques. L'ensemble est résumé par la fonction _summary_.
-
-```{}
-sel <- d09[d09$FINESS == "Sel",]
-x <- tapply(sel$DP, as.Date(sel$ENTREE), table)
-# exemple:
-length(x[[2]])
-x[[2]]
-# la fonction sapply permet de récupérer un vecteur plutôt qu'une liste.
-m <- sapply(x, length)
-summary(m)
-hist(m)
+library(xts)
 
 ```
 
 
 ```{r init2, echo=FALSE}
-load("~/Documents/Resural/Stat Resural/RPU_2014/rpu2014d0111_provisoire.Rda")
+
+path <- "../../"
+file <- "rpu2014d0112_c.Rda"
+load(paste0(path, file))
+dx <- d14
+
+# file2 <- "rpu2015d0112_provisoire.Rda" # d15
+file2 <- "d15_p.Rda" # d15.p
+load(paste0(path, file2)) 
+dx <- rbind(dx, d15.p)
 
 dpr<-dx[!is.na(dx$DP),c("DP","CODE_POSTAL","ENTREE","FINESS","GRAVITE","ORIENTATION","MODE_SORTIE","AGE","SEXE","TRANSPORT","DESTINATION", "NAISSANCE")]
 anc <- year(dpr$ENTREE[1]) # année courante
@@ -53,6 +50,26 @@ dpr$DP<-gsub("+","",as.character(dpr$DP),fixed=TRUE)
 save(dpr, file="DP2014.R")
 # load("~/Documents/Resural/Stat Resural/RPU_2014/DP2014.R")
 ```
+
+Combien de sorte de DP sont crées par jour ?
+============================================
+
+ex. avec Sélestat: on crée un objet de type liste formé d'autant de listes qu'il y a de jours (1 liste par jour). Chaque liste est formée par les codes CIM10 du jour, lesquels ont regroupés par type grace à la méthode table. Au final on obtient pour chaque jour la liste des codes CIM et pour chaque code, le nombre de dossiiers correspondants. Par la fonction _length_ on compte le nombre de diagnostics uniques. L'ensemble est résumé par la fonction _summary_.
+
+```{r diag_par_jour, echo=FALSE, comment=""}
+sel <- dx[dx$FINESS == "Sel",]
+# Création d'un tableau de listes. Normalement x est un tableau de 365 listes. Chaque liste est formée par les diag. du jour avec le décompte de chaque diag.
+x <- tapply(sel$DP, as.Date(sel$ENTREE), table)
+# exemple:
+length(x[[2]]) # nb de diag différents ce jour là
+x[[2]] # liste des diag.
+# la fonction sapply permet de récupérer un vecteur plutôt qu'une liste.
+m <- sapply(x, length)
+summary(m)
+hist(m)
+
+```
+
 
 Bronchiolites
 =============
@@ -115,5 +132,49 @@ barplot(a, xlab = "semaines", ylab = "% de bronchiolites", main = "Pourcentage d
 plot(a, type="l", xlab = "semaines", ylab = "% de bronchiolites", main = "Proportion de bronchiolites parmi le total de passages\n chez les enfants de moins de 24 mois")
 
 ```
+
+Syndrome grippal
+================
+
+__ATENTION__: les gaphiques de ce paragraphe ne sont exact que __dpr__ ne concerne que 2014. La transformation en mois supprime la notion d'année => si plusieurs années, la transformation en mois entraïne la somme des valeurs dumois: par ex. mois 1 correspond à la somme janvier 2014 et janvier 2015.
+
+```{r grippe, echo=FALSE}
+grippe<-dpr[substr(dpr$DP,1,3)=="J11"|substr(dpr$DP,1,3)=="J10"|substr(dpr$DP,1,3)=="J09", c("DP","ENTREE")]
+grippe<-grippe[complete.cases(grippe),]
+grippe$date<-as.Date(grippe$ENTREE)
+anc <- "2014"
+titre <- paste0("Syndrome grippaux", " - ", anc)
+m<-month(grippe$ENTREE,label=T)
+barplot(table(m),main = titre, xlab="Mois", ylab = "nombre de RPU", las = 2)
+```
+
+Comparaison 2014 - 2015
+-----------------------
+Utilise 
+```{r grippe2, echo=FALSE, comment=""}
+
+# par mois
+a <- tapply(as.Date(grippe$ENTREE),list(year(as.Date(grippe$ENTREE)), month(as.Date(grippe$ENTREE))), length )
+barplot(a, beside = TRUE, main = "Syndrome grippal par mois", ylab = "Fréquence")
+
+# par semaine
+b <- tapply(as.Date(grippe$ENTREE),list(year(as.Date(grippe$ENTREE)), week(as.Date(grippe$ENTREE))), length )
+cols <- c("chartreuse", "yellow")
+barplot(b, beside = TRUE, main = "Syndrome grippaux vu aux urgences en Alsace", ylab = "Fréquence", las = 2, cex.names = 0.8, col = cols)
+legend("topright", legend = rownames(a), col = cols, pch = 15, bty = "n")
+
+# en utilisant XTS
+a <- tapply(as.Date(grippe$ENTREE),as.Date(grippe$ENTREE), length )
+b <- xts(a, order.by = as.Date(rownames(a)))
+plot(b, minor.ticks = FALSE, main = "Syndrome grippaux en Alsace", ylab = "Fréquence")
+
+# par semaine et par an. On obtient un dataframe de 2 lignes (2014 et 2015). Les 2 lignes sont mises bout à bout pour être barplottées.
+a <- tapply(as.Date(grippe$ENTREE),list(year(as.Date(grippe$ENTREE)), week(as.Date(grippe$ENTREE))), length )
+b <- c(a[1,], a[2,])
+plot(b, ylab = "Fréquence", main = "Syndromes grippaux aux SU d'Alsace", type = "l")
+barplot(b, ylab = "Fréquence", main = "Syndromes grippaux hebdomadaires aux SU d'Alsace", sub = "2014 - 2015")
+
+```
+
 
 
