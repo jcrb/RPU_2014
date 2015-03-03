@@ -21,7 +21,7 @@ sdp
 
 ```
 ##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max.    NA's 
-## -6963.0    55.0   110.0   158.7   204.0 87930.0   47993
+## -6963.0    56.0   110.0   161.7   206.0 87930.0   50997
 ```
 
 ```r
@@ -57,9 +57,9 @@ round(sdp.na * 100 / nfiness, 2) # % de durée de passage in complète
 
 ```
 ##    3Fr    Alk    Ane    Col    Dia    Dts    Geb    Hag    Hus    Mul 
-##     NA     NA     NA    NaN     NA     NA 271.56     NA     NA     NA 
+##     NA     NA     NA    NaN     NA     NA 275.94     NA     NA     NA 
 ##    Odi    Ros    Sav    Sel    Wis 
-##    NaN     NA     NA 148.88     NA
+##    NaN     NA     NA 151.41     NA
 ```
 
 ```r
@@ -84,13 +84,13 @@ t
 
 ```
 ##        3Fr   Alk  Ane   Col   Dia  Dts      Geb   Hag   Hus   Mul   Odi
-## RPUa    NA    NA   NA   NaN    NA   NA 47993.00    NA    NA    NA   NaN
-## RPUt 17968 14442 8672 74796 32531 5149 17673.00 45013 74048 66229 27495
-## %       NA    NA   NA   NaN    NA   NA   271.56    NA    NA    NA   NaN
+## RPUa    NA    NA   NA   NaN    NA   NA 50997.00    NA    NA    NA   NaN
+## RPUt 18902 15273 9531 78359 34041 5755 18481.00 47441 79874 69718 28842
+## %       NA    NA   NA   NaN    NA   NA   275.94    NA    NA    NA   NaN
 ##       Ros   Sav      Sel   Wis
-## RPUa   NA    NA 47993.00    NA
-## RPUt 8014 32854 32236.00 13560
-## %      NA    NA   148.88    NA
+## RPUa   NA    NA 50997.00    NA
+## RPUt 8389 34468 33681.00 14224
+## %      NA    NA   151.41    NA
 ```
 
 Choix de l'établissement
@@ -106,8 +106,8 @@ On ne garde que les RPU avec une durée de passage exploitable et qui soit posit
 
 
 
-- nombre de RPU exploitable: 53 831
-- nombre de RPU totaux: 66 229
+- nombre de RPU exploitable: 56 583
+- nombre de RPU totaux: 69 718
 
 Durée moyenne de passage
 -------------------------
@@ -138,11 +138,11 @@ summary(p6h.jour) # résumé passage de plus de 6 heures"
 ```
 ##    calendrier              rpu       
 ##  Min.   :2014-01-01   Min.   : 1.00  
-##  1st Qu.:2014-04-12   1st Qu.:11.00  
-##  Median :2014-07-22   Median :15.00  
-##  Mean   :2014-07-22   Mean   :15.55  
-##  3rd Qu.:2014-10-31   3rd Qu.:20.00  
-##  Max.   :2015-02-10   Max.   :38.00  
+##  1st Qu.:2014-04-17   1st Qu.:11.00  
+##  Median :2014-08-01   Median :15.00  
+##  Mean   :2014-08-01   Mean   :15.91  
+##  3rd Qu.:2014-11-15   3rd Qu.:21.00  
+##  Max.   :2015-03-01   Max.   :43.00  
 ##                       NA's   :7
 ```
 
@@ -159,7 +159,7 @@ mean(is.na(p6h.jour)) # idem en %
 ```
 
 ```
-## [1] 0.00862069
+## [1] 0.008235294
 ```
 
 Aspect graphique
@@ -199,7 +199,7 @@ summary(r)
 
 ```
 ##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max.    NA's 
-##   1.818   8.504  10.560  10.620  12.740  24.040      22
+##   1.818   8.548  10.560  10.650  12.710  24.040      22
 ```
 
 ```r
