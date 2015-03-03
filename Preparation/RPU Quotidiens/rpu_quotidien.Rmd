@@ -185,7 +185,7 @@ file.to.delete <- "/home/jcb/Documents/Resural/Stat Resural/Archives_Sagec/dataQ
 file.remove(file.to.delete)
 
 date1 <- "2015-02-08"
-date2 <- "2015-02-11"
+date2 <- "2015-03-02"
 
 mc <- substr(date1, 6, 7)
 ac <- substr(date1, 1,4)
@@ -218,11 +218,11 @@ rm(dx)
 # save(d15, file="rpu2015d0112_provisoire.Rda")
 # save(d15, file="rpu2015d0112.Rda")
 
-load("rpu2015d0112_provisoire.Rda")
+load("rpu2015d01.Rda") # mois précédent
 
-dx <- rbind(d15, d02)
-min(as.Date(d15$ENTREE))
-max(as.Date(d15$ENTREE))
+dx <- rbind(d01, d02)
+min(as.Date(dx$ENTREE))
+max(as.Date(dx$ENTREE))
 
 d15 <- dx
 save(d15, file="rpu2015d0112_provisoire.Rda")
@@ -261,7 +261,7 @@ write.csv(rpu, file="exaustivite_rpu.csv") enregistre la table au format .csv ma
   
 Résumé activité
 ===============
- On crée un tableau Finess x Jour de l'année permettant de voir rapidement où sont les "trous". A partir du tableau __rpu__ on crée un dataframe __a__ compotant deux colonnes: la date du jour et le nombre de RPU correspondants pour l'ensemble des SU d'Alsace. Ce dataframe peut être utilisé pour __Dygraph__.
+ On crée un tableau Finess x Jour de l'année permettant de voir rapidement où sont les "trous". A partir du tableau __rpu__ on crée un dataframe __a__ comportant deux colonnes: la date du jour et le nombre de RPU correspondants pour l'ensemble des SU d'Alsace. Ce dataframe peut être utilisé pour __Dygraph__.
 
 On peut aussi l'utiliser pour tracer le graphe correspondant.
 
@@ -276,10 +276,10 @@ colnames(a) <- c("Date","RPU")
 a$Date <- as.Date(a$Date)
 a$RPU <- as.numeric(as.character(a$RPU)) # transforme les facteurs en nombre
 
-plot(a$Date, a$RPU, type="l", ylab="nombre de RPU", xlab=paste0("Année ", year(Sys.Date())), main="Activité des SU d'Alsace en nombre de RPU")
-
 library("xts")
 library("lubridate")
+
+plot(a$Date, a$RPU, type="l", ylab="nombre de RPU", xlab=paste0("Année ", year(Sys.Date())), main="Activité des SU d'Alsace en nombre de RPU")
 
 x <- as.xts(a$RPU, a$Date)
 
@@ -304,7 +304,7 @@ Objet: mesure de l'activité au jour le jour avant consolidation. En pratique re
 1. récupérer le fichier source, le décompacter.
 2. appeler la fonction __parse_rpu__ avec la date du jour, qui le transforme en dataframe
 ```{}
-d <- parse_rpu("2015-02-11")
+d <- parse_rpu("2015-03-02")
 min(as.Date(d$ENTREE))
 max(as.Date(d$ENTREE))
 ```
@@ -329,7 +329,7 @@ t(t)
 
 On peut fabriquer un fichier provisoire constitué par la fusion des jours consolidés (d01) et des 7 dernier jours (d). Il faut supprimer dans le fichier d le premier jour qui correspond au dernier jour consolidé.
 
-> max(as.Date(d01$ENTREE))
+> max(as.Date(d02$ENTREE))
 [1] "2015-01-22"
 
 ```{}
@@ -356,6 +356,7 @@ abline(h = mean2014, col = "red") # nb moyende RPU en 2014
 abline(h = mean2014 + sd2014, col = "red", lty = 2) # 1 écrt-type
 abline(h = mean2014 + sd2014 * 2, col = "red", lty = 2) # 2 écart-type
 legend("topleft", legend = c("moyenne 2014", "écart-type 2014"), col = "red", lty = c(1,2), bty = "n")
+lines(rollmean(xts.a, 7), col="blue", lwd = 3) # moyenne lissée
 
 
 ```

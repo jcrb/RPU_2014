@@ -160,19 +160,19 @@ barplot(a, beside = TRUE, main = "Syndrome grippal par mois", ylab = "Fréquence
 # par semaine
 b <- tapply(as.Date(grippe$ENTREE),list(year(as.Date(grippe$ENTREE)), week(as.Date(grippe$ENTREE))), length )
 cols <- c("chartreuse", "yellow")
-barplot(b, beside = TRUE, main = "Syndrome grippaux vu aux urgences en Alsace", ylab = "Fréquence", las = 2, cex.names = 0.8, col = cols)
+barplot(b, beside = TRUE, main = "Syndrome grippaux vu aux urgences en Alsace", ylab = "Fréquence hebdomadaire", las = 2, cex.names = 0.8, col = cols)
 legend("topright", legend = rownames(a), col = cols, pch = 15, bty = "n")
 
 # en utilisant XTS
 a <- tapply(as.Date(grippe$ENTREE),as.Date(grippe$ENTREE), length )
 b <- xts(a, order.by = as.Date(rownames(a)))
-plot(b, minor.ticks = FALSE, main = "Syndrome grippaux en Alsace", ylab = "Fréquence")
+plot(b, minor.ticks = FALSE, main = "Syndrome grippaux en Alsace", ylab = "Fréquence quotidienne")
 
 # par semaine et par an. On obtient un dataframe de 2 lignes (2014 et 2015). Les 2 lignes sont mises bout à bout pour être barplottées.
 a <- tapply(as.Date(grippe$ENTREE),list(year(as.Date(grippe$ENTREE)), week(as.Date(grippe$ENTREE))), length )
 b <- c(a[1,], a[2,])
-plot(b, ylab = "Fréquence", main = "Syndromes grippaux aux SU d'Alsace", type = "l")
-barplot(b, ylab = "Fréquence", main = "Syndromes grippaux hebdomadaires aux SU d'Alsace", sub = "2014 - 2015")
+plot(b, ylab = "Fréquence hebdomadaire", main = "Syndromes grippaux aux SU d'Alsace", type = "l")
+barplot(b, ylab = "Fréquence hebdomadaire", main = "Syndromes grippaux hebdomadaires aux SU d'Alsace", sub = "2014 - 2015")
 
 ```
 
