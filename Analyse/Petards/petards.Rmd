@@ -23,7 +23,7 @@ Je forme un dataframe qui englobe tous les RPU du 31 décembre 2014 et du 1er ja
 
 ```{r}
 library("lubridate")
-source("../Preparation/RPU Quotidiens/quot_utils.R")
+source("../../Preparation/RPU Quotidiens/quot_utils.R")
 
 # on récupère le fichier 2013-2014 sous le nom de d2
 load("~/Documents/Resural/Stat Resural/RPU_2014/rpu2013-2014.Rda")
@@ -356,17 +356,20 @@ Analyse de la traumato de la main du 15 décembre au 15 janvier
 ```{r}
 # on étudie la période du 15 décembre au 15 janvier
 periode.pet <- d2[as.Date(d2$ENTREE) > "2013-12-14" & as.Date(d2$ENTREE) < "2014-01-16", ]
+
 # corrige les caractères anormaux
 periode.pet$MOTIF <- normalise.caracteres(periode.pet$MOTIF)
 periode.pet$DP <- normalise.caracteres(periode.pet$DP)
-pet.dp <- pet[!is.na(pet$DP) & pet$DP %in% c("S60", "S61", "S62", "S63", "S64", "S65", "S66", "S67", "S68", "S69"), c("ENTREE","DP")]
+pet <- periode.pet[, c("ENTREE", "DP", "MOTIF")]
+pet.dp <- pet[!is.na(pet$DP) & substr(pet$DP, 1, 3) %in% c("S60", "S61", "S62", "S63", "S64", "S65", "S66", "S67", "S68", "S69"), c("ENTREE","DP")]
 t <- tapply(as.Date(pet.dp$ENTREE), as.Date(pet.dp$ENTREE), length)
 barplot(t, las=2, cex.names=0.8, main = "Toute la traumatologie de la main")
 
 # uniquement les plaies
-pet.dp.plaie <- pet[!is.na(pet$DP) & pet$DP %in% c("S60", "S61"), c("ENTREE","DP")]
+pet.dp.plaie <- pet[!is.na(pet$DP) & substr(pet$DP, 1, 3) %in% c("S60", "S61"), c("ENTREE","DP")]
 t <- tapply(as.Date(pet.dp.plaie$ENTREE), as.Date(pet.dp.plaie$ENTREE), length)
-barplot(t, las=2, cex.names=0.8)
+c <- ifelse((wday(names(t)) == 1 | names(t) %in% c("2013-12-25","2013-12-25","2013-12-31","2014-01-01")) == 1, "red", "light blue") # on colorie en rouge les WE et JF
+x <- barplot(t, las=2, cex.names=0.8, main = "Plaies de la main", ylab = "nombre", col = c)
 
 
 ```
