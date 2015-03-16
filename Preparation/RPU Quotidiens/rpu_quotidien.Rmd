@@ -106,7 +106,7 @@ finess2hop <- function(a){
   a[a=="680000700"]<-"Geb"
   a[a=="670780055"]<-"Hus"
   a[a=="670000025"]<-"Hus" # NHC
-  a[a=="670783273"]<-"Htp" # HTP
+  a[a=="670783273"]<-"Hus" # HTP
   a[a=="680000197"]<-"3Fr"
   a[a=="680000627"]<-"Mul"
   a[a=="670000157"]<-"Hag"
@@ -185,7 +185,7 @@ file.to.delete <- "/home/jcb/Documents/Resural/Stat Resural/Archives_Sagec/dataQ
 file.remove(file.to.delete)
 
 date1 <- "2015-03-08"
-date2 <- "2015-03-09"
+date2 <- "2015-03-15"
 
 mc <- substr(date1, 6, 7)
 ac <- substr(date1, 1,4)
@@ -350,20 +350,20 @@ library(xts)
 a <-tapply(as.Date(d15.p$ENTREE), as.Date(d15.p$ENTREE), length)
 xts.a <- xts(a, order.by = unique(as.Date(d15.p$ENTREE)))
 
-svg("activité SU alsace 2015.svg")
+svg("activite SU alsace 2015.svg")
 plot(xts.a, las = 2, main = "Activité des SU d'Alsace", ylab = "nombre de RPU créés par jour", ylim = c(800,1600))
 mean2014 <- 1141.734
 sd2014 <- 154.7858
 abline(h = mean2014, col = "red") # nb moyende RPU en 2014
 abline(h = mean2014 + sd2014, col = "red", lty = 2) # 1 écrt-type
 abline(h = mean2014 + sd2014 * 2, col = "red", lty = 2) # 2 écart-type
-legend("topleft", legend = c("moyenne 2014", "écart-type 2014"), col = "red", lty = c(1,2), bty = "n")
+legend("topleft", legend = c("moyenne 2014", "écart-type 2014", "moyenne lissée"), col = c("red","red","blue"), lty = c(1,2,1), bty = "n")
 lines(rollmean(xts.a, 7), col="blue", lwd = 3) # moyenne lissée
 copyright()
 dev.off()
 
 ```
-svg("activité SU alsace 2015.svg")
+svg("activite SU alsace 2015.svg")
 plot()
 dev.off()
 
