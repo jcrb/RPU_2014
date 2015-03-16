@@ -79,6 +79,7 @@ library("epicalc")
 library(xtable)
 library(knitr)
 
+
 # options(xtable, comment = FALSE)
 
 # on forme un dataframe ne comportant que les ages > 54 ans et les colonnes utiles:
@@ -247,6 +248,8 @@ Merging avec le fichier des recours de l'ORUMIP
 
 ```{r,echo=FALSE}
 file.reg <- "~/Documents/Resural/FEDORU/Codes_regroupement_ORUMIP/Regroupement_ORUMIP/Regroupements ORUMiP Thésaurus SFMU.csv"
+
+file.reg <- "~/Documents/FEDORU/Codes_regroupement_ORUMIP/Regroupements ORUMiP Thésaurus SFMU.csv" # MAC
 reg <- read.csv(file.reg, skip = 1)
 greg <- merge(g, reg, by.x = "DP", by.y = "CIM10", all.x)
 
@@ -266,4 +269,52 @@ tab1(factor(gtrau$Code.Discipline...Topographie), sort.group = "increasing", mai
 table(gtrau$AGE2, factor(gtrau$Code.Discipline...Topographie))
 
 ```
+15/3/2015
+=========
 
+Nouvelle question
+
+```{r}
+# groupe 2013
+g2013 <- d2[d2$AGE > 54 & as.Date(d2$ENTREE) < "2014-01-01", c("AGE", "MODE_ENTREE", "PROVENANCE", "MODE_SORTIE", "DESTINATION", "ORIENTATION", "DP", "MOTIF")]
+# roupe 2014
+g2014 <- d2[d2$AGE > 54 & as.Date(d2$ENTREE) >= "2014-01-01", c("AGE", "MODE_ENTREE", "PROVENANCE", "MODE_SORTIE", "DESTINATION", "ORIENTATION", "DP", "MOTIF")]
+# ajout colonne AGE2
+a <- cut(g2013$AGE, c(55, 65, 75, 85, 120))
+levels(a) <- c(">= 55 et <65 ans", ">=65 et <75 ans", ">=75 et <85 ans", ">=85 ans")
+g2013$AGE2 <- a
+a <- cut(g2014$AGE, c(55, 65, 75, 85, 120))
+levels(a) <- c(">= 55 et <65 ans", ">=65 et <75 ans", ">=75 et <85 ans", ">=85 ans")
+g2014$AGE2 <- a
+# normalisation des CIM10
+g2013$DP <- normalise.caracteres(g2013$DP)
+g2014$DP <- normalise.caracteres(g2014$DP)
+# lecture du fichier des regroupement
+file.reg <- "~/Documents/FEDORU/Codes_regroupement_ORUMIP/Regroupements ORUMiP Thésaurus SFMU.csv"
+reg <- read.csv(file.reg, skip = 1)
+# merging
+greg2013 <- merge(g2013, reg, by.x = "DP", by.y = "CIM10", all.x)
+greg2014 <- merge(g2014, reg, by.x = "DP", by.y = "CIM10", all.x)
+
+tab1(greg2013$Code.Type.Urgences, sort.group = "increasing", main = "Type d'urgence (2013)", ylab = "Fréquence")
+tab1(greg2014$Code.Type.Urgences, sort.group = "increasing", main = "Type d'urgence (2014)", ylab = "Fréquence")
+# table par tranche d'age
+table(greg2013$AGE2, greg2013$Code.Type.Urgences)
+table(greg2014$AGE2, greg2014$Code.Type.Urgences)
+
+```
+> table(greg2013$AGE2, greg2013$Code.Type.Urgences)
+                  
+                   AUTRE MED-CHIR   PSY TOXICO TRAUMA
+  >= 55 et <65 ans   364     8876   486    203   4983
+  >=65 et <75 ans    258     7854   258     94   3125
+  >=75 et <85 ans    268    11078   264     85   3718
+  >=85 ans           120     6529    87     45   2496
+> table(greg2014$AGE2, greg2014$Code.Type.Urgences)
+                  
+                   AUTRE MED-CHIR   PSY TOXICO TRAUMA
+  >= 55 et <65 ans   415     9142   478    189   5089
+  >=65 et <75 ans    277     8528   256     99   3256
+  >=75 et <85 ans    233    11050   207     92   3769
+  >=85 ans           116     6660    95     25   2728
+> 
