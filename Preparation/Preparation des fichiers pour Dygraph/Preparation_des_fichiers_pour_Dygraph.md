@@ -54,13 +54,7 @@ library(xts)
 
 ```r
 library(dygraphs)
-```
 
-```
-## Warning: package 'dygraphs' was built under R version 3.1.3
-```
-
-```r
 # création d'une table date, passages, hospitalisation, mutation, transfert
 # hospitalisation = mutation + transfert
 # remplacé par la fonction mode.sortie:
@@ -78,61 +72,33 @@ ms2015 <- mode.sortie(d15.p)
 devenir <- rbind(ms2014, ms2015) # on lie les 2 années
 
 # paramètres dérivés
-apply(devenir[2:5], 2, mean, na.rm = TRUE)
+resume <- rbind(
+apply(devenir[2:5], 2, mean, na.rm = TRUE),
+apply(devenir[2:5], 2, median, na.rm = TRUE),
+apply(devenir[2:5], 2, sd, na.rm = TRUE),
+apply(devenir[2:5], 2, min, na.rm = TRUE),
+apply(devenir[2:5], 2, max, na.rm = TRUE))
+rownames(resume) <- c("Moyenne","Médiane","SD","Min","Max")
+resume
 ```
 
 ```
-##  passages.jour.rpu        hospit.jour mutations.jour.rpu 
-##         1174.50685          226.97489          210.98630 
-## transfert.jour.rpu 
-##           15.98858
-```
-
-```r
-apply(devenir[2:5], 2, median, na.rm = TRUE)
-```
-
-```
-##  passages.jour.rpu        hospit.jour mutations.jour.rpu 
-##             1163.5              226.0              210.0 
-## transfert.jour.rpu 
-##               16.0
-```
-
-```r
-apply(devenir[2:5], 2, sd, na.rm = TRUE)
-```
-
-```
-##  passages.jour.rpu        hospit.jour mutations.jour.rpu 
-##         164.658925          26.907194          25.571004 
-## transfert.jour.rpu 
-##           4.922498
+##         passages.jour.rpu hospit.jour mutations.jour.rpu
+## Moyenne         1174.5068   226.97489           210.9863
+## Médiane         1163.5000   226.00000           210.0000
+## SD               164.6589    26.90719            25.5710
+## Min              768.0000   156.00000           149.0000
+## Max             1689.0000   341.00000           321.0000
+##         transfert.jour.rpu
+## Moyenne          15.988584
+## Médiane          16.000000
+## SD                4.922498
+## Min               5.000000
+## Max              49.000000
 ```
 
 ```r
-apply(devenir[2:5], 2, min, na.rm = TRUE)
-```
-
-```
-##  passages.jour.rpu        hospit.jour mutations.jour.rpu 
-##                768                156                149 
-## transfert.jour.rpu 
-##                  5
-```
-
-```r
-apply(devenir[2:5], 2, max, na.rm = TRUE)
-```
-
-```
-##  passages.jour.rpu        hospit.jour mutations.jour.rpu 
-##               1689                341                321 
-## transfert.jour.rpu 
-##                 49
-```
-
-```r
+# taux hospitalisation (par jour)
 taux.hosp <- round(devenir$hospit.jour * 100 / devenir$passages.jour, 2)
 summary(taux.hosp)
 ```
@@ -157,8 +123,8 @@ anim <- dygraph(d.xts[,2:6], main = "SU 2014", ylab = "Affaires")
 anim
 ```
 
-<!--html_preserve--><div id="htmlwidget-3578" style="width:672px;height:480px;" class="dygraphs"></div>
-<script type="application/json" data-for="htmlwidget-3578">{ "x": {
+<!--html_preserve--><div id="htmlwidget-7114" style="width:672px;height:480px;" class="dygraphs"></div>
+<script type="application/json" data-for="htmlwidget-7114">{ "x": {
  "attrs": {
  "title": "SU 2014",
 "ylabel": "Affaires",
@@ -186,10 +152,12 @@ anim
 
 ```r
 # graphe avec 2 axes y pour les passages et le taux d'hospitalisation. 
-plot(d.xts$passages, minor.ticks = FALSE, main = "")
+par(mar=c(3,4,3,4))
+plot(d.xts$passages, minor.ticks = FALSE, main = "", ylab = "nombre de passages")
 par(new = T) # permet de dessiner un second graphique avec ses propres paramètres
 plot(d.xts$taux, axes = F, ylim = c(0, 100),  col = "blue", main="")
-axis(4, ylim = c(0, 100),  col = "blue" ) # utilise l'axe de droite. Prévoir plus de marge
+axis(4, ylim = c(0, 100),  col = "blue", col.ticks = "blue" ) # utilise l'axe de droite. Prévoir plus de marge
+mtext("% hospitalisation",side=4,line=2,col=4) # légende axe 4
 legend("topleft", legend = c("Passages","Taux d'hospitalisation"), col = c("black", "blue"), lty = 1, bty = "n")
 ```
 
@@ -197,7 +165,7 @@ legend("topleft", legend = c("Passages","Taux d'hospitalisation"), col = c("blac
 
 ```r
 # enregistrement du dataframe en csv:
-write.csv(devenir, file = "devenir.csv")
+write.csv(devenir, file = "devenir.csv", row.names = FALSE)
 ```
 
 

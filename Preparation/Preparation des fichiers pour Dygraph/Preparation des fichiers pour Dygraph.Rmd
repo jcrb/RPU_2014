@@ -66,11 +66,16 @@ ms2015 <- mode.sortie(d15.p)
 devenir <- rbind(ms2014, ms2015) # on lie les 2 années
 
 # paramètres dérivés
-apply(devenir[2:5], 2, mean, na.rm = TRUE)
-apply(devenir[2:5], 2, median, na.rm = TRUE)
-apply(devenir[2:5], 2, sd, na.rm = TRUE)
-apply(devenir[2:5], 2, min, na.rm = TRUE)
-apply(devenir[2:5], 2, max, na.rm = TRUE)
+resume <- rbind(
+apply(devenir[2:5], 2, mean, na.rm = TRUE),
+apply(devenir[2:5], 2, median, na.rm = TRUE),
+apply(devenir[2:5], 2, sd, na.rm = TRUE),
+apply(devenir[2:5], 2, min, na.rm = TRUE),
+apply(devenir[2:5], 2, max, na.rm = TRUE))
+rownames(resume) <- c("Moyenne","Médiane","SD","Min","Max")
+resume
+
+# taux hospitalisation (par jour)
 taux.hosp <- round(devenir$hospit.jour * 100 / devenir$passages.jour, 2)
 summary(taux.hosp)
 sd(taux.hosp)
@@ -82,14 +87,17 @@ anim
 
 
 # graphe avec 2 axes y pour les passages et le taux d'hospitalisation. 
-plot(d.xts$passages, minor.ticks = FALSE, main = "")
+par(mar=c(3,4,3,4))
+plot(d.xts$passages, minor.ticks = FALSE, main = "", ylab = "nombre de passages")
 par(new = T) # permet de dessiner un second graphique avec ses propres paramètres
 plot(d.xts$taux, axes = F, ylim = c(0, 100),  col = "blue", main="")
-axis(4, ylim = c(0, 100),  col = "blue" ) # utilise l'axe de droite. Prévoir plus de marge
+axis(4, ylim = c(0, 100),  col = "blue", col.ticks = "blue" ) # utilise l'axe de droite. Prévoir plus de marge
+mtext("% hospitalisation",side=4,line=2,col=4) # légende axe 4
 legend("topleft", legend = c("Passages","Taux d'hospitalisation"), col = c("black", "blue"), lty = 1, bty = "n")
 
 # enregistrement du dataframe en csv:
-write.csv(devenir, file = "devenir.csv")
+write.csv(devenir, file = "devenir.csv", row.names = FALSE)
+
 
 ```
 
