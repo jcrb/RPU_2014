@@ -305,7 +305,7 @@ Objet: mesure de l'activité au jour le jour avant consolidation. En pratique re
 1. récupérer le fichier source, le décompacter.
 2. appeler la fonction __parse_rpu__ avec la date du jour, qui le transforme en dataframe
 ```{}
-d <- parse_rpu("2015-03-09")
+d <- parse_rpu("2015-03-15")
 min(as.Date(d$ENTREE))
 max(as.Date(d$ENTREE))
 ```
