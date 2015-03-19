@@ -44,8 +44,8 @@ Expérimentation d'un graphe avec 2 courbes ayant des échelles différentes. R�
 path <- "../../"
 load(paste0(path, "rpu2014d0112_c.Rda")) # d14
 # load(paste0(path, "rpu2015d0112_provisoire.Rda")) # d01
-load(paste0(path, "d15_p.Rda"))
-source(paste0(path, "new_functions.R")) # f0nctopn mode.sotie()
+load(paste0(path, "d15_p.Rda")) # d15.p
+source(paste0(path, "new_functions.R")) # fonction mode.sotie()
 library(xts)
 library(dygraphs)
 
@@ -62,7 +62,7 @@ library(dygraphs)
 # devenir <- data.frame(date, passages.jour, hospit.jour, mutations.jour, transfert.jour)
 
 ms2014 <- mode.sortie(d14)
-ms2015 <- mode.sortie(d01)
+ms2015 <- mode.sortie(d15.p)
 devenir <- rbind(ms2014, ms2015) # on lie les 2 années
 
 # paramètres dérivés

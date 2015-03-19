@@ -241,12 +241,35 @@ trauma.tete <- g[substr(g$DP, 1, 3) >= "S60" & substr(g$DP, 1, 3) <= "S69" & !is
 
 Merging avec le fichier des recours de l'ORUMIP
 -----------------------------------------------
+La version 2014 du fichier de recours comporte 2158 lignes et 13 colonnes:
+```{}
+ [1] "CIM10"                            "Code.Type.Urgences"              
+ [3] "Libéllé.Type.Urgences"            "Code.Discipline...Topographie"   
+ [5] "Libellé.Discipline...Topographie" "Code.Type.Pathologie"            
+ [7] "Libéllé.Type.de.Pathologie"       "X"                               
+ [9] "X.1"                              "X.2"                             
+[11] "X.3"                              "X.4"                             
+[13] "X.5"  
+```
 
+Les colonnes 9 à 13 sont des compléments pas indispensables. 
+La colonne 1 (CIM10) compred des codes de 3 à 6 caractèes:
+```{r}
+a<- sapply(as.character(reg$CIM10), nchar)
+table(a)
+
+```
+Exemple d'utilisation du nom de l'ordinateur pour définir un chemin d'accès:
 ```{r,echo=FALSE}
 if(as.character(Sys.info()["nodename"]) == "MacBook-Air-de-JCB.local")
   file.reg <- "~/Documents/FEDORU/Codes_regroupement_ORUMIP/Regroupements ORUMiP Thésaurus SFMU.csv" else
   file.reg <- "~/Documents/Resural/FEDORU/Codes_regroupement_ORUMIP/Regroupement_ORUMIP/Regroupements ORUMiP Thésaurus SFMU.csv"
 reg <- read.csv(file.reg, skip = 1)
+
+# limitation du nombre de colonnes
+reg <- reg[, 1:8]
+
+# merging des 2 fichiers
 greg <- merge(g, reg, by.x = "DP", by.y = "CIM10", all.x)
 
 ```

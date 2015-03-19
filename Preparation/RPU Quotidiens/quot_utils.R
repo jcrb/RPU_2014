@@ -463,13 +463,14 @@ cim10 <- function(d, a, b){
 #' choisit le path en fonction de l'ordinateur
 #' deux machines sont reconnues: mac et xps
 #' @usage path <- choose.path()
+#' TODO: généraliser la fonction
 #' 
 choose.path <- function(){
   
   if(as.character(Sys.info()["nodename"]) == "MacBook-Air-de-JCB.local")
     path = "~/Documents/Stat Resural/RPU_2014" else 
-      if(as.character(Sys.info()["nodename"]) == "XPS")
-        path = "~/Documents/Resural/Stat Resural/RPU_2014"
+  if(as.character(Sys.info()["nodename"]) == "XPS")
+    path = "~/Documents/Resural/Stat Resural/RPU_2014"
 }
 
 #=======================================
