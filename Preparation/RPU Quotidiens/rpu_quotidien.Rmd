@@ -185,7 +185,7 @@ file.to.delete <- "/home/jcb/Documents/Resural/Stat Resural/Archives_Sagec/dataQ
 file.remove(file.to.delete)
 
 date1 <- "2015-03-08"
-date2 <- "2015-03-15"
+date2 <- "2015-03-19"
 
 mc <- substr(date1, 6, 7)
 ac <- substr(date1, 1,4)
@@ -305,7 +305,7 @@ Objet: mesure de l'activité au jour le jour avant consolidation. En pratique re
 1. récupérer le fichier source, le décompacter.
 2. appeler la fonction __parse_rpu__ avec la date du jour, qui le transforme en dataframe
 ```{}
-d <- parse_rpu("2015-03-15")
+d <- parse_rpu("2015-03-19")
 min(as.Date(d$ENTREE))
 max(as.Date(d$ENTREE))
 ```
@@ -330,8 +330,6 @@ t(t)
 
 On peut fabriquer un fichier provisoire constitué par la fusion des jours consolidés (d01) et des 7 dernier jours (d). Il faut supprimer dans le fichier d le premier jour qui correspond au dernier jour consolidé.
 
-> max(as.Date(d02$ENTREE))
-[1] "2015-01-22"
 
 ```{}
 d <- d[as.Date(d$ENTREE) > max(as.Date(d15$ENTREE)),]
