@@ -80,6 +80,9 @@ path <- choose.path()
 file <- "rpu2013-2014.Rda"
 load(paste(path, file, sep = "/"))
 
+d2$FINESS <- as.character(d2$FINESS)
+d2$FINESS[d2$FINESS=="670780204"]<-"Odi"
+d2$FINESS <-  factor(d2$FINESS)
 
 library("epicalc")
 library(xtable)
@@ -241,6 +244,9 @@ trauma.tete <- g[substr(g$DP, 1, 3) >= "S60" & substr(g$DP, 1, 3) <= "S69" & !is
 
 Merging avec le fichier des recours de l'ORUMIP
 -----------------------------------------------
+
+Le fichier de recours de l'ORUMIP est chargé sous le nom de __reg__.
+
 La version 2014 du fichier de recours comporte 2158 lignes et 13 colonnes:
 ```{}
  [1] "CIM10"                            "Code.Type.Urgences"              
@@ -253,12 +259,7 @@ La version 2014 du fichier de recours comporte 2158 lignes et 13 colonnes:
 ```
 
 Les colonnes 9 à 13 sont des compléments pas indispensables. 
-La colonne 1 (CIM10) compred des codes de 3 à 6 caractèes:
-```{r}
-a<- sapply(as.character(reg$CIM10), nchar)
-table(a)
 
-```
 Exemple d'utilisation du nom de l'ordinateur pour définir un chemin d'accès:
 ```{r,echo=FALSE}
 if(as.character(Sys.info()["nodename"]) == "MacBook-Air-de-JCB.local")
@@ -271,8 +272,15 @@ reg <- reg[, 1:8]
 
 # merging des 2 fichiers
 greg <- merge(g, reg, by.x = "DP", by.y = "CIM10", all.x)
+```
+
+La colonne 1 (CIM10) comprend des codes de 3 à 6 caractèes:
+```{r}
+a<- sapply(as.character(reg$CIM10), nchar)
+table(a)
 
 ```
+
 Par type d'urgences
 -------------------
 ```{r,echo=FALSE}
@@ -646,6 +654,168 @@ Uniquement sur le dernier trimestre 2014 (octobre-décembre):
 median.tot <- tapply(d14$DELAI[as.Date(d14$ENTREE) > "2014-09-30"], factor(d14$FINESS[as.Date(d14$ENTREE) > "2014-09-30"]), median, na.rm=TRUE)
 median.75 <- tapply(d14$DELAI[d14$AGE > 74 & as.Date(d14$ENTREE) > "2014-09-30"], factor(d14$FINESS[d14$AGE > 74 & as.Date(d14$ENTREE) > "2014-09-30"]), median, na.rm=TRUE)
 round(median.75/median.tot, 2)
+
+```
+
+Demande Schieber (15/03/2015)
+=============================
+
+On souhaite créer un tableau comparatif 2013-2014 comparant la population des 75 ans ou plus à la population générale par établissement et territoires de santé avec le nombre total de RPU et le % plus de 75 ans correspondant.
+
+FINESS  |  tot(tous ages)  |  % de 75 ans  
+--------|------------------|-------------   
+
+1. dataframe = RPU 2013-2014
+2. ajout d'une colonne TERRITOIRE (function)
+3. nombre de RPU par FINESS et ANNEE
+4. créer un dataframe des 75 ans et plus
+5. nombre de RPU de 75 ans par FINESS et ANNEE
+6. totaliser par TERRITOIRE et par ANNEE
+7. rapport RPU75 / RPU totaux
+8. produire un fichier compatible XLS.
+
+1. dataframe = RPU 2013-2014
+----------------------------
+
+```{}
+path <- choose.path()
+file <- "rpu2013-2014.Rda"
+load(paste(path, file, sep = "/")) # d2
+```
+
+2. ajout d'une colonne TERRITOIRE (function)
+--------------------------------------------
+
+```{r territoire}
+d2 <- add.territoire(d2)
+d2$FINESS <- finess2territoires(d2$FINESS) # reorganise les Finess par territoire
+```
+
+3. nombre de RPU par FINESS et ANNEE
+-------------------------------------
+```{r rpu_finess_annee}
+# par établissement:
+
+#'@description crée un vecteur du nombre de RPU par FINESS dont l'AGE est supérieur à 'age'. Si 'age' n'est pas précisé, tous les ages (renseignés) son pris en compte.
+#'@exemple b <- finess.age(rpu2013, 74) retourne  le nombre de RPU dont l'age > 74 ans pour chaque FINESS
+#'@return un vecteur du nombre de RPU par FINESS
+finess.age <- function(dx, age = -1){
+  tapply(as.Date(dx$ENTREE[dx$AGE > age]), dx$FINESS[dx$AGE > age], length)
+  }
+
+# dataframe des RPU de 2013
+rpu2013 <- d2[year(as.Date(d2$ENTREE)) == 2013,] # RPU de 2013
+b <- finess.age(rpu2013, 74) # nb de RPU par FINESS dont age > 74 ans
+a <- finess.age(rpu2013) # nb de RPU par FINESS tous ages
+
+# dataframe des RPU de 2014
+rpu2014 <- d2[year(as.Date(d2$ENTREE)) == 2014,] # RPU de 2014
+b2 <- finess.age(rpu2014, 74) # nb de RPU par FINESS dont age > 74 ans
+a2 <- finess.age(rpu2014) # nb de RPU par FINESS tous ages
+
+# Création d'une matrice: rpu 2013, rpu 2013 > 74 ans, % rpu 2013 > 74 ans, rpu 2014, etc.
+t <- cbind(a,b, round(b*100/a, 2), a2, b2, round(b2*100/a2, 2))
+colnames(t) <- c("RPU 2013","RPU 2013 > 74","% 75 ans", "RPU 2014","RPU 2014 > 74","% 75 ans")
+
+# même opération mais par territoire de santé (TS)
+
+#'@description crée un vecteur du nombre de RPU par TS dont l'AGE est supérieur à 'age'. Si 'age' n'est pas précisé, tous les ages (renseignés) son pris en compte.
+#'@exemple b <- territoire.age(rpu2013, 74) retourne  le nombre de RPU dont l'age > 74 ans pour chaque TS
+#'@return un vecteur du nombre de RPU par TS
+territoire.age <- function(dx, age = -1){
+  tapply(as.Date(dx$ENTREE[dx$AGE > age]), dx$TERRITOIRE[dx$AGE > age], length)
+  }
+  
+a <- territoire.age(rpu2013) # nb de RPU en 2013 par TS tous ages
+b <- territoire.age(rpu2013, 74) # nb de RPU en 2013  dont age > 74 ans par TS
+
+b2 <- territoire.age(rpu2014, 74) # nb de RPU en 2014  dont age > 74 ans par TS
+a2 <- territoire.age(rpu2014) # nb de RPU en 2014 par TS tous ages
+
+t2 <- cbind(a,b, round(b*100/a, 2), a2, b2, round(b2*100/a2, 2))
+colnames(t2) <- c("RPU 2013","RPU 2013 > 74","% 75 ans", "RPU 2014","RPU 2014 > 74","% 75 ans")
+rownames(t2) <- c("T1", "T2", "T3", "T4")
+
+# Reste à combiner t et t2 en intercalant de sorte que t2 corresponde à la somme du territoire:
+
+x <- t[1:3,] # 3 premières lignes = territoire 1
+x <- rbind(x, t2[1,])
+x <- rbind(x, t[4:7,])
+x <- rbind(x, t2[2,])
+x <- rbind(x, t[8:10,])
+x <- rbind(x, t2[3,])
+x <- rbind(x, t[11:15,])
+x <- rbind(x, t2[4,])
+
+# ligne de total
+tot <- apply(t, 2, sum, na.rm = TRUE)
+tot["% 75 ans"] <- round(tot["RPU 2013 > 74"]*100/tot["RPU 2013"], 2)
+tot[6] <- round(tot["RPU 2014 > 74"]*100/tot["RPU 2014"], 2)
+
+x <- rbind(x, tot)
+
+kable(x)
+
+# sauvegarde des résultats. L'ordre des lignes ne correspond pas à celui de l'ARS. Il faut ajouter une ligne vide pour Thann.
+write.csv(x, file = "precision_requete.csv")
+```
+Le fichier a été adressé à mme Schieber le 20/03/2015 sous le nom de __precision_requete_21_3_2015.xls__.
+
+#### résultat:
+```{}
+
+    RPU 2013 RPU 2013 > 74 % 75 ans RPU 2014 RPU 2014 > 74 % 75 ans
+Wis    12646          2291    18.12    12158          2099    17.26
+Hag    34413          7707    22.40    39938          6895    17.26
+Sav    12424          1761    14.17    29445          4036    13.71
+       59483         11759    19.77    81541         13030    15.98
+Hus    37018         11416    30.84    61793         12337    19.97
+Ane       NA            NA       NA     7418           695     9.37
+Odi    25961          1447     5.57    24956          1290     5.17
+Dts       NA            NA       NA     3910           153     3.91
+       62979         12863    20.42    98040         14470    14.76
+Sel    29534          4052    13.72    28828          3887    13.48
+Col    64758          8175    12.62    67378          8527    12.66
+Geb    15103          1615    10.69    16024          1708    10.66
+      109395         13842    12.65   112230         14122    12.58
+Mul    56195          7267    12.93    59471          7480    12.58
+Alk    10861          1624    14.95    12660          1874    14.80
+Dia    29467          4014    13.62    29410          4139    14.07
+Ros       NA            NA       NA     7206           362     5.02
+3Fr    15683          1702    10.85    16134          1789    11.09
+      112206         14607    13.02   124881         15644    12.53
+tot   344063         53071    15.42   416729         57271    13.74
+```
+
+Comparaison 2013-2014 des DP regroupés (merging ORUMIP)
+-------------------------------------------------------
+```{r merging_orumip}
+
+library(epicalc)
+
+# récupère le fichier des regroupement de l'ORUMIP
+if(as.character(Sys.info()["nodename"]) == "MacBook-Air-de-JCB.local")
+file.reg <- "~/Documents/FEDORU/Codes_regroupement_ORUMIP/Regroupements ORUMiP Thésaurus SFMU.csv" else
+file.reg <- "~/Documents/Resural/FEDORU/Codes_regroupement_ORUMIP/Regroupement_ORUMIP/Regroupements ORUMiP Thésaurus SFMU.csv"
+reg <- read.csv(file.reg, skip = 1)
+reg <- reg[, 1:8] # on ne garde que les 8 premières colonnes
+
+# type d'urgences, tous ages confondus pour 2013 et 2014
+greg2013 <- merge(rpu2013, reg, by.x = "DP", by.y = "CIM10", all.x)
+greg2014 <- merge(rpu2014, reg, by.x = "DP", by.y = "CIM10", all.x)
+
+tab1(greg2013$Code.Type.Urgences, sort.group = "increasing", main = "Type d'urgence - 2013 - Tous ages", ylab = "Fréquence")
+tab1(greg2014$Code.Type.Urgences, sort.group = "increasing", main = "Type d'urgence - 2014 - Tous ages", ylab = "Fréquence")
+
+# type d'urgences, pour les 75 ans et plus pour 2013 et 2014
+rpu2013.75 <- rpu2013[rpu2013$AGE > 74,]
+rpu2014.75 <- rpu2014[rpu2014$AGE > 74,]
+
+greg2013.75 <- merge(rpu2013.75, reg, by.x = "DP", by.y = "CIM10", all.x)
+greg2014.75 <- merge(rpu2014.75, reg, by.x = "DP", by.y = "CIM10", all.x)
+
+tab1(greg2014.75$Code.Type.Urgences, sort.group = "increasing", main = "Type d'urgence - 2014 - 75 ans", ylab = "Fréquence")
+tab1(greg2013.75$Code.Type.Urgences, sort.group = "increasing", main = "Type d'urgence - 2013 - 75 ans", ylab = "Fréquence")
 
 ```
 

@@ -116,6 +116,8 @@ lines(rollmean(xts(median.duree, order.by = as.Date(rownames(median.duree))), k 
 copyright()
 
 ```
+- moyenne durée de passage: `r mean(p14$DPAS)` minutes
+- médiane durée de passage: `r median(p14$DPAS)` minutes
 
 
 Analyse des durées de passage > 6 heures
@@ -189,6 +191,9 @@ Passages des plus de 75 ans
 Patients agés de 75 ans ou plus.
 ```{r}
 pop75 <- p14[p14$AGE > 74,]
+
+summary(pop75$DPAS)
+
 pop75.jour <- tapply(as.Date(pop75$ENTREE), as.Date(pop75$ENTREE), length)
 pop75.jour <- aligne.sur.calendrier(min(as.Date(pop75$ENTREE),na.rm=TRUE), max(as.Date(pop75$ENTREE),na.rm=TRUE), pop75.jour)
 
@@ -226,5 +231,32 @@ head(ms)
 
 hosp.xts <- xts(ms, order.by = as.Date(ms$date))
 plot(hosp.xts$taux.hosp, minor.ticks = FALSE, ylab = "Taux d'hospitalisaton pour les 75 ans", main = "Taux d'hospitalisation")
+```
+
+Question complémentaire (Schiber)
+=================================
+
+```{r}
+
+# on ajoute une colonne pour les territoires
+d14 <- add.territoire(d14)
+
+# RPU > 74 ans
+d14.pop75 <- d14[d14$AGE > 74,]
+
+# nb de RPU > 74 ans par finess
+rpu.finess.75ans <- tapply(as.Date(d14.pop75$ENTREE), d14.pop75$FINESS, length)
+#  nb de RPU > 74 ans par territoire
+rpu.territoire.75 <- tapply(as.Date(d14.pop75$ENTREE), d14.pop75$TERRITOIRE, length)
+# nb de RPU par territoires
+rpu.territoire <- tapply(as.Date(d14$ENTREE), d14$TERRITOIRE, length)
+# nb de RPU par Finess
+rpu.finess <- tapply(as.Date(d14$ENTREE), d14$FINESS, length)
+# % de Rpu > 74 ans par finess
+round(rpu.finess.75ans * 100/ rpu.finess, 2)
+# % de Rpu > 74 ans par territoire
+round(rpu.territoire.75 * 100/ rpu.territoire, 2)
+
+
 ```
 

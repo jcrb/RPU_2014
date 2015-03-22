@@ -8,7 +8,7 @@ output: html_document
 Xts et Dygraphs
 ===============
 
-```{r xts_dygraphs, echo=FALSE}
+```{r xts_dygraphs, echo=FALSE, message=FALSE}
 
 library(dygraphs)
 library(xts)

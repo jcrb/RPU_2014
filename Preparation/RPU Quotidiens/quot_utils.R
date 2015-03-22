@@ -22,6 +22,8 @@
 #' - cim10
 #' - choose.path
 #' - create.col.territoire
+#' - add.territoire
+#' - finess2territoires
 
 #=======================================
 #
@@ -517,4 +519,34 @@ rpu.par.jour <- function(d, roll = 7){
   df$V4 <- rollmean(df$V2, 7, fill = NA) # moyenne mobile sur 7 jours. rollmean crée un vecteur plus petit. Pour obtenir un vecteur de la même longueur, on remplace les valeurs manquantes par NA
   df$V5 <- df$V2 - df$V4 # pour CUSUM
   return(df)
+}
+
+#=======================================
+#
+# add.territoire
+#
+#=======================================
+#'@description Ajoute une colonne TERRITOIRE à un dataframe qui contient une colonne FINESS
+#'@param dx un dataframe ayant une colonne FINESS renseignée
+#'@return un dataframe 
+#'
+add.territoire <- function(dx){
+  dx$TERRITOIRE[dx$FINESS %in% c("Wis","Sav","Hag")] <- "T1"
+  dx$TERRITOIRE[dx$FINESS %in% c("Hus","Odi","Ane","Dts")] <- "T2"
+  dx$TERRITOIRE[dx$FINESS %in% c("Sel","Col","Geb")] <- "T3"
+  dx$TERRITOIRE[dx$FINESS %in% c("Mul","3Fr","Alk","Ros","Dia")] <- "T4"
+  return(dx)
+}
+
+#=======================================
+#
+# finess2territoires
+#
+#=======================================
+# réorganiser les FINESS par territoires de santé
+#'@example dx$FINESS <- finess2territoires(dx)
+#'
+finess2territoires <- function(finess){
+  finess <- factor(finess, levels = c('Wis','Hag','Sav','Hus','Ane','Odi','Dts','Sel','Col','Geb','Mul', 'Alk','Dia','Ros','3Fr'))
+  return(finess)
 }

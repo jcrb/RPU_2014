@@ -11,23 +11,58 @@
 
 <div id="graphdiv2"
   style="width:900px; height:600px;"></div>
+
+<p><b>Affichage: </b>
+
+<input type=checkbox id=0 onClick="stockchange(this)" checked> <label for="0"> RPU</label>
+<input type=checkbox id=1 onClick="stockchange(this)" checked> <label for="1"> Hospitalisations</label>
+<input type=checkbox id=2 onClick="stockchange(this)" checked> <label for="2"> Mutations</label>
+<input type=checkbox id=3 onClick="stockchange(this)" checked> <label for="3"> Transferts</label>
+<input type=checkbox id=4 onClick="stockchange(this)" checked> <label for="4"> Taux</label>
+
+<input type=checkbox id=ann onClick="annotationschange(this)" checked> <label for="ann"> Annotations</label>
+</p>
+
 <script type="text/javascript">
+
+var stock_annotations = [
+    {
+      series: "passages.jour.rpu",
+      x: "2014-10-20",
+      shortText: "A",
+      text: "HUS modifient leurs RPU",
+      cssClass: 'annotation'
+    }
+]
   g2 = new Dygraph(
     document.getElementById("graphdiv2"),
     "devenir.csv", // path to CSV file
     { // options
-       rollPeriod: 7,
+      rollPeriod: 7,
       showRoller: true,
       title: 'Passages et hospitalisations',
       ylabel: 'Nombre de RPU',
       legend: 'always',
       labelsDivStyles: { 'textAlign': 'left' }
+      
     }          
   );
+  
+  function stockchange(el) {
+    g2.setVisibility(el.id, el.checked);
+  };
+  
+  function annotationschange(el) {
+    if (el.checked) {
+      g2.setAnnotations(stock_annotations);
+    } else {
+      g2.setAnnotations([]);
+    }
+  }
 </script>
 
 <p>
-Ceci est un commentaire
+Pour zoomer sur une période, maintenir le bouton gauche de la souris enfoncé et faire glisser. Double clic pour rétablir l'affichage initial.
 </p>
 
 </body>
