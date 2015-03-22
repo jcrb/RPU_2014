@@ -42,9 +42,11 @@ var stock_annotations = [
       showRoller: true,
       title: 'Passages et hospitalisations',
       ylabel: 'Nombre de RPU',
-      legend: 'always',
-      labelsDivStyles: { 'textAlign': 'left' }
+      legend: 'always',labelsDivStyles: { 'textAlign': 'left' }, // Légende, positionnement (à droite)
+      // labelsDivStyles: { 'textAlign': 'left' },
       
+      labelsSeparateLines: true, // Permet d'avoir une ligne par label (légende)
+      errorBars: true, // barre d'erreur
     }          
   );
   
@@ -67,3 +69,7 @@ Pour zoomer sur une période, maintenir le bouton gauche de la souris enfoncé e
 
 </body>
 </html>
+
+<!-- 
+  liste des options disoinible icic: http://vanhouteghem-jonathan.fr/2014/02/puissance-et-simplicite-les-graphiques-dynamiques-en-javascript-avec-dygraph/
+-->
