@@ -1,0 +1,51 @@
+---
+title: "Moyen de transport"
+author: "jcb"
+date: "28 mars 2015"
+output: html_document
+---
+
+Analyse du moyen de transport utilisé pour se rendre aux urgences
+=================================================================
+
+```{r source, echo=FALSE}
+path <- "../../"
+load(paste0(path, "rpu2014d0112_c.Rda")) # 2014
+dx <- d14
+rm(d14)
+```
+
+```{r global}
+t1 <- table(factor(dx$TRANSPORT))
+t1
+round(prop.table(t1) * 100, 2)
+```
+Globalement, le moyen de transport le plus utilisé est un moyen personnel. Le SMUR, l'hélicoptère ou les forces de l'ordre occuppent une place marginale.
+
+Analyse par tranches d'age
+--------------------------
+```{r tranche, echo=FALSE}
+# colonne tranche d'age de 0 à 120 ans par tranche de 10 ans
+dx$t.age <- cut(dx$AGE, breaks = c(0, seq(10,120,10)))
+t <- table(dx$t.age, factor(dx$TRANSPORT))
+t
+
+# Comment chaque moyen de transport est utilisé selon l'age: la somme d'une colonne est égale à 100%
+t2 <- round(prop.table(t,2) * 100, 2)
+
+# Part de chaque moyen de transport selon l'age: la somme d'une line est égale à 100%
+t3 <- round(prop.table(t,1) * 100, 2)
+# on n'affiche pas la tranche 110-120 dont les effectifs sont insuffisants. Noter que la réducrion d'un objet table le transfrme en matrice. Il faut uriliser as.table pour que l'objet transformé reste une table (et pas table tout seul +++)
+plot(as.table(t3[1:11,]), las = 1,main="Evolution des moyens de transport en fonction de l'age", col = 2:7)
+
+```
+
+L'analyse par tranches d'âge révèle une modificarion importante des comportements ave l'âge. L'utilisation d'un moyen personnel diminue progressivement alors que la part des transporteurs privés ne cesse d'augmenter pour devenir majoritaire aux ages les plus avancés. La bascule se fait vers 70 ans. Le phénomène est encore plus net si on y inclu les VSAV (anciennement VSAB). Il est donc important d'inclure dans la formation de ces personnels (CESU, IFA) des messages gériatriques. 
+
+ToDo
+-----
+Mode de transport indicateur de tension ?
+
+- courbe quotidienne par moyen de transport
+- qui transporte la nuit ?
+- rapport ASSU/VSAV ou ASSU+VSAV / PERSO
