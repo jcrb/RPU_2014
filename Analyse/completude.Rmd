@@ -3,6 +3,8 @@ title: "Completude"
 author: "jcb"
 date: "30 mars 2015"
 output:
+  html_document:
+    toc: yes
   pdf_document:
     fig_height: 6
     keep_tex: yes
@@ -30,7 +32,7 @@ Complétude régionale
 --------------------
 C'est la complétude calculée pour tous les RPU quelque soit l'établissement producteur.
 
-```{r comp.regionale, echo=FALSE, message=FALSE}
+```{r comp_regionale, echo=FALSE, message=FALSE}
 completude_region <- completude(dx)
 radar.completude(completude_region)
 n.items <- length(completude_region) # nb d'items pris en compte N = 19
@@ -68,8 +70,8 @@ for(i in 1:length(finess)){
 Motif de passage
 ----------------
 ```{r motif, echo=FALSE}
-# a <- tapply(dx$MOTIF, dx$FINESS, function(x){head(x,20)})
-# grep("^[A-Z][0-9][0-9]", c("123", "Ass12", "1A22"), value = TRUE)
+a <- tapply(dx$MOTIF, dx$FINESS, function(x){head(x,20)})
+grep("^[A-Z][0-9][0-9]", c("123", "Ass12", "1A22"), value = TRUE)
 
 ```
 
