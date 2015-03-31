@@ -20,7 +20,7 @@ Ce chapitre utilise le fichier source("../../RESURAL/Trame_commune/rapport_2014.
 
 ```{r init, echo=FALSE}
 path <- "../"
-source(paste0(path, "../../RESURAL/Trame_commune/rapport_2014.R"))
+source(paste0(path, "../../RESURAL/Trame_commune/rapport_2014.R"), encoding = "UTF8")
 load(paste0(path, "rpu2015d0112.Rda")) # 2015
 
 dx <- d15
@@ -75,3 +75,32 @@ grep("^[A-Z][0-9][0-9]", c("123", "Ass12", "1A22"), value = TRUE)
 
 ```
 
+```{r motif2, echo=FALSE}
+a <- tapply(dx$MOTIF, dx$FINESS, function(x){head(x,20)})
+a
+grep("^[A-Z][0-9][0-9]", c("123", "Ass12", "A22"), value = TRUE)
+
+wis <- dx[dx$FINESS == "Wis", "MOTIF"]
+a <- grep("^[A-Z][0-9][0-9]", wis, value = TRUE)
+head(a)
+
+for(i in 1:length(finess)){
+  hop <- dx[dx$FINESS == finess[i], "MOTIF"]
+  print(head(hop))
+}
+
+m <- array()
+for(i in 1:length(finess)){
+  hop <- dx[dx$FINESS == finess[i], "MOTIF"]
+  Encoding(hop) <- "latin1"
+  n <- grep("^[A-Z][0-9][0-9]",hop, value = TRUE)
+  if(i == 1)
+    m <- c(finess[i], length(hop), length(n), round(length(n) * 100/length(hop), 2))
+  else
+    m <- rbind(m, c(finess[i], length(hop), length(n), round(length(n) * 100/length(hop), 2)))
+  #print(paste(finess[i], " : ", length(n)))
+}
+colnames(m) <- c("Hop","Motifs","CIM10","Colpetude")
+rownames(m) <- 1:length(finess)
+m <- as.data.frame(m)
+m
