@@ -18,6 +18,13 @@ Score de completude = somme des complétudes de chaque item.
 
 Ce chapitre utilise le fichier source("../../RESURAL/Trame_commune/rapport_2014.R") qui possède deux fonctions pour calculer la complétude et dessiner le diagramme en radar correspondant.
 
+connexion MAC:
+```{}
+path <- "../"
+source(paste0(path, "../../RESURAL/Trame_commune/rapport_2014.R"), encoding = "UTF8")
+load(paste0(path, "rpu2015d0112.Rda")) # 2015
+```
+
 ```{r init, echo=FALSE}
 path <- "../"
 source(paste0(path, "../../RESURAL/Trame_commune/rapport_2014.R"), encoding = "UTF8")
