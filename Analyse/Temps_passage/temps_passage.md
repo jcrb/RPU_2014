@@ -21,7 +21,7 @@ sdp
 
 ```
 ##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max.    NA's 
-## -6963.0    56.0   110.0   161.7   206.0 87930.0   50997
+## -6963.0    56.0   111.0   163.9   207.0 87930.0   54139
 ```
 
 ```r
@@ -57,9 +57,9 @@ round(sdp.na * 100 / nfiness, 2) # % de durée de passage in complète
 
 ```
 ##    3Fr    Alk    Ane    Col    Dia    Dts    Geb    Hag    Hus    Mul 
-##     NA     NA     NA    NaN     NA     NA 275.94     NA     NA     NA 
+##     NA     NA     NA    NaN     NA     NA 279.07     NA     NA     NA 
 ##    Odi    Ros    Sav    Sel    Wis 
-##    NaN     NA     NA 151.41     NA
+##    NaN     NA     NA 152.96     NA
 ```
 
 ```r
@@ -83,14 +83,14 @@ t
 ```
 
 ```
-##        3Fr   Alk  Ane   Col   Dia  Dts      Geb   Hag   Hus   Mul   Odi
-## RPUa    NA    NA   NA   NaN    NA   NA 50997.00    NA    NA    NA   NaN
-## RPUt 18902 15273 9531 78359 34041 5755 18481.00 47441 79874 69718 28842
-## %       NA    NA   NA   NaN    NA   NA   275.94    NA    NA    NA   NaN
+##        3Fr   Alk   Ane   Col   Dia  Dts      Geb   Hag   Hus   Mul   Odi
+## RPUa    NA    NA    NA   NaN    NA   NA 54139.00    NA    NA    NA   NaN
+## RPUt 19941 16332 10443 82641 35894 6521 19400.00 50190 86710 73613 30512
+## %       NA    NA    NA   NaN    NA   NA   279.07    NA    NA    NA   NaN
 ##       Ros   Sav      Sel   Wis
-## RPUa   NA    NA 50997.00    NA
-## RPUt 8389 34468 33681.00 14224
-## %      NA    NA   151.41    NA
+## RPUa   NA    NA 54139.00    NA
+## RPUt 8875 36234 35395.00 15057
+## %      NA    NA   152.96    NA
 ```
 
 Choix de l'établissement
@@ -106,13 +106,15 @@ On ne garde que les RPU avec une durée de passage exploitable et qui soit posit
 
 
 
-- nombre de RPU exploitable: 56 583
-- nombre de RPU totaux: 69 718
+- nombre de RPU exploitable: 59 787
+- nombre de RPU totaux: 73 613
 
 Durée moyenne de passage
 -------------------------
 
 ![](temps_passage_files/figure-html/paddage_moyenne-1.png) ![](temps_passage_files/figure-html/paddage_moyenne-2.png) 
+- moyenne durée de passage: 191.4017261 minutes
+- médiane durée de passage: 155 minutes
 
 
 Analyse des durées de passage > 6 heures
@@ -138,11 +140,11 @@ summary(p6h.jour) # résumé passage de plus de 6 heures"
 ```
 ##    calendrier              rpu       
 ##  Min.   :2014-01-01   Min.   : 1.00  
-##  1st Qu.:2014-04-17   1st Qu.:11.00  
-##  Median :2014-08-01   Median :15.00  
-##  Mean   :2014-08-01   Mean   :15.91  
-##  3rd Qu.:2014-11-15   3rd Qu.:21.00  
-##  Max.   :2015-03-01   Max.   :43.00  
+##  1st Qu.:2014-04-22   1st Qu.:11.00  
+##  Median :2014-08-12   Median :15.00  
+##  Mean   :2014-08-12   Mean   :16.06  
+##  3rd Qu.:2014-12-01   3rd Qu.:21.00  
+##  Max.   :2015-03-23   Max.   :43.00  
 ##                       NA's   :7
 ```
 
@@ -159,7 +161,7 @@ mean(is.na(p6h.jour)) # idem en %
 ```
 
 ```
-## [1] 0.008235294
+## [1] 0.007829978
 ```
 
 Aspect graphique
@@ -174,6 +176,16 @@ Patients agés de 75 ans ou plus.
 
 ```r
 pop75 <- p14[p14$AGE > 74,]
+
+summary(pop75$DPAS)
+```
+
+```
+##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+##     1.0   177.0   277.0   295.4   388.0  1440.0
+```
+
+```r
 pop75.jour <- tapply(as.Date(pop75$ENTREE), as.Date(pop75$ENTREE), length)
 pop75.jour <- aligne.sur.calendrier(min(as.Date(pop75$ENTREE),na.rm=TRUE), max(as.Date(pop75$ENTREE),na.rm=TRUE), pop75.jour)
 
@@ -199,7 +211,7 @@ summary(r)
 
 ```
 ##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max.    NA's 
-##   1.818   8.548  10.560  10.650  12.710  24.040      22
+##   1.818   8.680  10.620  10.740  12.840  24.040      22
 ```
 
 ```r
@@ -245,4 +257,44 @@ plot(hosp.xts$taux.hosp, minor.ticks = FALSE, ylab = "Taux d'hospitalisaton pour
 ```
 
 ![](temps_passage_files/figure-html/unnamed-chunk-5-1.png) 
+
+Question complémentaire (Schiber)
+=================================
+
+
+```r
+# on ajoute une colonne pour les territoires
+d14 <- add.territoire(d14)
+
+# RPU > 74 ans
+d14.pop75 <- d14[d14$AGE > 74,]
+
+# nb de RPU > 74 ans par finess
+rpu.finess.75ans <- tapply(as.Date(d14.pop75$ENTREE), d14.pop75$FINESS, length)
+#  nb de RPU > 74 ans par territoire
+rpu.territoire.75 <- tapply(as.Date(d14.pop75$ENTREE), d14.pop75$TERRITOIRE, length)
+# nb de RPU par territoires
+rpu.territoire <- tapply(as.Date(d14$ENTREE), d14$TERRITOIRE, length)
+# nb de RPU par Finess
+rpu.finess <- tapply(as.Date(d14$ENTREE), d14$FINESS, length)
+# % de Rpu > 74 ans par finess
+round(rpu.finess.75ans * 100/ rpu.finess, 2)
+```
+
+```
+##   3Fr   Alk   Ane   Col   Dia   Dts   Geb   Hag   Hus   Mul   Odi   Ros 
+##    NA    NA    NA    NA    NA    NA    NA    NA    NA 12.81    NA    NA 
+##   Sav   Sel   Wis 
+##    NA    NA    NA
+```
+
+```r
+# % de Rpu > 74 ans par territoire
+round(rpu.territoire.75 * 100/ rpu.territoire, 2)
+```
+
+```
+##    T4 
+## 12.81
+```
 
