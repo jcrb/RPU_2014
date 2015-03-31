@@ -12,6 +12,13 @@ Pour l'analyse, le fichier doit s'appeler dx. Ainsi pour 2014 on mettra dans le 
 ## Loading required package: foreign
 ## Loading required package: survival
 ## Loading required package: MASS
+```
+
+```
+## Warning: package 'MASS' was built under R version 3.1.3
+```
+
+```
 ## Loading required package: nnet
 ## 
 ## Attaching package: 'epitools'
@@ -21,6 +28,13 @@ Pour l'analyse, le fichier doit s'appeler dx. Ainsi pour 2014 on mettra dans le 
 ##     ratetable
 ## 
 ## Loading required package: zoo
+```
+
+```
+## Warning: package 'zoo' was built under R version 3.1.3
+```
+
+```
 ## 
 ## Attaching package: 'zoo'
 ## 

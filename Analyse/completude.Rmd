@@ -1,0 +1,75 @@
+---
+title: "Completude"
+author: "jcb"
+date: "30 mars 2015"
+output:
+  pdf_document:
+    fig_height: 6
+    keep_tex: yes
+    number_sections: yes
+    toc: yes
+---
+Complétude des données
+======================
+
+Score de completude = somme des complétudes de chaque item.
+
+Ce chapitre utilise le fichier source("../../RESURAL/Trame_commune/rapport_2014.R") qui possède deux fonctions pour calculer la complétude et dessiner le diagramme en radar correspondant.
+
+```{r init, echo=FALSE}
+path <- "../"
+source(paste0(path, "../../RESURAL/Trame_commune/rapport_2014.R"))
+load(paste0(path, "rpu2015d0112.Rda")) # 2015
+
+dx <- d15
+rm(d15)
+```
+
+
+Complétude régionale
+--------------------
+C'est la complétude calculée pour tous les RPU quelque soit l'établissement producteur.
+
+```{r comp.regionale, echo=FALSE, message=FALSE}
+completude_region <- completude(dx)
+radar.completude(completude_region)
+n.items <- length(completude_region) # nb d'items pris en compte N = 19
+
+score.region <- sum(completude_region) / n.items
+```
+
+Score de complétude régional: `r round(score.region, 2)` sur 100.
+
+Completude par établissement
+----------------------------
+
+```{r finess, echo=FALSE}
+finess <- unique(as.character(dx$FINESS)) # liste des établissements
+# finess <- "Wis"
+
+for(i in 1:length(finess)){
+  # données de l'établissement
+  d <- dx[dx$FINESS == finess[i],]
+  
+  # completude de l'établissement
+  d.completude <- completude(d)
+  
+  radar.completude(d.completude, finess[i])
+  # completude régionale
+  radial.plot(completude_region, rp.type="p",radial.lim=c(0,100),start = 1.57,clockwise = TRUE, line.col = "blue", add = TRUE)
+  
+  # note globale sur 100
+  score.local <- sum(d.completude) / n.items
+  cat(paste0("Score local: ", round(score.local, 2)), " sur 100")
+}
+
+```
+
+Motif de passage
+----------------
+```{r motif, echo=FALSE}
+# a <- tapply(dx$MOTIF, dx$FINESS, function(x){head(x,20)})
+# grep("^[A-Z][0-9][0-9]", c("123", "Ass12", "1A22"), value = TRUE)
+
+```
+
