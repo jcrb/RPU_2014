@@ -20,19 +20,48 @@ Ce chapitre utilise le fichier source("../../RESURAL/Trame_commune/rapport_2014.
 
 ```{r init, echo=FALSE}
 path <- "../"
-source(paste0(path, "../../RESURAL/Trame_commune/rapport_2014.R"))
+#source(paste0(path, "../../FEDORU/Trame_commune/rapport_2014.R"))
+source("/home/jcb/Documents/Resural/FEDORU/Trame_Commune/rapport_2014.R")
 load(paste0(path, "rpu2015d0112.Rda")) # 2015
 
 dx <- d15
 rm(d15)
+
+finess <- unique(as.character(dx$FINESS)) # liste des établissements
+# finess <- "Wis"
 ```
 
+Motif de passage
+----------------
+Les motifs de passage ou de recours doivent être codés en CIM10. Certains établissements ne le font pas (Colmar), ce qui entraîne une fausse complétude car le champ n'est pas vide mais inexploitable. La fonction détecte les codes non CIM10 sur la base suivante: a minima un code CIM10 commence par une lettre majuscule suivie de deux chiffres ("^[A-Z][0-9][0-9]").
+
+```{r motif, echo=FALSE}
+# a <- tapply(dx$MOTIF, dx$FINESS, function(x){head(x,20)})
+# grep("^[A-Z][0-9][0-9]", c("123", "Ass12", "A22"), value = TRUE)
+
+m <- array()
+for(i in 1:length(finess)){
+  hop <- dx[dx$FINESS == finess[i], "MOTIF"]
+  #Encoding(hop) <- "latin1" # suprime les caractères bloquants pour grep. Il s'agit de Colmar avec des caractères window du type \x9
+  #n <- grep("^[A-Z][0-9][0-9]",hop, value = TRUE)
+  n = count.CIM10(hop)
+  if(i == 1)
+    m <- c(finess[i], length(hop), n, round(n * 100/length(hop), 2))
+  else
+    m <- rbind(m, c(finess[i], length(hop), n, round(n * 100/length(hop), 2)))
+  #print(paste(finess[i], " : ", length(n)))
+}
+colnames(m) <- c("Hop","Motifs","CIM10","Completude")
+rownames(m) <- 1:length(finess)
+motif <- as.data.frame(m)
+motif
+```
 
 Complétude régionale
 --------------------
 C'est la complétude calculée pour tous les RPU quelque soit l'établissement producteur.
 
-```{r comp_regionale, echo=FALSE, message=FALSE}
+```{r comp_regionale, echo=TRUE, message=FALSE}
 completude_region <- completude(dx)
 radar.completude(completude_region)
 n.items <- length(completude_region) # nb d'items pris en compte N = 19
@@ -46,8 +75,6 @@ Completude par établissement
 ----------------------------
 
 ```{r finess, echo=FALSE}
-finess <- unique(as.character(dx$FINESS)) # liste des établissements
-# finess <- "Wis"
 
 for(i in 1:length(finess)){
   # données de l'établissement
@@ -55,6 +82,7 @@ for(i in 1:length(finess)){
   
   # completude de l'établissement
   d.completude <- completude(d)
+  d.completude["MOTIF DE RECOURS"] <- as.numeric(m[i,4])
   
   radar.completude(d.completude, finess[i])
   # completude régionale
@@ -64,14 +92,6 @@ for(i in 1:length(finess)){
   score.local <- sum(d.completude) / n.items
   cat(paste0("Score local: ", round(score.local, 2)), " sur 100")
 }
-
-```
-
-Motif de passage
-----------------
-```{r motif, echo=FALSE}
-a <- tapply(dx$MOTIF, dx$FINESS, function(x){head(x,20)})
-grep("^[A-Z][0-9][0-9]", c("123", "Ass12", "1A22"), value = TRUE)
 
 ```
 
