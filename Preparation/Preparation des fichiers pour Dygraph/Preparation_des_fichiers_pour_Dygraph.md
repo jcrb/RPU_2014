@@ -44,6 +44,13 @@ library(xts)
 
 ```
 ## Loading required package: zoo
+```
+
+```
+## Warning: package 'zoo' was built under R version 3.1.3
+```
+
+```
 ## 
 ## Attaching package: 'zoo'
 ## 
@@ -54,7 +61,13 @@ library(xts)
 
 ```r
 library(dygraphs)
+```
 
+```
+## Warning: package 'dygraphs' was built under R version 3.1.3
+```
+
+```r
 # création d'une table date, passages, hospitalisation, mutation, transfert
 # hospitalisation = mutation + transfert
 # remplacé par la fonction mode.sortie:
@@ -123,8 +136,8 @@ anim <- dygraph(d.xts[,2:6], main = "SU 2014", ylab = "Affaires")
 anim
 ```
 
-<!--html_preserve--><div id="htmlwidget-4351" style="width:672px;height:480px;" class="dygraphs"></div>
-<script type="application/json" data-for="htmlwidget-4351">{ "x": {
+<!--html_preserve--><div id="htmlwidget-9061" style="width:672px;height:480px;" class="dygraphs"></div>
+<script type="application/json" data-for="htmlwidget-9061">{ "x": {
  "attrs": {
  "title": "SU 2014",
 "ylabel": "Affaires",

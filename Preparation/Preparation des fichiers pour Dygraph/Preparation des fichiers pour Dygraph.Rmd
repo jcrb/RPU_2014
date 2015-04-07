@@ -18,6 +18,7 @@ __Dygraph__ (DG) est une bibliothèque Javascript permettant d'afficher des cour
  Deux tables sont préparées pour _Resural_:
  
  - __hop_2014.csv__ nombre de passages par jour pour l'ensemble des SU d'Alsace et nombre d'hospitalisations.
+ 
  - __SU_2014.csv__ nombre de passages par jour et par SU + total, moyenne et nb hospitalisation => fichier complet pour __Dygraph__.
  
  L'application test se trouve dans le dossier DyGraph.
