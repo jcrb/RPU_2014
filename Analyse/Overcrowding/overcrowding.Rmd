@@ -1,0 +1,22 @@
+---
+title: "Overcrowding"
+author: "jcb"
+date: "10 avril 2015"
+output: html_document
+---
+
+Surcharge des services d'urgence
+================================
+
+Etude du nombre d'articles publiés dans __PubMed__ à propos de la surcharge des services d'urgence.
+
+```{r overcrowding, echo=FALSE}
+date <- 1990:2015
+nb.articles <- c(2,2,0,0,0,3,1,1,2,4,6,12,19,15,16,46,71,65,72,82,73,69,67,63,71,16*12/3)
+overcrow <- data.frame(date, nb.articles)
+plot(overcrow, type = "l", main = "emergency department overcrowding", sub = "Nombre d'articles traitant du sujet recensés dans PubMed", ylab = "nombre d'articles")
+
+```
+
+Date de point: 10/04/2015. Le chiffre pour 2015 est une extrapolation à partir du nombre d'articles publiés à la date de point.
+

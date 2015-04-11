@@ -86,6 +86,15 @@ Score de complétude régional: `r round(score.region, 2)` sur 100.
 Completude par établissement
 ----------------------------
 
+#### Score de completude 
+score = somme des completude de chaque item divisé par le nombre d'items. Varie de 0 à 100. 
+
+TOdo: 
+
+- calculer un sous score par chapitre selon découpage Fedoru
+- comparer le score en foction du logiciel utilisé et sa version.
+
+
 ```{r finess, echo=FALSE}
 
 for(i in 1:length(finess)){

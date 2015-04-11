@@ -5,6 +5,9 @@ JcB
 Temps de passage est la durée entre l'heure d'entrée et l'heure de sortie.
 
 
+```
+## Warning: package 'zoo' was built under R version 3.1.3
+```
 
 Données générales
 -----------------
@@ -21,7 +24,7 @@ sdp
 
 ```
 ##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max.    NA's 
-## -6963.0    56.0   111.0   163.9   207.0 87930.0   54139
+## -6963.0    56.0   111.0   164.7   208.0 87930.0   55161
 ```
 
 ```r
@@ -57,9 +60,9 @@ round(sdp.na * 100 / nfiness, 2) # % de durée de passage in complète
 
 ```
 ##    3Fr    Alk    Ane    Col    Dia    Dts    Geb    Hag    Hus    Mul 
-##     NA     NA     NA    NaN     NA     NA 279.07     NA     NA     NA 
+##     NA     NA     NA    NaN     NA     NA 279.68     NA     NA     NA 
 ##    Odi    Ros    Sav    Sel    Wis 
-##    NaN     NA     NA 152.96     NA
+##    NaN     NA     NA 153.86     NA
 ```
 
 ```r
@@ -84,13 +87,13 @@ t
 
 ```
 ##        3Fr   Alk   Ane   Col   Dia  Dts      Geb   Hag   Hus   Mul   Odi
-## RPUa    NA    NA    NA   NaN    NA   NA 54139.00    NA    NA    NA   NaN
-## RPUt 19941 16332 10443 82641 35894 6521 19400.00 50190 86710 73613 30512
-## %       NA    NA    NA   NaN    NA   NA   279.07    NA    NA    NA   NaN
+## RPUa    NA    NA    NA   NaN    NA   NA 55161.00    NA    NA    NA   NaN
+## RPUt 20304 16673 10443 83942 36538 6839 19723.00 51247 89231 74854 31001
+## %       NA    NA    NA   NaN    NA   NA   279.68    NA    NA    NA   NaN
 ##       Ros   Sav      Sel   Wis
-## RPUa   NA    NA 54139.00    NA
-## RPUt 8875 36234 35395.00 15057
-## %      NA    NA   152.96    NA
+## RPUa   NA    NA 55161.00    NA
+## RPUt 9062 36905 35851.00 15362
+## %      NA    NA   153.86    NA
 ```
 
 Choix de l'établissement
@@ -106,15 +109,15 @@ On ne garde que les RPU avec une durée de passage exploitable et qui soit posit
 
 
 
-- nombre de RPU exploitable: 59 787
-- nombre de RPU totaux: 73 613
+- nombre de RPU exploitable: 60 859
+- nombre de RPU totaux: 74 854
 
 Durée moyenne de passage
 -------------------------
 
 ![](temps_passage_files/figure-html/paddage_moyenne-1.png) ![](temps_passage_files/figure-html/paddage_moyenne-2.png) 
-- moyenne durée de passage: 191.4017261 minutes
-- médiane durée de passage: 155 minutes
+- moyenne durée de passage: 191.2590085 minutes
+- médiane durée de passage: 154 minutes
 
 
 Analyse des durées de passage > 6 heures
@@ -140,11 +143,11 @@ summary(p6h.jour) # résumé passage de plus de 6 heures"
 ```
 ##    calendrier              rpu       
 ##  Min.   :2014-01-01   Min.   : 1.00  
-##  1st Qu.:2014-04-22   1st Qu.:11.00  
-##  Median :2014-08-12   Median :15.00  
-##  Mean   :2014-08-12   Mean   :16.06  
-##  3rd Qu.:2014-12-01   3rd Qu.:21.00  
-##  Max.   :2015-03-23   Max.   :43.00  
+##  1st Qu.:2014-04-24   1st Qu.:11.00  
+##  Median :2014-08-16   Median :15.00  
+##  Mean   :2014-08-16   Mean   :16.01  
+##  3rd Qu.:2014-12-07   3rd Qu.:21.00  
+##  Max.   :2015-03-31   Max.   :43.00  
 ##                       NA's   :7
 ```
 
@@ -161,7 +164,7 @@ mean(is.na(p6h.jour)) # idem en %
 ```
 
 ```
-## [1] 0.007829978
+## [1] 0.007692308
 ```
 
 Aspect graphique
@@ -182,7 +185,7 @@ summary(pop75$DPAS)
 
 ```
 ##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-##     1.0   177.0   277.0   295.4   388.0  1440.0
+##     1.0   177.0   277.0   294.9   387.0  1440.0
 ```
 
 ```r
@@ -211,7 +214,7 @@ summary(r)
 
 ```
 ##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max.    NA's 
-##   1.818   8.680  10.620  10.740  12.840  24.040      22
+##   1.818   8.722  10.640  10.810  12.950  24.040      22
 ```
 
 ```r
@@ -283,7 +286,7 @@ round(rpu.finess.75ans * 100/ rpu.finess, 2)
 
 ```
 ##   3Fr   Alk   Ane   Col   Dia   Dts   Geb   Hag   Hus   Mul   Odi   Ros 
-##    NA    NA    NA    NA    NA    NA    NA    NA    NA 12.81    NA    NA 
+##    NA    NA    NA    NA    NA    NA    NA    NA    NA 12.85    NA    NA 
 ##   Sav   Sel   Wis 
 ##    NA    NA    NA
 ```
@@ -295,6 +298,39 @@ round(rpu.territoire.75 * 100/ rpu.territoire, 2)
 
 ```
 ##    T4 
-## 12.81
+## 12.85
 ```
+
+Durée de passage en fonction de l'heure d'arrivée
+-------------------------------------------------
+L'heure d'arrivée a t'elle une influence sur la durée de passage ? Les sommes cumulées des durée de passage sont elles un indicateur, notamment les périodes de tension ?
+
+On forme un dataframe avec:
+
+- date
+- heure d'entrée
+- durée de passage
+- motif
+- DP
+- Age
+
+
+```
+##         0         1         2         3         4         5         6 
+## 217.51661 212.46912 216.30695 230.81653 226.09584 241.80254 234.43628 
+##         7         8         9        10        11        12        13 
+## 226.03201 196.87396 196.69281 208.85529 226.40693 230.13591 220.90992 
+##        14        15        16        17        18        19        20 
+## 199.37705 197.59063 185.09717 173.46459 155.65285 136.77308 117.50467 
+##        21        22        23 
+##  93.64780  66.56237  39.18378
+```
+
+![](temps_passage_files/figure-html/heure_passage-1.png) ![](temps_passage_files/figure-html/heure_passage-2.png) 
+
+Etude du cumul des temps de passage
+-----------------------------------
+On étudie la somme cumulée des durées de passage par heure d'entrée.
+
+![](temps_passage_files/figure-html/cumul-here-1.png) 
 
