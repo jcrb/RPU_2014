@@ -185,7 +185,7 @@ file.to.delete <- "/home/jcb/Documents/Resural/Stat Resural/Archives_Sagec/dataQ
 file.remove(file.to.delete)
 
 date1 <- "2015-03-08"
-date2 <- "2015-03-30"
+date2 <- "2015-04-07"
 
 mc <- substr(date1, 6, 7)
 ac <- substr(date1, 1,4)
@@ -206,12 +206,16 @@ num.mc <- 1 # numéro du mois courant
 mois.c <- paste("d", )
 
 ```{}
-d03 <- dx[as.Date(dx$ENTREE) >= "2015-03-01" & as.Date(dx$ENTREE) < "2015-04-01",]
-max(as.Date(d03$ENTREE))
-min(as.Date(d03$ENTREE))
-d03 <- normalise(d03)
-save(d03, file="rpu2015d03_provisoire.Rda")
+d03 <- dx[as.Date(dx$ENTREE) >= "2015-04-01" & as.Date(dx$ENTREE) < "2015-05-01",]
+max(as.Date(d04$ENTREE))
+min(as.Date(d04$ENTREE))
+d04 <- normalise(d04)
+save(d04, file="rpu2015d04_provisoire.Rda")
 rm(dx)
+
+# si le mois est complet:
+#s ave(d03, file="rpu2015d03.Rda")
+# rm(rpu2015d03_provisoire.Rda)
 
 # uniquement le premier mois
 # d15 <- d01
@@ -220,8 +224,9 @@ rm(dx)
 
 load("rpu2015d01.Rda") # mois précédent
 load("rpu2015d02.Rda") # mois précédent
+load("rpu2015d03.Rda") # mois précédent
 
-dx <- rbind(d01, d02, d03)
+dx <- rbind(d01, d02, d03, d04)
 min(as.Date(dx$ENTREE))
 max(as.Date(dx$ENTREE))
 
@@ -251,9 +256,10 @@ exhaustivité des données
 On forme une table en croisant FINESS et ENTREE:
 ```{}
 dx$FINESS <- factor(dx$FINESS) # supprime les facteurs vide
-rpu <- table(as.Date(dx$ENTREE), dx$FINESS) # tous les RPU de l'année par FINES
-```
+rpu <- table(as.Date(dx$ENTREE), dx$FINESS) # tous les RPU de l'année par FINESS
 write.csv(rpu, file="exaustivite_rpu.csv") # enregistre la table au format .csv mais à la différence de write.table, une case vide est ajoutée dans le header pour éviter le décalage des colonnes.
+```
+
 
 
 #### Préparation des fichiers pour Dygraph 
@@ -305,7 +311,7 @@ Objet: mesure de l'activité au jour le jour avant consolidation. En pratique re
 1. récupérer le fichier source, le décompacter.
 2. appeler la fonction __parse_rpu__ avec la date du jour, qui le transforme en dataframe
 ```{}
-d <- parse_rpu("2015-03-23")
+d <- parse_rpu("2015-04-07")
 min(as.Date(d$ENTREE))
 max(as.Date(d$ENTREE))
 ```
