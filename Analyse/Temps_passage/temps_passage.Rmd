@@ -331,7 +331,7 @@ plot(ec7, type="l", main = "Courbe centrée-réduite des temps d'attente cumulé
 # méthode C2
 #'@param v2 vecteur de valeurs
 #'@param k coef.de sensibilité k = delta/2. Delta = déréglage que l'on veut détecter. 
-#'@param seuil seuil au delà duquel il y a dépassement. Ne sert pas dans ici
+#'@param seuil seuil au delà duquel il y a dépassement. Ne sert pas ici
 #'@return valeur du cusum
 cusum.c2 <- function(v2, k=0.5, seuil = 2){
   pas <- 7
