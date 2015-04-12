@@ -21,8 +21,13 @@ source(paste0(path,"Preparation/RPU Quotidiens/quot_utils.R"))
 source("passage.R") # Analyse/Temps_passage/passage.R
 
 # ajout de janvier-février 2015
-load(paste0(path, "d15_p.Rda"))
-d14 <- rbind(d14, d15.p) # source("Analyse/Temps_passage/passage.R")
+#------------------------------
+# load(paste0(path, "d15_p.Rda"))
+# d14 <- rbind(d14, d15.p) # source("Analyse/Temps_passage/passage.R")
+
+min(as.Date(d14$ENTREE))
+max(as.Date(d14$ENTREE))
+
 
 # intégration du Finess Juridique pour la clinique Ste Odile. Erreur signalée par Mr Nold: certains RPU de Ste Odile contiennent le Finess juridique au lieu du géographique
 d14$FINESS <- as.character(d14$FINESS)
@@ -274,10 +279,12 @@ On forme un dataframe avec:
 
 ```{r heure_passage, echo=FALSE}
 dpas.heure <- d14[, c("ENTREE","DPAS","MOTIF","DP","AGE")]
+
 # on ne garde que les duréesde passage exploitables
 dpas.heure <- dpas.heure[!is.na(dpas.heure$DPAS) & dpas.heure$DPAS > 0 & dpas.heure$DPAS <= 2*24*60, ]
 dpas.heure$DATE <- substr(dpas.heure$ENTREE, 1, 10) # date entrée AAAA-MM-DD
 dpas.heure$HEURE.E <- hour(dpas.heure$ENTREE) # heure entrée (heures entières)
+
 # durée de passage en fonction de l'heure d'entrée
 tapply(dpas.heure$DPAS, dpas.heure$HEURE.E, mean)
 a <- tapply(dpas.heure$DPAS, dpas.heure$HEURE.E, mean)
@@ -298,11 +305,12 @@ plot(a, type = "l", xlim = c(0,25), ylab = "Durée de passage", xlab = "Heure d'
 Le temps cumulé le plus long s'observe à 10 heures du matin. On isole le groupe 10 heures du matin pour voir comment il évolue au cours de l'année.
 
 ```{r x10, echo=FALSE}
-h10 <- dpas.heure[dpas.heure$HEURE == 10,]
+h10 <- dpas.heure[dpas.heure$HEURE.E == 10,]
 # moyenne
 x.mean <- tapply(h10$DPAS, as.Date(h10$ENTREE), mean)
 # somme
 x.sum <- tapply(h10$DPAS, as.Date(h10$ENTREE), sum)
+length(x.sum)
 plot(x.sum, type="l", main = "Temps cumulé de présence à 10 heures du matin", ylab = "temps cumulé (minutes", xlab = "jours")
 
 # TODO ajouter la moyenne lissée
@@ -318,6 +326,7 @@ On utilise __x.sum__ qui est un vecteur constitué par la somme quotidienne des 
 A partir de ce vecteur on calcule la moyenne mobile et l'écart-type mobile sur 7 jours (pas = 7).
 ```{r rollmean, echo=FALSE}
 pas <- 7
+length(x.sum)
 # moyene mobile sur 7 jours alignée à droite, cad que la moy.mobile à J7 = mean(J1:J7)
 rmean <- rollmean(x.sum, pas, align = "right")
 # ecart-type mobile corrspondant:
@@ -325,46 +334,25 @@ sd7 <- rollapply(x.sum, pas, sd, align = "right")
 ```
 Avec ces éléments, on peut calculer le vecteur centré et réduit des temps de passage cumulés
 ```{r roll_centre_reduit}
-ec7 <- (x.sum[7:365] - rmean)/sd7
+ec7 <- (x.sum[7:365] - rmean) /sd7
+
+# ec7 <- x.sum
+# max(as.Date(h10$ENTREE))
+# min(as.Date(h10$ENTREE))
+# length(x.sum)
+# length(sd7)
+# length(rmean)
+
 plot(ec7, type="l", main = "Courbe centrée-réduite des temps d'attente cumulés")
 
-# méthode C2
-#'@param v2 vecteur de valeurs
-#'@param k coef.de sensibilité k = delta/2. Delta = déréglage que l'on veut détecter. 
-#'@param seuil seuil au delà duquel il y a dépassement. Ne sert pas ici
-#'@return valeur du cusum
-cusum.c2 <- function(v2, k=0.5, seuil = 2){
-  pas <- 7
-  # moyene mobile sur 7 jours alignée à droite, cad que la moy.mobile à J7 = mean(J1:J7)
-  rmean <- rollmean(v2, pas, align = "right")
-  # ecart-type mobile corrspondant:
-  sd7 <- rollapply(v2, pas, sd, align = "right")
-  # centrage et réduction
-  c2 <- (v2[pas:length(v2)] - rmean)/sd7
-  
-  d <- array()
-  d[1:pas] <- 0
-  
-  for(i in 2:length(c2)-1){
-    d[i+pas] = max(0, c2[i] - k + d[i+pas-1])} # on ne garde que les valeurs positives
-  
-  return(d)
-}
-
+# source: passages.R
 c2 <- cusum.c2(ec7)
-
-# k <- 0.5
-# seuil <- 2
-# d <- array()
-# d[1:7] <- 0
-# for(i in 2:length(c2)-1){
-#   d[i+7] = max(0, ec7[i] - k + d[i+7-1])}
 
 barplot(c2, ylab = "CUSUM - C2", xlab = "Jours", main = "")
 abline(h = 2, lty = 2, col = "red")
 
 ```
-Le vecteur __ec7__ ne commence que le 7 janvier et ne conporte que 358 jours au lieu de 365. On nte également que les fluctuations se font entre 2SD, ce qui en fait un indicateur peu sensible.
+Le vecteur __ec7__ ne commence que le 7 janvier et ne comporte que 358 jours au lieu de 365. On note également que les fluctuations se font entre 2SD, ce qui en fait un indicateur peu sensible.
 
 Référence sur le CUSUM:
 
@@ -376,6 +364,32 @@ Référence sur le CUSUM:
 On forme la somme cumulée (CUSUM) en sommant les valeurs successives du vecteur ec7:
 ```{r cusum, echo=FALSE}
 sum.ec7 <- cumsum(ec7)
+
+```
+Variation durées de passage par mois
+====================================
+```{r passage_mois, echo=FALSE}
+# ajout d'une colonne mois au dataframe dpas.heure
+dpas.heure$mois <- month(as.Date(dpas.heure$ENTREE))
+# découpage en 12 listes pour chaque mois de l'année
+a<- split(dpas.heure$DPAS, dpas.heure$mois)
+# calcul de la durée moyenne de passage par mois
+moy <-sapply(a, mean)
+# boxplot des passages par mois
+x <-boxplot(a, outline = FALSE, main="Durées de passage par mois", xlab="Mois", ylab="Drées de passage (mn)")
+points(1:12, moy, pch = 23, cex = 0.75, bg = "red") # ajout des moyennes
+text(1:12, moy+15, labels = formatC(moy, format = "f", digits = 1), pos = 1, cex = 0.7, col = "red")
+
+# analyse de la variance
+x <- aov(DPAS ~ mois, data = dpas.heure)
+x
+summary(x)
+
+x <- lm(DPAS ~ mois, data = dpas.heure)
+x
+summary(x)
+anova(x)
+
 
 ```
 

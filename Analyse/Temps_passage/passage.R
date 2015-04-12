@@ -73,3 +73,29 @@ copyright <- function(an ="2013-2015",side=4,line=-1,cex=0.8, titre = "Resural")
   titre<-paste("©", an, titre, sep=" ")
   mtext(titre,side=side,line=line,cex=cex)
 }
+
+#===========================================================================
+# CUSUM - C2
+#===========================================================================
+# méthode C2
+#'@param v2 vecteur de valeurs
+#'@param k coef.de sensibilité k = delta/2. Delta = déréglage que l'on veut détecter. 
+#'@param seuil seuil au delà duquel il y a dépassement. Ne sert pas ici
+#'@return valeur du cusum
+cusum.c2 <- function(v2, k=0.5, seuil = 2){
+  pas <- 7
+  # moyene mobile sur 7 jours alignée à droite, cad que la moy.mobile à J7 = mean(J1:J7)
+  rmean <- rollmean(v2, pas, align = "right")
+  # ecart-type mobile corrspondant:
+  sd7 <- rollapply(v2, pas, sd, align = "right")
+  # centrage et réduction
+  c2 <- (v2[pas:length(v2)] - rmean)/sd7
+  
+  d <- array()
+  d[1:pas] <- 0
+  
+  for(i in 2:length(c2)-1){
+    d[i+pas] = max(0, c2[i] - k + d[i+pas-1])} # on ne garde que les valeurs positives
+  
+  return(d)
+}
