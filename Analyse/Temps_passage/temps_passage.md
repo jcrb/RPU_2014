@@ -364,56 +364,41 @@ A partir de ce vecteur on calcule la moyenne mobile et l'écart-type mobile sur 
 Avec ces éléments, on peut calculer le vecteur centré et réduit des temps de passage cumulés
 
 ```r
-# ec7 <- (x.sum[7:365] - rmean) /sd7
-ec7 <- x.sum
-max(as.Date(h10$ENTREE))
+ec7 <- (x.sum[7:365] - rmean) /sd7
 ```
 
 ```
-## [1] "2014-12-31"
-```
-
-```r
-min(as.Date(h10$ENTREE))
+## Warning in x.sum[7:365] - rmean: la taille d'un objet plus long n'est pas
+## multiple de la taille d'un objet plus court
 ```
 
 ```
-## [1] "2014-01-01"
+## Warning in (x.sum[7:365] - rmean)/sd7: la taille d'un objet plus long
+## n'est pas multiple de la taille d'un objet plus court
 ```
 
 ```r
-length(x.sum)
+# ec7 <- x.sum
+# max(as.Date(h10$ENTREE))
+# min(as.Date(h10$ENTREE))
+# length(x.sum)
+# length(sd7)
+# length(rmean)
+
+plot(ec7, type="l", main = "Courbe centrée-réduite des temps d'attente cumulés")
 ```
 
-```
-## [1] 355
-```
-
-```r
-length(sd7)
-```
-
-```
-## [1] 349
-```
+![](temps_passage_files/figure-html/roll_centre_reduit-1.png) 
 
 ```r
-length(rmean)
+# source: passages.R
+c2 <- cusum.c2(ec7)
+
+barplot(c2, ylab = "CUSUM - C2", xlab = "Jours", main = "")
+abline(h = 2, lty = 2, col = "red")
 ```
 
-```
-## [1] 349
-```
-
-```r
-# plot(ec7, type="l", main = "Courbe centrée-réduite des temps d'attente cumulés")
-# 
-# # source: passages.R
-# c2 <- cusum.c2(ec7)
-# 
-# barplot(c2, ylab = "CUSUM - C2", xlab = "Jours", main = "")
-# abline(h = 2, lty = 2, col = "red")
-```
+![](temps_passage_files/figure-html/roll_centre_reduit-2.png) 
 Le vecteur __ec7__ ne commence que le 7 janvier et ne comporte que 358 jours au lieu de 365. On note également que les fluctuations se font entre 2SD, ce qui en fait un indicateur peu sensible.
 
 Référence sur le CUSUM:
