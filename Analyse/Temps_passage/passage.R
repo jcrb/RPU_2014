@@ -1,3 +1,8 @@
+#   duree.passage
+#   aligne.sur.calendrier
+#   copyrigth
+#   CUSUM - C2
+
 #===========================================================================
 #
 #   duree.passage
@@ -55,7 +60,9 @@ aligne.sur.calendrier <- function(date1, date2, x){
 }
 
 #===========================================================================
+#
 # copyrigth
+#
 #===========================================================================
 #'@title copyrigth
 #'@author JcB
@@ -99,3 +106,4 @@ cusum.c2 <- function(v2, k=0.5, seuil = 2){
   
   return(d)
 }
+
