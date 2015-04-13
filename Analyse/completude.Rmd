@@ -4,6 +4,7 @@ author: "jcb"
 date: "30 mars 2015"
 output:
   html_document:
+    keep_md: yes
     toc: yes
   pdf_document:
     fig_height: 6
@@ -17,6 +18,17 @@ Complétude des données
 Score de completude = somme des complétudes de chaque item.
 
 Ce chapitre utilise le fichier source("../../RESURAL/Trame_commune/rapport_2014.R") qui possède deux fonctions pour calculer la complétude et dessiner le diagramme en radar correspondant.
+
+MAJ
+---
+
+- 12/4/2014: enrgistrement des graphiques, impression du tableau de completude
+
+TODO
+----
+
+Données
+-------
 
 connexion MAC:
 ```{}
@@ -73,10 +85,12 @@ Complétude régionale
 --------------------
 C'est la complétude calculée pour tous les RPU quelque soit l'établissement producteur.
 
-```{r comp_regionale, echo=TRUE, message=FALSE}
+```{r comp_regionale, echo=TRUE, message=FALSE, comment=""}
 completude_region <- completude(dx)
 radar.completude(completude_region)
 n.items <- length(completude_region) # nb d'items pris en compte N = 19
+
+completude_region
 
 score.region <- sum(completude_region) / n.items
 ```
@@ -95,7 +109,7 @@ TOdo:
 - comparer le score en foction du logiciel utilisé et sa version.
 
 
-```{r finess, echo=FALSE}
+```{r finess, echo=TRUE, comment=""}
 
 for(i in 1:length(finess)){
   # données de l'établissement
@@ -108,6 +122,9 @@ for(i in 1:length(finess)){
   radar.completude(d.completude, finess[i])
   # completude régionale
   radial.plot(completude_region, rp.type="p",radial.lim=c(0,100),start = 1.57,clockwise = TRUE, line.col = "blue", add = TRUE)
+  
+  # tableau de complétude
+  print(d.completude)
   
   # note globale sur 100
   score.local <- sum(d.completude) / n.items
