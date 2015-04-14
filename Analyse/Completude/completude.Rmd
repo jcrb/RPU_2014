@@ -1,0 +1,135 @@
+---
+title: "Completude"
+author: "jcb"
+date: "30 mars 2015"
+output:
+  html_document:
+    keep_md: yes
+    toc: yes
+  pdf_document:
+    fig_height: 6
+    keep_tex: yes
+    number_sections: yes
+    toc: yes
+---
+Complétude des données
+======================
+
+Score de completude = somme des complétudes de chaque item.
+
+Ce chapitre utilise le fichier source("../../RESURAL/Trame_commune/rapport_2014.R") qui possède deux fonctions pour calculer la complétude et dessiner le diagramme en radar correspondant.
+
+MAJ
+---
+
+- 12/4/2014: enrgistrement des graphiques, impression du tableau de completude
+
+TODO
+----
+
+Données
+-------
+
+connexion MAC:
+```{}
+path <- "../"
+source(paste0(path, "../../RESURAL/Trame_commune/rapport_2014.R"))
+load(paste0(path, "rpu2015d0112.Rda")) # 2015
+```
+Connexion XPS
+```{}
+#source(paste0(path, "../../FEDORU/Trame_commune/rapport_2014.R"))
+source("/home/jcb/Documents/Resural/FEDORU/Trame_Commune/rapport_2014.R")
+
+```
+
+```{r init, echo=FALSE}
+path <- "../"
+source(paste0(path, "../../RESURAL/Trame_commune/rapport_2014.R"))
+load(paste0(path, "rpu2015d0112.Rda")) # 2015
+
+dx <- d15
+rm(d15)
+
+finess <- unique(as.character(dx$FINESS)) # liste des établissements
+# finess <- "Wis"
+```
+
+Motif de passage
+----------------
+Les motifs de passage ou de recours doivent être codés en CIM10. Certains établissements ne le font pas (Colmar), ce qui entraîne une fausse complétude car le champ n'est pas vide mais inexploitable. La fonction détecte les codes non CIM10 sur la base suivante: a minima un code CIM10 commence par une lettre majuscule suivie de deux chiffres ("^[A-Z][0-9][0-9]").
+
+```{r motif, echo=FALSE}
+# a <- tapply(dx$MOTIF, dx$FINESS, function(x){head(x,20)})
+# grep("^[A-Z][0-9][0-9]", c("123", "Ass12", "A22"), value = TRUE)
+
+m <- array()
+for(i in 1:length(finess)){
+  hop <- dx[dx$FINESS == finess[i], "MOTIF"]
+  #Encoding(hop) <- "latin1" # suprime les caractères bloquants pour grep. Il s'agit de Colmar avec des caractères window du type \x9
+  #n <- grep("^[A-Z][0-9][0-9]",hop, value = TRUE)
+  n = count.CIM10(hop)
+  if(i == 1)
+    m <- c(finess[i], length(hop), n, round(n * 100/length(hop), 2))
+  else
+    m <- rbind(m, c(finess[i], length(hop), n, round(n * 100/length(hop), 2)))
+  #print(paste(finess[i], " : ", length(n)))
+}
+colnames(m) <- c("Hop","Motifs","CIM10","Completude")
+rownames(m) <- 1:length(finess)
+motif <- as.data.frame(m)
+motif
+```
+
+Complétude régionale
+--------------------
+C'est la complétude calculée pour tous les RPU quelque soit l'établissement producteur.
+
+```{r comp_regionale, echo=TRUE, message=FALSE, comment=""}
+completude_region <- completude(dx)
+radar.completude(completude_region)
+n.items <- length(completude_region) # nb d'items pris en compte N = 19
+
+completude_region
+
+score.region <- sum(completude_region) / n.items
+```
+
+Score de complétude régional: `r round(score.region, 2)` sur 100.
+
+Completude par établissement
+----------------------------
+
+#### Score de completude 
+score = somme des completude de chaque item divisé par le nombre d'items. Varie de 0 à 100. 
+
+TOdo: 
+
+- calculer un sous score par chapitre selon découpage Fedoru
+- comparer le score en foction du logiciel utilisé et sa version.
+
+
+```{r finess, echo=TRUE, comment=""}
+
+for(i in 1:length(finess)){
+  # données de l'établissement
+  d <- dx[dx$FINESS == finess[i],]
+  
+  # completude de l'établissement
+  d.completude <- completude(d)
+  d.completude["MOTIF DE RECOURS"] <- as.numeric(m[i,4])
+  
+  radar.completude(d.completude, finess[i])
+  # completude régionale
+  radial.plot(completude_region, rp.type="p",radial.lim=c(0,100),start = 1.57,clockwise = TRUE, line.col = "blue", add = TRUE)
+  
+  # tableau de complétude
+  print(d.completude)
+  
+  # note globale sur 100
+  score.local <- sum(d.completude) / n.items
+  cat(paste0("Score local: ", round(score.local, 2)), " sur 100")
+}
+
+```
+

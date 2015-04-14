@@ -9,6 +9,14 @@ Temps de passage est la durée entre l'heure d'entrée et l'heure de sortie.
 ## Warning: package 'zoo' was built under R version 3.1.3
 ```
 
+```
+## [1] "2014-01-01"
+```
+
+```
+## [1] "2014-12-31"
+```
+
 Données générales
 -----------------
 
@@ -24,7 +32,7 @@ sdp
 
 ```
 ##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max.    NA's 
-## -6963.0    56.0   111.0   164.7   208.0 87930.0   55161
+## -3959.0    55.0   108.0   155.2   200.0 87930.0   42384
 ```
 
 ```r
@@ -60,9 +68,9 @@ round(sdp.na * 100 / nfiness, 2) # % de durée de passage in complète
 
 ```
 ##    3Fr    Alk    Ane    Col    Dia    Dts    Geb    Hag    Hus    Mul 
-##     NA     NA     NA    NaN     NA     NA 279.68     NA     NA     NA 
+##     NA     NA     NA    NaN     NA     NA 264.50     NA     NA     NA 
 ##    Odi    Ros    Sav    Sel    Wis 
-##    NaN     NA     NA 153.86     NA
+##    NaN     NA     NA 147.02     NA
 ```
 
 ```r
@@ -86,14 +94,14 @@ t
 ```
 
 ```
-##        3Fr   Alk   Ane   Col   Dia  Dts      Geb   Hag   Hus   Mul   Odi
-## RPUa    NA    NA    NA   NaN    NA   NA 55161.00    NA    NA    NA   NaN
-## RPUt 20304 16673 10443 83942 36538 6839 19723.00 51247 89231 74854 31001
-## %       NA    NA    NA   NaN    NA   NA   279.68    NA    NA    NA   NaN
+##        3Fr   Alk  Ane   Col   Dia  Dts     Geb   Hag   Hus   Mul   Odi
+## RPUa    NA    NA   NA   NaN    NA   NA 42384.0    NA    NA    NA   NaN
+## RPUt 16134 12660 7418 67378 29410 3910 16024.0 39938 61793 59471 24956
+## %       NA    NA   NA   NaN    NA   NA   264.5    NA    NA    NA   NaN
 ##       Ros   Sav      Sel   Wis
-## RPUa   NA    NA 55161.00    NA
-## RPUt 9062 36905 35851.00 15362
-## %      NA    NA   153.86    NA
+## RPUa   NA    NA 42384.00    NA
+## RPUt 7210 29445 28828.00 12158
+## %      NA    NA   147.02    NA
 ```
 
 Choix de l'établissement
@@ -109,15 +117,15 @@ On ne garde que les RPU avec une durée de passage exploitable et qui soit posit
 
 
 
-- nombre de RPU exploitable: 60 859
-- nombre de RPU totaux: 74 854
+- nombre de RPU exploitable: 48 294
+- nombre de RPU totaux: 59 471
 
 Durée moyenne de passage
 -------------------------
 
 ![](temps_passage_files/figure-html/paddage_moyenne-1.png) ![](temps_passage_files/figure-html/paddage_moyenne-2.png) 
-- moyenne durée de passage: 191.2590085 minutes
-- médiane durée de passage: 154 minutes
+- moyenne durée de passage: 189.1939578 minutes
+- médiane durée de passage: 153 minutes
 
 
 Analyse des durées de passage > 6 heures
@@ -143,12 +151,12 @@ summary(p6h.jour) # résumé passage de plus de 6 heures"
 ```
 ##    calendrier              rpu       
 ##  Min.   :2014-01-01   Min.   : 1.00  
-##  1st Qu.:2014-04-24   1st Qu.:11.00  
-##  Median :2014-08-16   Median :15.00  
-##  Mean   :2014-08-16   Mean   :16.01  
-##  3rd Qu.:2014-12-07   3rd Qu.:21.00  
-##  Max.   :2015-03-31   Max.   :43.00  
-##                       NA's   :7
+##  1st Qu.:2014-04-02   1st Qu.:10.75  
+##  Median :2014-07-02   Median :15.00  
+##  Mean   :2014-07-02   Mean   :15.21  
+##  3rd Qu.:2014-10-01   3rd Qu.:20.00  
+##  Max.   :2014-12-31   Max.   :38.00  
+##                       NA's   :5
 ```
 
 ```r
@@ -156,7 +164,7 @@ sum(is.na(p6h.jour)) # nb de jours sur la période sans passage > 6 heures
 ```
 
 ```
-## [1] 7
+## [1] 5
 ```
 
 ```r
@@ -164,7 +172,7 @@ mean(is.na(p6h.jour)) # idem en %
 ```
 
 ```
-## [1] 0.007692308
+## [1] 0.006849315
 ```
 
 Aspect graphique
@@ -185,7 +193,7 @@ summary(pop75$DPAS)
 
 ```
 ##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-##     1.0   177.0   277.0   294.9   387.0  1440.0
+##     1.0   173.0   274.0   290.5   379.2  1440.0
 ```
 
 ```r
@@ -214,7 +222,7 @@ summary(r)
 
 ```
 ##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max.    NA's 
-##   1.818   8.722  10.640  10.810  12.950  24.040      22
+##   1.818   8.333  10.400  10.560  12.700  24.040      19
 ```
 
 ```r
@@ -286,7 +294,7 @@ round(rpu.finess.75ans * 100/ rpu.finess, 2)
 
 ```
 ##   3Fr   Alk   Ane   Col   Dia   Dts   Geb   Hag   Hus   Mul   Odi   Ros 
-##    NA    NA    NA    NA    NA    NA    NA    NA    NA 12.85    NA    NA 
+##    NA    NA    NA    NA    NA    NA    NA    NA    NA 12.58    NA    NA 
 ##   Sav   Sel   Wis 
 ##    NA    NA    NA
 ```
@@ -298,7 +306,7 @@ round(rpu.territoire.75 * 100/ rpu.territoire, 2)
 
 ```
 ##    T4 
-## 12.85
+## 12.58
 ```
 
 Durée de passage en fonction de l'heure d'arrivée
@@ -317,13 +325,13 @@ On forme un dataframe avec:
 
 ```
 ##         0         1         2         3         4         5         6 
-## 217.51661 212.46912 216.30695 230.81653 226.09584 241.80254 234.43628 
+## 216.32838 214.90406 207.18956 231.85476 230.68996 242.21190 234.48692 
 ##         7         8         9        10        11        12        13 
-## 226.03201 196.87396 196.69281 208.85529 226.40693 230.13591 220.90992 
+## 226.02890 195.75825 194.81626 205.26765 223.11990 223.85709 219.75291 
 ##        14        15        16        17        18        19        20 
-## 199.37705 197.59063 185.09717 173.46459 155.65285 136.77308 117.50467 
+## 197.11014 194.92653 183.04241 173.30851 156.00000 136.75801 118.19686 
 ##        21        22        23 
-##  93.64780  66.56237  39.18378
+##  95.05004  67.48742  41.04605
 ```
 
 ![](temps_passage_files/figure-html/heure_passage-1.png) ![](temps_passage_files/figure-html/heure_passage-2.png) 
@@ -333,4 +341,139 @@ Etude du cumul des temps de passage
 On étudie la somme cumulée des durées de passage par heure d'entrée.
 
 ![](temps_passage_files/figure-html/cumul-here-1.png) 
+Le temps cumulé le plus long s'observe à 10 heures du matin. On isole le groupe 10 heures du matin pour voir comment il évolue au cours de l'année.
+
+
+```
+## [1] 355
+```
+
+![](temps_passage_files/figure-html/x10-1.png) 
+
+CUSUM des sommes
+----------------
+Remarque: ne pas confondre CUSUM et cumsum = somme cumulative des éléments d'un vecteur.
+
+On utilise __x.sum__ qui est un vecteur constitué par la somme quotidienne des durées de passage des patients arrivés entre 10h et 10h59. Pour 2014, n = 365 jours.
+
+A partir de ce vecteur on calcule la moyenne mobile et l'écart-type mobile sur 7 jours (pas = 7).
+
+```
+## [1] 355
+```
+Avec ces éléments, on peut calculer le vecteur centré et réduit des temps de passage cumulés
+
+```r
+ec7 <- (x.sum[7:365] - rmean) /sd7
+```
+
+```
+## Warning in x.sum[7:365] - rmean: la taille d'un objet plus long n'est pas
+## multiple de la taille d'un objet plus court
+```
+
+```
+## Warning in (x.sum[7:365] - rmean)/sd7: la taille d'un objet plus long
+## n'est pas multiple de la taille d'un objet plus court
+```
+
+```r
+# ec7 <- x.sum
+# max(as.Date(h10$ENTREE))
+# min(as.Date(h10$ENTREE))
+# length(x.sum)
+# length(sd7)
+# length(rmean)
+
+plot(ec7, type="l", main = "Courbe centrée-réduite des temps d'attente cumulés")
+```
+
+![](temps_passage_files/figure-html/roll_centre_reduit-1.png) 
+
+```r
+# source: passages.R
+c2 <- cusum.c2(ec7)
+
+barplot(c2, ylab = "CUSUM - C2", xlab = "Jours", main = "")
+abline(h = 2, lty = 2, col = "red")
+```
+
+![](temps_passage_files/figure-html/roll_centre_reduit-2.png) 
+Le vecteur __ec7__ ne commence que le 7 janvier et ne comporte que 358 jours au lieu de 365. On note également que les fluctuations se font entre 2SD, ce qui en fait un indicateur peu sensible.
+
+Référence sur le CUSUM:
+
+- [Détection malformations congénitales et application avec R](http://math.univ-bpclermont.fr/biblio/rapport/sante/2010/M2_Beye_10.pdf)
+- [Surveillance sanitaire à partir de donnees des services d'urgence :  modélisation de séries temporelles et analyse automatique](http://dumas.ccsd.cnrs.fr/dumas-00516268/document) + programmes R.
+- [aussi](http://jess2014.emse.fr/pdf/W4-1-Sarazin-Sentinelles.pdf)
+
+
+On forme la somme cumulée (CUSUM) en sommant les valeurs successives du vecteur ec7:
+
+Variation durées de passage par mois
+====================================
+![](temps_passage_files/figure-html/passage_mois-1.png) 
+
+```
+## Call:
+##    aov(formula = DPAS ~ mois, data = dpas.heure)
+## 
+## Terms:
+##                      mois Residuals
+## Sum of Squares     278948 964935740
+## Deg. of Freedom         1     48292
+## 
+## Residual standard error: 141.3551
+## Estimated effects may be unbalanced
+```
+
+```
+##                Df    Sum Sq Mean Sq F value   Pr(>F)    
+## mois            1    278948  278948   13.96 0.000187 ***
+## Residuals   48292 964935740   19981                     
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+```
+
+```
+## 
+## Call:
+## lm(formula = DPAS ~ mois, data = dpas.heure)
+## 
+## Coefficients:
+## (Intercept)         mois  
+##    184.7148       0.6896
+```
+
+```
+## 
+## Call:
+## lm(formula = DPAS ~ mois, data = dpas.heure)
+## 
+## Residuals:
+##     Min      1Q  Median      3Q     Max 
+## -191.99 -102.23  -36.40   67.77 1253.91 
+## 
+## Coefficients:
+##             Estimate Std. Error t value Pr(>|t|)    
+## (Intercept) 184.7148     1.3605 135.773  < 2e-16 ***
+## mois          0.6896     0.1846   3.736 0.000187 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 141.4 on 48292 degrees of freedom
+## Multiple R-squared:  0.000289,	Adjusted R-squared:  0.0002683 
+## F-statistic: 13.96 on 1 and 48292 DF,  p-value: 0.0001869
+```
+
+```
+## Analysis of Variance Table
+## 
+## Response: DPAS
+##              Df    Sum Sq Mean Sq F value    Pr(>F)    
+## mois          1    278948  278948   13.96 0.0001869 ***
+## Residuals 48292 964935740   19981                      
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+```
 
