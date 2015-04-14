@@ -12,13 +12,6 @@ Pour l'analyse, le fichier doit s'appeler dx. Ainsi pour 2014 on mettra dans le 
 ## Loading required package: foreign
 ## Loading required package: survival
 ## Loading required package: MASS
-```
-
-```
-## Warning: package 'MASS' was built under R version 3.1.3
-```
-
-```
 ## Loading required package: nnet
 ## 
 ## Attaching package: 'epitools'
@@ -28,13 +21,6 @@ Pour l'analyse, le fichier doit s'appeler dx. Ainsi pour 2014 on mettra dans le 
 ##     ratetable
 ## 
 ## Loading required package: zoo
-```
-
-```
-## Warning: package 'zoo' was built under R version 3.1.3
-```
-
-```
 ## 
 ## Attaching package: 'zoo'
 ## 
@@ -74,7 +60,7 @@ R53+1  R600  S011  S015  S018 S0600  S223  S300 S3200 S4220  S430  S460
 
 ```
    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-   0.00   58.00   63.00   61.46   69.00   92.00 
+   0.00   58.00   63.00   61.07   69.00   92.00 
 ```
 
 ![](dp_files/figure-html/diag_par_jour-1.png) 
@@ -95,7 +81,7 @@ round(n2 * 100 / n.bron, 2) # % de 2 ans et moins
 ```
 
 ```
-## [1] 96.81
+## [1] 96.89
 ```
 
 ```r
@@ -134,7 +120,7 @@ summary(bron$SEXE)
 
 ```
 ##    F    M         I 
-##  637 1055    0    1
+##  661 1107    0    1
 ```
 
 ```r
@@ -151,7 +137,7 @@ summary(ped2.age)
 
 ```
 ##     Min.  1st Qu.   Median     Mean  3rd Qu.     Max. 
-##  0.03333  4.53300 10.63000 10.88000 16.77000 24.07000
+##  0.03333  4.56700 10.67000 10.90000 16.77000 24.07000
 ```
 
 ```r

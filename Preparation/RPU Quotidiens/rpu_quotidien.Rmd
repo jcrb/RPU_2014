@@ -185,7 +185,7 @@ file.to.delete <- "/home/jcb/Documents/Resural/Stat Resural/Archives_Sagec/dataQ
 file.remove(file.to.delete)
 
 date1 <- "2015-03-08"
-date2 <- "2015-04-07"
+date2 <- "2015-04-13"
 
 mc <- substr(date1, 6, 7)
 ac <- substr(date1, 1,4)
@@ -206,7 +206,7 @@ num.mc <- 1 # numéro du mois courant
 mois.c <- paste("d", )
 
 ```{}
-d03 <- dx[as.Date(dx$ENTREE) >= "2015-04-01" & as.Date(dx$ENTREE) < "2015-05-01",]
+d04 <- dx[as.Date(dx$ENTREE) >= "2015-04-01" & as.Date(dx$ENTREE) < "2015-05-01",]
 max(as.Date(d04$ENTREE))
 min(as.Date(d04$ENTREE))
 d04 <- normalise(d04)
@@ -233,7 +233,7 @@ max(as.Date(dx$ENTREE))
 d15 <- dx
 save(d15, file="rpu2015d0112_provisoire.Rda")
 
-table(as.Date(d03$ENTREE), d03$FINESS)
+table(as.Date(d04$ENTREE), d04$FINESS)
 ```
 
 
@@ -311,7 +311,7 @@ Objet: mesure de l'activité au jour le jour avant consolidation. En pratique re
 1. récupérer le fichier source, le décompacter.
 2. appeler la fonction __parse_rpu__ avec la date du jour, qui le transforme en dataframe
 ```{}
-d <- parse_rpu("2015-04-07")
+d <- parse_rpu("2015-04-13")
 min(as.Date(d$ENTREE))
 max(as.Date(d$ENTREE))
 ```
