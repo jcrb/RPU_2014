@@ -6,10 +6,6 @@ Temps de passage est la durée entre l'heure d'entrée et l'heure de sortie.
 
 
 ```
-## Warning: package 'zoo' was built under R version 3.1.3
-```
-
-```
 ## [1] "2014-01-01"
 ```
 

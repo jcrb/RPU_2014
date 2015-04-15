@@ -1,0 +1,33 @@
+---
+title: "Tension 2015"
+author: "JcB"
+date: "15/04/2015"
+output: html_document
+---
+
+Etude de la période de tension 2014-2015
+
+Pour cela on forme un dataframe allant du 1er décembre 2014 au 15 avril 2015
+
+#### intégration du Finess Juridique pour la clinique Ste Odile. Erreur signalée par Mr Nold: certains RPU de Ste Odile contiennent le Finess juridique au lieu du géographique
+```
+d14$FINESS <- as.character(d14$FINESS)
+d14$FINESS[d14$FINESS=="670780204"]<-"Odi"
+d14$FINESS <-  factor(d14$FINESS) # élimine les facteurs vides
+
+Correction faite et enregistrée sous le nom de __rpu2014d0112_c2.Rda__ (15/04/2015)
+```
+
+```{}
+path <- "../../"
+load(paste0(path, "rpu2014d0112_c2.Rda")) # d14
+load(paste0(path, "rpu2015d0112_provisoire.Rda")) # d15
+e <- rbind(d14,d15)
+d <- e[as.Date(e$ENTREE) >= "2014-12-01" & as.Date(e$ENTREE) < "2015-04-16",]
+
+save(d, file  = "tensions2015.Rda")
+
+```
+
+
+
