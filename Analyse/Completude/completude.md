@@ -6,7 +6,7 @@ Complétude des données
 
 Score de completude = somme des complétudes de chaque item.
 
-Ce chapitre utilise le fichier source("../../RESURAL/Trame_commune/rapport_2014.R") qui possède deux fonctions pour calculer la complétude et dessiner le diagramme en radar correspondant.
+Ce chapitre utilise le fichier source("../../Resural/FEDORU/Trame_commune/rapport_2014.R") qui possède deux fonctions pour calculer la complétude et dessiner le diagramme en radar correspondant.
 
 MAJ
 ---
@@ -22,14 +22,15 @@ Données
 connexion MAC:
 ```{}
 path <- "../"
-source(paste0(path, "../../RESURAL/Trame_commune/rapport_2014.R"))
+source(paste0(path, "../../RESURAL/Trame_Commune/rapport_2014.R"))
 load(paste0(path, "rpu2015d0112.Rda")) # 2015
 ```
 Connexion XPS
 ```{}
-#source(paste0(path, "../../FEDORU/Trame_commune/rapport_2014.R"))
+#source(paste0(path, "../../FEDORU/Trame_Commune/rapport_2014.R"))
+path <- "../"
 source("/home/jcb/Documents/Resural/FEDORU/Trame_Commune/rapport_2014.R")
-
+load(paste0(path, "../rpu2015d0112.Rda")) # 2015
 ```
 
 
@@ -66,6 +67,16 @@ C'est la complétude calculée pour tous les RPU quelque soit l'établissement p
 ```r
 completude_region <- completude(dx)
 radar.completude(completude_region)
+```
+
+```
+Warning in rep(point.symbols, length.out = nsets): 'x' is NULL so the
+result will be NULL
+```
+
+```
+Warning in rep(point.col, length.out = nsets): 'x' is NULL so the result
+will be NULL
 ```
 
 ![](completude_files/figure-html/comp_regionale-1.png) 
@@ -117,9 +128,11 @@ for(i in 1:length(finess)){
   d.completude <- completude(d)
   d.completude["MOTIF DE RECOURS"] <- as.numeric(m[i,4])
   
-  radar.completude(d.completude, finess[i])
+  radar.completude(d.completude, paste0(finess[i], " (1er trimestre 2015)"))
   # completude régionale
   radial.plot(completude_region, rp.type="p",radial.lim=c(0,100),start = 1.57,clockwise = TRUE, line.col = "blue", add = TRUE)
+  legend(-150, -120, legend = c("complétude régionale"), lty = 1, lwd = 3, col = "blue", bty = "n", cex = 0.8)
+  legend(90, -120, legend = c("complétude locale"), lty = 1, lwd = 3, col = "red", bty = "n", cex = 0.8)
   
   # tableau de complétude
   print(d.completude)
@@ -128,6 +141,31 @@ for(i in 1:length(finess)){
   score.local <- sum(d.completude) / n.items
   cat(paste0("Score local: ", round(score.local, 2)), " sur 100")
 }
+```
+
+```
+Warning in rep(point.symbols, length.out = nsets): 'x' is NULL so the
+result will be NULL
+```
+
+```
+Warning in rep(point.col, length.out = nsets): 'x' is NULL so the result
+will be NULL
+```
+
+```
+Warning in rep(point.symbols, length.out = nsets): 'x' is NULL so the
+result will be NULL
+```
+
+```
+Warning in rep(point.col, length.out = nsets): 'x' is NULL so the result
+will be NULL
+```
+
+```
+Warning in rep(poly.col, length.out = nsets): 'x' is NULL so the result
+will be NULL
 ```
 
 ![](completude_files/figure-html/finess-1.png) 
@@ -146,6 +184,31 @@ MOTIF DE RECOURS             CCMU               DP
 Score local: 73.01  sur 100
 ```
 
+```
+Warning in rep(point.symbols, length.out = nsets): 'x' is NULL so the
+result will be NULL
+```
+
+```
+Warning in rep(point.col, length.out = nsets): 'x' is NULL so the result
+will be NULL
+```
+
+```
+Warning in rep(point.symbols, length.out = nsets): 'x' is NULL so the
+result will be NULL
+```
+
+```
+Warning in rep(point.col, length.out = nsets): 'x' is NULL so the result
+will be NULL
+```
+
+```
+Warning in rep(poly.col, length.out = nsets): 'x' is NULL so the result
+will be NULL
+```
+
 ![](completude_files/figure-html/finess-2.png) 
 
 ```
@@ -160,6 +223,31 @@ Score local: 73.01  sur 100
 MOTIF DE RECOURS             CCMU               DP 
            98.08            96.93            95.82 
 Score local: 99.3  sur 100
+```
+
+```
+Warning in rep(point.symbols, length.out = nsets): 'x' is NULL so the
+result will be NULL
+```
+
+```
+Warning in rep(point.col, length.out = nsets): 'x' is NULL so the result
+will be NULL
+```
+
+```
+Warning in rep(point.symbols, length.out = nsets): 'x' is NULL so the
+result will be NULL
+```
+
+```
+Warning in rep(point.col, length.out = nsets): 'x' is NULL so the result
+will be NULL
+```
+
+```
+Warning in rep(poly.col, length.out = nsets): 'x' is NULL so the result
+will be NULL
 ```
 
 ![](completude_files/figure-html/finess-3.png) 
@@ -178,6 +266,31 @@ MOTIF DE RECOURS             CCMU               DP
 Score local: 89.37  sur 100
 ```
 
+```
+Warning in rep(point.symbols, length.out = nsets): 'x' is NULL so the
+result will be NULL
+```
+
+```
+Warning in rep(point.col, length.out = nsets): 'x' is NULL so the result
+will be NULL
+```
+
+```
+Warning in rep(point.symbols, length.out = nsets): 'x' is NULL so the
+result will be NULL
+```
+
+```
+Warning in rep(point.col, length.out = nsets): 'x' is NULL so the result
+will be NULL
+```
+
+```
+Warning in rep(poly.col, length.out = nsets): 'x' is NULL so the result
+will be NULL
+```
+
 ![](completude_files/figure-html/finess-4.png) 
 
 ```
@@ -192,6 +305,31 @@ Score local: 89.37  sur 100
 MOTIF DE RECOURS             CCMU               DP 
            97.76            92.63            92.31 
 Score local: 92.36  sur 100
+```
+
+```
+Warning in rep(point.symbols, length.out = nsets): 'x' is NULL so the
+result will be NULL
+```
+
+```
+Warning in rep(point.col, length.out = nsets): 'x' is NULL so the result
+will be NULL
+```
+
+```
+Warning in rep(point.symbols, length.out = nsets): 'x' is NULL so the
+result will be NULL
+```
+
+```
+Warning in rep(point.col, length.out = nsets): 'x' is NULL so the result
+will be NULL
+```
+
+```
+Warning in rep(poly.col, length.out = nsets): 'x' is NULL so the result
+will be NULL
 ```
 
 ![](completude_files/figure-html/finess-5.png) 
@@ -210,6 +348,31 @@ MOTIF DE RECOURS             CCMU               DP
 Score local: 96  sur 100
 ```
 
+```
+Warning in rep(point.symbols, length.out = nsets): 'x' is NULL so the
+result will be NULL
+```
+
+```
+Warning in rep(point.col, length.out = nsets): 'x' is NULL so the result
+will be NULL
+```
+
+```
+Warning in rep(point.symbols, length.out = nsets): 'x' is NULL so the
+result will be NULL
+```
+
+```
+Warning in rep(point.col, length.out = nsets): 'x' is NULL so the result
+will be NULL
+```
+
+```
+Warning in rep(poly.col, length.out = nsets): 'x' is NULL so the result
+will be NULL
+```
+
 ![](completude_files/figure-html/finess-6.png) 
 
 ```
@@ -224,6 +387,31 @@ Score local: 96  sur 100
 MOTIF DE RECOURS             CCMU               DP 
            20.22            71.45            73.48 
 Score local: 84.24  sur 100
+```
+
+```
+Warning in rep(point.symbols, length.out = nsets): 'x' is NULL so the
+result will be NULL
+```
+
+```
+Warning in rep(point.col, length.out = nsets): 'x' is NULL so the result
+will be NULL
+```
+
+```
+Warning in rep(point.symbols, length.out = nsets): 'x' is NULL so the
+result will be NULL
+```
+
+```
+Warning in rep(point.col, length.out = nsets): 'x' is NULL so the result
+will be NULL
+```
+
+```
+Warning in rep(poly.col, length.out = nsets): 'x' is NULL so the result
+will be NULL
 ```
 
 ![](completude_files/figure-html/finess-7.png) 
@@ -242,6 +430,31 @@ MOTIF DE RECOURS             CCMU               DP
 Score local: 72.19  sur 100
 ```
 
+```
+Warning in rep(point.symbols, length.out = nsets): 'x' is NULL so the
+result will be NULL
+```
+
+```
+Warning in rep(point.col, length.out = nsets): 'x' is NULL so the result
+will be NULL
+```
+
+```
+Warning in rep(point.symbols, length.out = nsets): 'x' is NULL so the
+result will be NULL
+```
+
+```
+Warning in rep(point.col, length.out = nsets): 'x' is NULL so the result
+will be NULL
+```
+
+```
+Warning in rep(poly.col, length.out = nsets): 'x' is NULL so the result
+will be NULL
+```
+
 ![](completude_files/figure-html/finess-8.png) 
 
 ```
@@ -256,6 +469,31 @@ Score local: 72.19  sur 100
 MOTIF DE RECOURS             CCMU               DP 
            20.67            74.94            20.44 
 Score local: 71.59  sur 100
+```
+
+```
+Warning in rep(point.symbols, length.out = nsets): 'x' is NULL so the
+result will be NULL
+```
+
+```
+Warning in rep(point.col, length.out = nsets): 'x' is NULL so the result
+will be NULL
+```
+
+```
+Warning in rep(point.symbols, length.out = nsets): 'x' is NULL so the
+result will be NULL
+```
+
+```
+Warning in rep(point.col, length.out = nsets): 'x' is NULL so the result
+will be NULL
+```
+
+```
+Warning in rep(poly.col, length.out = nsets): 'x' is NULL so the result
+will be NULL
 ```
 
 ![](completude_files/figure-html/finess-9.png) 
@@ -274,6 +512,31 @@ MOTIF DE RECOURS             CCMU               DP
 Score local: 74.82  sur 100
 ```
 
+```
+Warning in rep(point.symbols, length.out = nsets): 'x' is NULL so the
+result will be NULL
+```
+
+```
+Warning in rep(point.col, length.out = nsets): 'x' is NULL so the result
+will be NULL
+```
+
+```
+Warning in rep(point.symbols, length.out = nsets): 'x' is NULL so the
+result will be NULL
+```
+
+```
+Warning in rep(point.col, length.out = nsets): 'x' is NULL so the result
+will be NULL
+```
+
+```
+Warning in rep(poly.col, length.out = nsets): 'x' is NULL so the result
+will be NULL
+```
+
 ![](completude_files/figure-html/finess-10.png) 
 
 ```
@@ -288,6 +551,31 @@ Score local: 74.82  sur 100
 MOTIF DE RECOURS             CCMU               DP 
            99.03            95.92            88.73 
 Score local: 98.41  sur 100
+```
+
+```
+Warning in rep(point.symbols, length.out = nsets): 'x' is NULL so the
+result will be NULL
+```
+
+```
+Warning in rep(point.col, length.out = nsets): 'x' is NULL so the result
+will be NULL
+```
+
+```
+Warning in rep(point.symbols, length.out = nsets): 'x' is NULL so the
+result will be NULL
+```
+
+```
+Warning in rep(point.col, length.out = nsets): 'x' is NULL so the result
+will be NULL
+```
+
+```
+Warning in rep(poly.col, length.out = nsets): 'x' is NULL so the result
+will be NULL
 ```
 
 ![](completude_files/figure-html/finess-11.png) 
@@ -306,6 +594,31 @@ MOTIF DE RECOURS             CCMU               DP
 Score local: 90.39  sur 100
 ```
 
+```
+Warning in rep(point.symbols, length.out = nsets): 'x' is NULL so the
+result will be NULL
+```
+
+```
+Warning in rep(point.col, length.out = nsets): 'x' is NULL so the result
+will be NULL
+```
+
+```
+Warning in rep(point.symbols, length.out = nsets): 'x' is NULL so the
+result will be NULL
+```
+
+```
+Warning in rep(point.col, length.out = nsets): 'x' is NULL so the result
+will be NULL
+```
+
+```
+Warning in rep(poly.col, length.out = nsets): 'x' is NULL so the result
+will be NULL
+```
+
 ![](completude_files/figure-html/finess-12.png) 
 
 ```
@@ -320,6 +633,31 @@ Score local: 90.39  sur 100
 MOTIF DE RECOURS             CCMU               DP 
            99.43            98.13            98.46 
 Score local: 91.58  sur 100
+```
+
+```
+Warning in rep(point.symbols, length.out = nsets): 'x' is NULL so the
+result will be NULL
+```
+
+```
+Warning in rep(point.col, length.out = nsets): 'x' is NULL so the result
+will be NULL
+```
+
+```
+Warning in rep(point.symbols, length.out = nsets): 'x' is NULL so the
+result will be NULL
+```
+
+```
+Warning in rep(point.col, length.out = nsets): 'x' is NULL so the result
+will be NULL
+```
+
+```
+Warning in rep(poly.col, length.out = nsets): 'x' is NULL so the result
+will be NULL
 ```
 
 ![](completude_files/figure-html/finess-13.png) 
@@ -338,6 +676,31 @@ MOTIF DE RECOURS             CCMU               DP
 Score local: 93.53  sur 100
 ```
 
+```
+Warning in rep(point.symbols, length.out = nsets): 'x' is NULL so the
+result will be NULL
+```
+
+```
+Warning in rep(point.col, length.out = nsets): 'x' is NULL so the result
+will be NULL
+```
+
+```
+Warning in rep(point.symbols, length.out = nsets): 'x' is NULL so the
+result will be NULL
+```
+
+```
+Warning in rep(point.col, length.out = nsets): 'x' is NULL so the result
+will be NULL
+```
+
+```
+Warning in rep(poly.col, length.out = nsets): 'x' is NULL so the result
+will be NULL
+```
+
 ![](completude_files/figure-html/finess-14.png) 
 
 ```
@@ -352,6 +715,31 @@ Score local: 93.53  sur 100
 MOTIF DE RECOURS             CCMU               DP 
            86.91            87.51            50.03 
 Score local: 82.88  sur 100
+```
+
+```
+Warning in rep(point.symbols, length.out = nsets): 'x' is NULL so the
+result will be NULL
+```
+
+```
+Warning in rep(point.col, length.out = nsets): 'x' is NULL so the result
+will be NULL
+```
+
+```
+Warning in rep(point.symbols, length.out = nsets): 'x' is NULL so the
+result will be NULL
+```
+
+```
+Warning in rep(point.col, length.out = nsets): 'x' is NULL so the result
+will be NULL
+```
+
+```
+Warning in rep(poly.col, length.out = nsets): 'x' is NULL so the result
+will be NULL
 ```
 
 ![](completude_files/figure-html/finess-15.png) 
