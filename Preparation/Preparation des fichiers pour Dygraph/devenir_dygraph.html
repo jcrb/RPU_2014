@@ -1,6 +1,7 @@
 
 <html>
 <head>
+   <meta charset="utf-8">
 <script type="text/javascript"
   src="dygraph-combined.js"></script>
 </head>
@@ -24,8 +25,8 @@
 </p>
 
 <script type="text/javascript">
-
-var stock_annotations = [
+/*
+  var stock_annotations = [
     {
       series: "passages.jour.rpu",
       x: "2014-10-20",
@@ -33,7 +34,8 @@ var stock_annotations = [
       text: "HUS modifient leurs RPU",
       cssClass: 'annotation'
     }
-]
+  ] */
+  
   g2 = new Dygraph(
     document.getElementById("graphdiv2"),
     "devenir.csv", // path to CSV file
@@ -42,11 +44,12 @@ var stock_annotations = [
       showRoller: true,
       title: 'Passages et hospitalisations',
       ylabel: 'Nombre de RPU',
-      legend: 'always',labelsDivStyles: { 'textAlign': 'left' }, // Légende, positionnement (à droite)
+      legend: 'always',
+      //labelsDivStyles: { 'textAlign': 'left' }, // Légende, positionnement (à droite)
       // labelsDivStyles: { 'textAlign': 'left' },
       
       labelsSeparateLines: true, // Permet d'avoir une ligne par label (légende)
-      errorBars: true, // barre d'erreur
+      //errorBars: true, // barre d'erreur
     }          
   );
   

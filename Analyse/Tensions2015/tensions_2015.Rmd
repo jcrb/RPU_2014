@@ -2,12 +2,29 @@
 title: "Tension 2015"
 author: "JcB"
 date: "15/04/2015"
-output: html_document
+output:
+  html_document:
+    number_sections: yes
+    toc: yes
 ---
 
-Etude de la période de tension 2014-2015
+Historique
+==========
 
-Pour cela on forme un dataframe allant du 1er décembre 2014 au 15 avril 2015
+voir courbe des publications: overcrowding
+
+Etude de la période de tension 2014-2015
+========================================
+
+- nombre de passages
+- rôle des Plus de 75 ans
+- rôle de la grippe
+- mode de transport indicateurs
+- recommandations de la FEDORU
+- tabeaux actions: Christine mail du 18/12/2014
+
+Pour cela on forme un dataframe allant du 1er décembre 2014 au 15 avril 2015 auquel on ajoute une colonne durée de passage (DPAS) formée par la différence (en minutes) entre l'heure d'entrée et de sortie des urgences. Ne sont retenos que les temps de passages répondant aux critères de la FEDORU (supérieurs à 0 et inférieurs à 48 heures).
+
 
 #### intégration du Finess Juridique pour la clinique Ste Odile. Erreur signalée par Mr Nold: certains RPU de Ste Odile contiennent le Finess juridique au lieu du géographique
 ```
@@ -19,15 +36,211 @@ Correction faite et enregistrée sous le nom de __rpu2014d0112_c2.Rda__ (15/04/2
 ```
 
 ```{}
+source("../Temps_passage/passage.R") # Analyse/Temps_passage/passage.R
 path <- "../../"
 load(paste0(path, "rpu2014d0112_c2.Rda")) # d14
 load(paste0(path, "rpu2015d0112_provisoire.Rda")) # d15
 e <- rbind(d14,d15)
 d <- e[as.Date(e$ENTREE) >= "2014-12-01" & as.Date(e$ENTREE) < "2015-04-16",]
-
 save(d, file  = "tensions2015.Rda")
 
 ```
 
+Pour comparer on crée un fichier avec les durées de passage < 48h pour 2014
+```
+d14$DPAS <- as.numeric(duree.passage(d14$ENTREE, d14$SORTIE)) # on crée une colonne sup
+# finalement on ne garde que les RPU avec une durée de passage exploitable et qui soit positive et inférieure ou égale à 48 heures.
+d14.48 <- d14[!is.na(d14$DPAS) & d14$DPAS > 0 & d14$DPAS <= 2*24*60, ]
+save(d14.48, file  = "d14_48.Rda")
+```
+
+Fichiers
+--------
+
+- d toute la base entre décembre et avril 2015
+- d2 idem mais dont les durées de passage sont < 48H
+- d14.48 idem d2 mais pour tout 2014
+
+Utilisation du fichier
+```{r init, echo=FALSE, warning=FALSE}
+library(lubridate)
+library(xts)
+source("../Temps_passage/passage.R") # Analyse/Temps_passage/passage.R
+
+load("tensions2015.Rda") # d
+load("d14_48.Rda") # d14.48 durée de passage < 48h en 2014. Sert de base de comparaison
+
+# ajout d'une colonne passages
+d$DPAS <- as.numeric(duree.passage(d$ENTREE, d$SORTIE)) # on crée une colonne sup
+# finalement on ne garde que les RPU avec une durée de passage exploitable et qui soit positive et inférieure ou égale à 48 heures.
+d2 <- d[!is.na(d$DPAS) & d$DPAS > 0 & d$DPAS <= 2*24*60, ]
+```
+
+Durée moyenne de passage
+------------------------
+```{r}
+mean.duree <- tapply(d2$DPAS, as.Date(d2$ENTREE), mean)
+
+plot(xts(mean.duree, order.by = as.Date(rownames(mean.duree))), minor.ticks = FALSE, ylab = "Durée moyenne de passage (mn)", main = "Evolution de la durée moyenne de passage par jour")
+lines(rollmean(xts(mean.duree, order.by = as.Date(rownames(mean.duree))), k = 7), col = "red", lwd = 2)
+copyright()
+
+median.duree <- tapply(d2$DPAS, as.Date(d2$ENTREE), median)
+plot(xts(median.duree, order.by = as.Date(rownames(median.duree))), minor.ticks = FALSE, ylab = "Durée médiane de passage (mn)", main = "Evolution de la durée médiane de passage par jour")
+lines(rollmean(xts(median.duree, order.by = as.Date(rownames(median.duree))), k = 7), col = "blue", lwd = 2)
+copyright()
+
+summary(d2$DPAS)
+
+hist(d2$DPAS, breaks = 48, main = "Hisrogramme des durées de passage", xlab = "temps (minutes", ylab = "Fréquence")
+abline(v = summary(d2$DPAS)["Mean"], lty = 2, col = "red")
+text(summary(d2$DPAS)["Mean"]+20,30000, paste("moyenne =", summary(d2$DPAS)["Mean"], "minutes",")"), pos = 4, cex = 0.8 )
+
+```
+- moyenne durée de passage: `r mean(d2$DPAS)` minutes
+- médiane durée de passage: `r median(d2$DPAS)` minutes
+
+Analyse des durées de passage > 6 heures
+----------------------------------------
+- p6h: liste des RPU dont la durée de passage est supérieure à 6 heures
+- p6h.jour: total journalier des RPU dont la durée de passage est supérieure à 6 heures (vecteur de 365 jpours). Il peut y avoir des jours vides, soit parce que le jour n'a pas été renseigné, soit parce qu'aucun passage n'a dépassé 6 heures.
+```{r}
+# RPU avec durée de passage > 6h. 
+p6h <- d2[d2$DPAS > 6*60, c("ENTREE", "FINESS")]
+p6h.jour <- tapply(as.Date(p6h$ENTREE), as.Date(p6h$ENTREE), length) # RPU de plus de 6 heures par jour
+
+# PB: ILPEUT Y AVOIR DES JOURS SANS PASSAGE  > 6 HEURES (EX. SELESTAT) => FAIRE UN MERGING AVEC UN CALENDRIER.
+# OK: AJUSTER LE CALENDRIER 0 LA TAILLE DE D14
+
+p6h.jour.a <- aligne.sur.calendrier(min(d2$ENTREE), max(d2$ENTREE), p6h.jour)
+
+summary(p6h.jour.a) # résumé passage de plus de 6 heures"
+sum(is.na(p6h.jour.a)) # nb de jours sur la période sans passage > 6 heures
+mean(is.na(p6h.jour.a)) # idem en %
+
+# % de passages de plus de 6 heures pendant la période
+a <- rbind(table(p6h$FINESS), table(d2$FINESS), round(table(p6h$FINESS)*100/table(d2$FINESS),2))
+a
+
+# passage de plus de 6 heures en 2014
+p14.6h <- d14.48[d14.48$DPAS > 6*60, c("ENTREE", "FINESS")]
+b <- rbind(table(p14.6h$FINESS), table(d14.48$FINESS), round(table(p14.6h$FINESS)*100/table(d14.48$FINESS),2))
+b
+
+# comparaison des 2 périodes par hopitaux
+c <- rbind(a[3,], b[3,])
+rownames(c) <- c("Tension","2014")
+c
+barplot(c,beside = TRUE, las = 2, main = "Nombre de passages > 6h\ Période de tension vs. 2014", ylab = "% de plus de 6h")
+
+```
+
+Proportion des 75 ans et plus par jour
+--------------------------------------
+Quelle est la part des personnes agées dans les épisodes de tension ?
+
+### Chiffres 2014 pour toute la population
+```{r p2014}
+# pop 2014 dont la durée de passage est < 48h: d14.48
+
+# Idem mais dont l'age est sup ou égal à 18 ans
+pop.2014.adulte <- d14.48[d14.48$AGE > 17,]
+# nb de passages par jour en 2014 pour les adultes
+n.adultes.jour.2014 <- tapply(as.Date(pop.2014.adulte$ENTREE), as.Date(pop.2014.adulte$ENTREE), length)
+# nb MOYEN de passages par jour en 2014 pour les adultes
+m.adultes.jour.2014 <- mean(n.adultes.jour.2014)
+
+# nb de passages par jour en 2014
+n.jour.2014 <- tapply(as.Date(d14.48$ENTREE), as.Date(d14.48$ENTREE), length)
+
+# moyenne de passages par jour
+m.rpu.jour.2014 <- mean(n.jour.2014)
+```
+- nombre moyen de passages par jour en 2014: `r m.rpu.jour.2014`
+
+###  Chiffres 2014 pour la population de 75 ans
+```{r p75.2014}
+# population des 75 ans en 2014
+p75.2014 <- d14.48[d14.48$AGE > 74,]
+# nb de 75 ans par jour en 2014
+n.75.jour.2014 <- tapply(as.Date(p75.2014$ENTREE), as.Date(p75.2014$ENTREE), length)
+ # nb moyen de 75 ans / jour en 2014
+m.75.jour.2014 <- mean(n.75.jour.2014)
+# taux moyen de 75 ans par rapport à la population
+tx.moyen.2014 <- m.75.jour.2014 / m.rpu.jour.2014
+```
+
+### Période de tension: toute la population
+```{r p_tension}
+# nombre de passages par jour pendant la tension
+n.jour <- tapply(as.Date(d2$ENTREE), as.Date(d2$ENTREE), length)
+# moyenne par jour
+m.n.jour.tension <- mean(n.jour)
+```
+- nombre moyen de passages par jour en période de tension: `r m.n.jour.tension`
+
+#### comparaison nombre de RPU par jour en 2014 et en période de tension:
+```{r comp_nb_passages}
+# utilise la librairie schoRsch pour formater le résultat du test t. Cette librairie permet également de formater le CHI2, anova, cor. A explorer
+t <- t.test(n.jour, n.jour.2014)
+# install.packages("schoRsch")
+library(schoRsch)
+library(xtable)
+t_out(t)
+# pour latex
+xtable(t_out(t))
+# boxplot
+boxplot(n.jour, n.jour.2014, names = c("Tensions","2014"), main = "Nombre de passges aux urgences")
 
 
+```
+
+
+### Période de tension: population des 75 ans
+```{r p75}
+# population des 75 ans pendant la tension
+p75 <- d2[d2$AGE > 74,] # population de 75 ans et plus pendant la tension
+# nb de 75 ans par jour pendant la tension
+n.75.jour <- tapply(as.Date(p75$ENTREE), as.Date(p75$ENTREE), length)
+
+# taux = nb de 75 ans par jour / nb de RPU par jour
+tx <- round(n.75.jour * 100 / n.jour, 2)
+# graphe
+plot(xts(tx, order.by = as.Date(names(tx))), minor.ticks = FALSE, ylab = "% de 75 ans et plus", main = "% de patients de 75 ans et plus")
+lines(rollmean(xts(tx, order.by = as.Date(names(tx))), k = 7), col = "blue", lwd = 2)
+abline(h = tx.moyen.2014 * 100, lty = 2, col = "red")
+```
+
+### si on ne garde que la population adulte (plus de 18 ans) pendant la tension
+```{r p18}
+# pop > 18 ans pendant la tension
+p18 <- d2[d2$AGE > 17,]
+# nb de 18 ans par jour
+n.18.jour <- tapply(as.Date(p18$ENTREE), as.Date(p18$ENTREE), length)
+# taux = nb de 75 ans par jour / nb de RPU par jour dans la pop. adulte
+tx <- round(n.75.jour * 100 / n.18.jour, 2)
+summary(tx)
+sd(tx)
+# taux moyen 2014
+tx.moyen.adulte.2014 <- m.75.jour.2014 / m.adultes.jour.2014
+tx.moyen.adulte.2014
+
+# graphe
+plot(xts(tx, order.by = as.Date(names(tx))), minor.ticks = FALSE, ylab = "% de 75 ans et plus", main = "% de patients de 75 ans et plus\n dans la population adulte")
+lines(rollmean(xts(tx, order.by = as.Date(names(tx))), k = 7), col = "blue", lwd = 2)
+
+abline(h = tx.moyen.adulte.2014 * 100, lty = 2, col = "red")
+```
+
+
+### Durée moyenne de passage
+```{r p75_dmp}
+p75 <- d2[d2$AGE > 74,]
+m.dpas.75 <- tapply(p75$DPAS, as.Date(p75$ENTREE), mean)
+plot(xts(m.dpas.75, order.by = as.Date(names(m.dpas.75))), minor.ticks = FALSE, ylab = "Durée moyenne de passage (mn)", main = "Evolution de la durée moyenne de passage par jour\n patients de 75 ans et plus")
+lines(rollmean(xts(m.dpas.75, order.by = as.Date(names(m.dpas.75))), k = 7), col = "blue", lwd = 2)
+
+```
+- Le nombre de passage est plus imprtant en période de tension
+- le nombre de personnes agées est plus important
+- durée de passage sont augmentées

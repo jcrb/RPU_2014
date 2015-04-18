@@ -174,13 +174,28 @@ plot(a, type="l", xlab = "semaines", ylab = "% de bronchiolites", main = "Propor
 Syndrome grippal
 ================
 
-__ATENTION__: les gaphiques de ce paragraphe ne sont exact que __dpr__ ne concerne que 2014. La transformation en mois supprime la notion d'année => si plusieurs années, la transformation en mois entraïne la somme des valeurs dumois: par ex. mois 1 correspond à la somme janvier 2014 et janvier 2015.
+__ATENTION__: les gaphiques de ce paragraphe ne sont exact que __dpr__ ne concerne que 2014. La transformation en mois supprime la notion d'année => si plusieurs années, la transformation en mois entraïne la somme des valeurs du mois: par ex. mois 1 correspond à la somme janvier 2014 et janvier 2015.
 
 ![](dp_files/figure-html/grippe-1.png) 
 
+Répartition par age
+--------------------
+![](dp_files/figure-html/grippe_age-1.png) ![](dp_files/figure-html/grippe_age-2.png) 
+
+Gravité
+-------
+
+```
+## 
+##  1  2  3  4  5  D  P    
+##  1 17 33  1  0  0  0  0
+```
+
+
 Comparaison 2014 - 2015
 -----------------------
-Utilise 
+Utilise __tapply__ avec une liste de deux factors, l'année et le mois. On obtient une matrice de 2 lignes (2014 et 2015) et 12 colonnes pour chacun des mois. On peut construire un graphe avec 2 barres par mois (beside).
+
 ![](dp_files/figure-html/grippe2-1.png) ![](dp_files/figure-html/grippe2-2.png) ![](dp_files/figure-html/grippe2-3.png) ![](dp_files/figure-html/grippe2-4.png) ![](dp_files/figure-html/grippe2-5.png) 
 
 
