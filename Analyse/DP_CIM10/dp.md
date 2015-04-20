@@ -60,7 +60,7 @@ R53+1  R600  S011  S015  S018 S0600  S223  S300 S3200 S4220  S430  S460
 
 ```
    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-   0.00   58.00   63.00   61.07   69.00   92.00 
+   0.00   58.00   63.00   61.28   69.00   92.00 
 ```
 
 ![](dp_files/figure-html/diag_par_jour-1.png) 
@@ -81,7 +81,7 @@ round(n2 * 100 / n.bron, 2) # % de 2 ans et moins
 ```
 
 ```
-## [1] 96.89
+## [1] 96.86
 ```
 
 ```r
@@ -120,7 +120,7 @@ summary(bron$SEXE)
 
 ```
 ##    F    M         I 
-##  661 1107    0    1
+##  655 1094    0    1
 ```
 
 ```r
@@ -137,7 +137,7 @@ summary(ped2.age)
 
 ```
 ##     Min.  1st Qu.   Median     Mean  3rd Qu.     Max. 
-##  0.03333  4.56700 10.67000 10.90000 16.77000 24.07000
+##  0.03333  4.55800 10.67000 10.90000 16.77000 24.07000
 ```
 
 ```r
@@ -198,5 +198,9 @@ Utilise __tapply__ avec une liste de deux factors, l'année et le mois. On obtie
 
 ![](dp_files/figure-html/grippe2-1.png) ![](dp_files/figure-html/grippe2-2.png) ![](dp_files/figure-html/grippe2-3.png) ![](dp_files/figure-html/grippe2-4.png) ![](dp_files/figure-html/grippe2-5.png) 
 
+Allergies respiratoires
+=======================
 
+- rhinite allergique: J30
+- asthme: J45
 

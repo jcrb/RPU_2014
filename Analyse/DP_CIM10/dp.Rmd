@@ -38,10 +38,10 @@ file <- "rpu2014d0112_c2.Rda"
 load(paste0(path, file))
 dx <- d14
 
-# file2 <- "rpu2015d0112_provisoire.Rda" # d15
-file2 <- "d15_p.Rda" # d15.p
+file2 <- "rpu2015d0112_provisoire.Rda" # d15
+#file2 <- "d15_p.Rda" # d15.p
 load(paste0(path, file2)) 
-dx <- rbind(dx, d15.p)
+dx <- rbind(dx, d15)
 
 dpr<-dx[!is.na(dx$DP),c("DP","CODE_POSTAL","ENTREE","FINESS","GRAVITE","ORIENTATION","MODE_SORTIE","AGE","SEXE","TRANSPORT","DESTINATION", "NAISSANCE")]
 anc <- year(dpr$ENTREE[1]) # année courante
