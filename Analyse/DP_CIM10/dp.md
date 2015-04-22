@@ -176,7 +176,32 @@ Syndrome grippal
 
 __ATENTION__: les gaphiques de ce paragraphe ne sont exact que __dpr__ ne concerne que 2014. La transformation en mois supprime la notion d'année => si plusieurs années, la transformation en mois entraïne la somme des valeurs du mois: par ex. mois 1 correspond à la somme janvier 2014 et janvier 2015.
 
-![](dp_files/figure-html/grippe-1.png) 
+
+
+nombre de cas de grippes diagnostiqués aux urgences:
+
+- 2014: 289
+- 2015: 1111
+
+Grippes en 2014 et 2015
+------------------------
+
+```r
+titre <- paste0("Syndromes grippaux", " - ", anc)
+m2014<-month(g2014$ENTREE,label=T)
+barplot(table(m2014),main = titre, xlab="Mois", ylab = "nombre de RPU", las = 2)
+```
+
+![](dp_files/figure-html/grppe_2014_2015-1.png) 
+
+```r
+titre <- paste0("Syndromes grippaux", " - ", anc + 1)
+m2015<-month(g2015$ENTREE,label=T)
+barplot(table(m2015),main = "2015", xlab="Mois", ylab = "nombre de RPU", las = 2)
+```
+
+![](dp_files/figure-html/grppe_2014_2015-2.png) 
+
 
 Répartition par age
 --------------------
@@ -187,8 +212,8 @@ Gravité
 
 ```
 ## 
-##  1  2  3  4  5  D  P    
-##  1 17 33  1  0  0  0  0
+##   1   2   3   4   5   D   P     
+## 415 852  62   1   0   1   0   0
 ```
 
 

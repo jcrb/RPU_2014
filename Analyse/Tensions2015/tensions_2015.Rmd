@@ -58,13 +58,6 @@ Etude de la période de tension 2014-2015 en Alsace
 
 Voir les cartes de tensions sur le site de [RESURAL](http://resural.fr/publications/cartes-des-tensions-en-alsace-2015)
 
-- nombre de passages
-- rôle des Plus de 75 ans
-- rôle de la grippe
-- mode de transport indicateurs
-
-- tableaux actions: Christine mail du 18/12/2014
-
 Pour cela on forme un dataframe allant du 1er décembre 2014 au 15 avril 2015 auquel on ajoute une colonne durée de passage (DPAS) formée par la différence (en minutes) entre l'heure d'entrée et de sortie des urgences. Ne sont retenus que les temps de passages répondant aux critères de la FEDORU (supérieurs à 0 et inférieurs à 48 heures).
 
 Les résultats de cette période sont comparés à la moyenne des résultats de 2014.
@@ -140,7 +133,8 @@ abline(v = summary(d2$DPAS)["Mean"], lty = 2, col = "red")
 text(summary(d2$DPAS)["Mean"]+20,30000, paste("moyenne =", summary(d2$DPAS)["Mean"], "minutes",")"), pos = 4, cex = 0.8 )
 
 ```
-- moyenne durée de passage: `r mean(d2$DPAS)` minutes
+
+- moyenne durée de passage: `r mean(round(d2$DPAS, 0))` minutes
 - médiane durée de passage: `r median(d2$DPAS)` minutes
 
 Analyse des durées de passage > 6 heures
@@ -163,19 +157,25 @@ sum(is.na(p6h.jour.a)) # nb de jours sur la période sans passage > 6 heures
 mean(is.na(p6h.jour.a)) # idem en %
 
 # % de passages de plus de 6 heures pendant la période
+print("% de passages de plus de 6 heures pendant la période de tension")
 a <- rbind(table(p6h$FINESS), table(d2$FINESS), round(table(p6h$FINESS)*100/table(d2$FINESS),2))
+rownames(a) <- c("passages > 6h", "passages totaux", "% > 6h")
 a
 
 # passage de plus de 6 heures en 2014
+print("% de passages de plus de 6 heures en 2014")
 p14.6h <- d14.48[d14.48$DPAS > 6*60, c("ENTREE", "FINESS")]
 b <- rbind(table(p14.6h$FINESS), table(d14.48$FINESS), round(table(p14.6h$FINESS)*100/table(d14.48$FINESS),2))
+rownames(b) <- c("passages > 6h", "passages totaux", "% > 6h")
 b
 
 # comparaison des 2 périodes par hopitaux
-c <- rbind(a[3,], b[3,])
-rownames(c) <- c("Tension","2014")
+print("comparaison des 2 périodes par hopitaux")
+c <- rbind(a[3,], b[3,], a[3,]-b[3,])
+rownames(c) <- c("Tension","2014", "différence")
 c
-barplot(c,beside = TRUE, las = 2, main = "Nombre de passages > 6h\ Période de tension vs. 2014", ylab = "% de plus de 6h")
+
+barplot(c[1:2,],beside = TRUE, las = 2, main = "Nombre de passages > 6h\ Période de tension vs. 2014", ylab = "% de plus de 6h")
 
 ```
 
@@ -226,7 +226,7 @@ n.jour <- tapply(as.Date(d2$ENTREE), as.Date(d2$ENTREE), length)
 m.n.jour.tension <- mean(n.jour)
 ```
 
-- nombre moyen de passages par jour en période de tension: `r m.n.jour.tension`
+- nombre moyen de passages par jour en période de tension: `r round(m.n.jour.tension,0)`
 
 #### comparaison nombre de RPU par jour en 2014 et en période de tension:
 ```{r comp_nb_passages, echo=FALSE}
@@ -235,15 +235,16 @@ t <- t.test(n.jour, n.jour.2014)
 # install.packages("schoRsch")
 library(schoRsch)
 library(xtable)
-t_out(t)
-# pour latex
-xtable(t_out(t))
+t_out(t) # fonction spécifique de schoRsch
+
+# pour latex avec schoRsch
+#xtable(t_out(t))
+
 # boxplot
 boxplot(n.jour, n.jour.2014, names = c("Tensions","2014"), main = "Nombre de passges aux urgences")
 
-
 ```
-
+Le nombre de passage en période de tension est statistiquement plus important que le reste de l'année.
 
 ### Période de tension: population des 75 ans
 ```{r p75, echo=FALSE}
@@ -259,10 +260,12 @@ plot(xts(tx, order.by = as.Date(names(tx))), minor.ticks = FALSE, ylab = "% de 7
 lines(rollmean(xts(tx, order.by = as.Date(names(tx))), k = 7), col = "blue", lwd = 2)
 abline(h = tx.moyen.2014 * 100, lty = 2, col = "red")
 ```
+
 La moyenne des passages des patients de 75 ans et plus est représentée par la ligne pointillée rouge. Par rapport à cette ligne on note 2 pics d'augmentation:
 
 - la période des fêtes
 - fin février-début mars
+
 ### si on ne garde que la population adulte (plus de 18 ans) pendant la tension
 ```{r p18, echo=FALSE}
 # pop > 18 ans pendant la tension
@@ -297,4 +300,12 @@ lines(rollmean(xts(m.dpas.75, order.by = as.Date(names(m.dpas.75))), k = 7), col
 - Le nombre de passage est plus important en période de tension
 - le nombre de personnes âgées est plus important
 - durée de passage sont augmentées
+
+rôle de la grippe
+--------------------
+![grippe 2015](../DP_CIM10/dp_files/figure-html/grippe2-2.png)
+
+- mode de transport indicateurs
+
+- tableaux actions: Christine mail du 18/12/2014
 
