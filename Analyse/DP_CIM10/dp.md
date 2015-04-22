@@ -60,7 +60,11 @@ R53+1  R600  S011  S015  S018 S0600  S223  S300 S3200 S4220  S430  S460
 
 ```
    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+<<<<<<< HEAD
    0.00   57.50   63.00   60.84   69.00   92.00 
+=======
+   0.00   58.00   63.00   61.28   69.00   92.00 
+>>>>>>> aaaf4ac3a9cc884c25992704813ee9fe6e094573
 ```
 
 ![](dp_files/figure-html/diag_par_jour-1.png) 
@@ -81,7 +85,11 @@ round(n2 * 100 / n.bron, 2) # % de 2 ans et moins
 ```
 
 ```
+<<<<<<< HEAD
 ## [1] 96.92
+=======
+## [1] 96.86
+>>>>>>> aaaf4ac3a9cc884c25992704813ee9fe6e094573
 ```
 
 ```r
@@ -120,7 +128,11 @@ summary(bron$SEXE)
 
 ```
 ##    F    M         I 
+<<<<<<< HEAD
 ##  668 1117    0    1
+=======
+##  655 1094    0    1
+>>>>>>> aaaf4ac3a9cc884c25992704813ee9fe6e094573
 ```
 
 ```r
@@ -137,7 +149,11 @@ summary(ped2.age)
 
 ```
 ##     Min.  1st Qu.   Median     Mean  3rd Qu.     Max. 
+<<<<<<< HEAD
 ##  0.03333  4.56700 10.70000 10.91000 16.80000 24.07000
+=======
+##  0.03333  4.55800 10.67000 10.90000 16.77000 24.07000
+>>>>>>> aaaf4ac3a9cc884c25992704813ee9fe6e094573
 ```
 
 ```r
@@ -174,14 +190,33 @@ plot(a, type="l", xlab = "semaines", ylab = "% de bronchiolites", main = "Propor
 Syndrome grippal
 ================
 
-__ATENTION__: les gaphiques de ce paragraphe ne sont exact que __dpr__ ne concerne que 2014. La transformation en mois supprime la notion d'année => si plusieurs années, la transformation en mois entraïne la somme des valeurs dumois: par ex. mois 1 correspond à la somme janvier 2014 et janvier 2015.
+__ATENTION__: les gaphiques de ce paragraphe ne sont exact que __dpr__ ne concerne que 2014. La transformation en mois supprime la notion d'année => si plusieurs années, la transformation en mois entraïne la somme des valeurs du mois: par ex. mois 1 correspond à la somme janvier 2014 et janvier 2015.
 
 ![](dp_files/figure-html/grippe-1.png) 
 
+Répartition par age
+--------------------
+![](dp_files/figure-html/grippe_age-1.png) ![](dp_files/figure-html/grippe_age-2.png) 
+
+Gravité
+-------
+
+```
+## 
+##  1  2  3  4  5  D  P    
+##  1 17 33  1  0  0  0  0
+```
+
+
 Comparaison 2014 - 2015
 -----------------------
-Utilise 
+Utilise __tapply__ avec une liste de deux factors, l'année et le mois. On obtient une matrice de 2 lignes (2014 et 2015) et 12 colonnes pour chacun des mois. On peut construire un graphe avec 2 barres par mois (beside).
+
 ![](dp_files/figure-html/grippe2-1.png) ![](dp_files/figure-html/grippe2-2.png) ![](dp_files/figure-html/grippe2-3.png) ![](dp_files/figure-html/grippe2-4.png) ![](dp_files/figure-html/grippe2-5.png) 
 
+Allergies respiratoires
+=======================
 
+- rhinite allergique: J30
+- asthme: J45
 
