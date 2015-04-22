@@ -27,7 +27,7 @@ library("RColorBrewer")
 library(xts)
 
 source("../Temps_passage/passage.R") # copyright
-
+# source("Analyse/Temps_passage/passage.R")
 ```
 
 
@@ -54,7 +54,7 @@ dpr$DP<-gsub(".","",as.character(dpr$DP),fixed=TRUE)
 dpr$DP<-gsub("+","",as.character(dpr$DP),fixed=TRUE)
 
 # sauvegarde
-save(dpr, file="DP2014.R")
+save(dpr, file="DP2014-2015.Rda")
 # load("~/Documents/Resural/Stat Resural/RPU_2014/DP2014.R")
 ```
 
@@ -147,20 +147,39 @@ __ATENTION__: les gaphiques de ce paragraphe ne sont exact que __dpr__ ne concer
 
 ```{r grippe, echo=FALSE}
 grippe<-dpr[substr(dpr$DP,1,3)=="J11"|substr(dpr$DP,1,3)=="J10"|substr(dpr$DP,1,3)=="J09", ] # c("DP","ENTREE")
-grippe<-grippe[complete.cases(grippe),]
+#grippe<-grippe[complete.cases(grippe),]
 grippe$date<-as.Date(grippe$ENTREE)
+
 # anc <- "2014"
-titre <- paste0("Syndromes grippaux", " - ", anc)
-m<-month(grippe$ENTREE,label=T)
-barplot(table(m),main = titre, xlab="Mois", ylab = "nombre de RPU", las = 2)
+g2014 <- grippe[year(as.Date(grippe$ENTREE)) == "2014",]
+g2015 <- grippe[year(as.Date(grippe$ENTREE)) == "2015",]
 ```
+
+nombre de cas de grippes diagnostiqués aux urgences:
+
+- 2014: `r nrow(g2014)`
+- 2015: `r nrow(g2015)`
+
+Grippes en 2014 et 2015
+------------------------
+```{r grppe_2014_2015}
+titre <- paste0("Syndromes grippaux", " - ", anc)
+m2014<-month(g2014$ENTREE,label=T)
+barplot(table(m2014),main = titre, xlab="Mois", ylab = "nombre de RPU", las = 2)
+
+titre <- paste0("Syndromes grippaux", " - ", anc + 1)
+m2015<-month(g2015$ENTREE,label=T)
+barplot(table(m2015),main = "2015", xlab="Mois", ylab = "nombre de RPU", las = 2)
+
+```
+
 
 Répartition par age
 --------------------
 ```{r grippe_age, echo=FALSE}
-hist(grippe$AGE, breaks = 20, main = paste0(anc, " - Syndromes grippaux"), xlab = "Age (années)", ylab = "Fréquence")
+hist(grippe$AGE, breaks = 20, main = paste0(anc, " - ", anc + 1, " - Syndromes grippaux"), xlab = "Age (années)", ylab = "Fréquence")
 
-hist(grippe$AGE[grippe$AGE > 17], breaks = 20, main = paste0(anc, " - Syndromes grippaux dans la population adulte"), xlab = "Age (années)", ylab = "Fréquence")
+hist(grippe$AGE[grippe$AGE > 17], breaks = 20, main = paste0(anc, " - ", anc + 1, " - Syndromes grippaux dans la population adulte"), xlab = "Age (années)", ylab = "Fréquence")
 
 ```
 
