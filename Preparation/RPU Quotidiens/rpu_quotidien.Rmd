@@ -185,7 +185,7 @@ file.to.delete <- "/home/jcb/Documents/Resural/Stat Resural/Archives_Sagec/dataQ
 file.remove(file.to.delete)
 
 date1 <- "2015-03-08"
-date2 <- "2015-04-13"
+date2 <- "2015-04-21"
 
 mc <- substr(date1, 6, 7)
 ac <- substr(date1, 1,4)
@@ -272,6 +272,8 @@ Résumé activité
 
 On peut aussi l'utiliser pour tracer le graphe correspondant.
 
+A partir de la table __rpu__ crée précédamment, pn ajout une colonne avec la somme de la ligne, ce qui correspond au nombre de RPU créés quotidiennement. Puis on transforme le tableau _rpu_ en dataframe appelé __a__ où ne sont conservée que deux colonnes, la date du jour et le nombre de RPU. Le dataframe _a_ est transformé en objet _xts_ appelé __x__, ce qui permet de l'afficher sous forme de graphe d'une série temporelle.
+
 ```{ activite}
 
 s <- rowSums(rpu)
@@ -311,7 +313,7 @@ Objet: mesure de l'activité au jour le jour avant consolidation. En pratique re
 1. récupérer le fichier source, le décompacter.
 2. appeler la fonction __parse_rpu__ avec la date du jour, qui le transforme en dataframe
 ```{}
-d <- parse_rpu("2015-04-13")
+d <- parse_rpu("2015-04-21")
 min(as.Date(d$ENTREE))
 max(as.Date(d$ENTREE))
 ```
@@ -348,7 +350,8 @@ max(as.Date(d15.p$ENTREE))
 save(d15.p, file = "d15_p.Rda")
 
 ```
-et l'afficher sous forme de série temporelle
+et l'afficher sous forme de série temporelle appelée __xts.a__ avec 2 colonnes (date du jour + nb de RPU).
+
 ```{}
 library(xts)
 a <-tapply(as.Date(d15.p$ENTREE), as.Date(d15.p$ENTREE), length)
