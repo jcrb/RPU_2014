@@ -229,3 +229,17 @@ Allergies respiratoires
 - rhinite allergique: J30
 - asthme: J45
 
+
+
+
+```r
+# par semaine
+b <- tapply(as.Date(allergie$ENTREE),list(year(as.Date(allergie$ENTREE)), week(as.Date(allergie$ENTREE))), length )
+cols <- c("chartreuse", "yellow")
+barplot(b, beside = TRUE, main = "Syndromes allergiques vus aux urgences en Alsace", ylab = "Fréquence hebdomadaire", las = 2, cex.names = 0.8, col = cols, xlab = "semaines")
+legend("topright", legend = rownames(a), col = cols, pch = 15, bty = "n")
+copyright()
+```
+
+![](dp_files/figure-html/plot_allergie-1.png) 
+
