@@ -39,28 +39,28 @@ ex. avec Sélestat: on crée un objet de type liste formé d'autant de listes qu
 
 
 ```
-[1] 65
+[1] 68
 ```
 
 ```
 
- B432  C719  D649  H650  H660  H813  I269  J040  J159  J181  J188  J209 
-    1     1     1     1     1     1     1     1     1     2     1     2 
- J302  J451  J961  K528  K580  K590  K625  L022  L024  L028  L500  M139 
+ A083  E139  F063  F480  G458  H664  H669  I269   I64   J00  J060  J159 
+    1     1     1     1     2     1     1     1     1     1     1     3 
+ J180  J209   J40   J90  K522  K590  K625  K800  K819  K851  K922  L022 
+    1     1     1     1     1     2     1     1     2     1     1     1 
+ L024  L050 M1997 M2546 M7908   N10   N23  P282  Q188  R073  R074  R102 
     1     1     1     1     1     1     1     1     1     1     1     1 
- M544 M5459  N188   N23  N300  N390  R040  R074  R100   R33  R509   R51 
-    1     1     1     1     1     2     1     4     1     1     1     1 
-R53+1  R600  S011  S015  S018 S0600  S223  S300 S3200 S4220  S430  S460 
-    1     1     1     1     3     2     1     1     1     1     1     1 
- S520 S5250  S602  S610  S611 S6260 S6261  S800  S801 S8240  S901  S934 
-    1     1     1     2     1     1     1     2     1     1     2     6 
- S936  T173  T435  Z020  Z711 
-    1     1     1     1     1 
+ R104  R296   R51 R53+0 R53+1  S004  S013  S018  S060  S202 S4220 S4240 
+    2     1     1     1     1     1     1     2     1     2     1     1 
+ S435  S501  S520  S602  S610  S628 S7200  S800  S810  S834 S9220  S934 
+    1     1     1     1     2     1     1     1     1     1     1     1 
+ S936 T0230  T200  T438  T519  T754  Z027  Z538 
+    1     2     1     1     1     1     1     3 
 ```
 
 ```
    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-   0.00   57.75   63.00   60.94   69.00   92.00 
+   0.00   57.00   62.00   61.05   68.00   92.00 
 ```
 
 ![](dp_files/figure-html/diag_par_jour-1.png) 
@@ -81,7 +81,7 @@ round(n2 * 100 / n.bron, 2) # % de 2 ans et moins
 ```
 
 ```
-## [1] 96.9
+## [1] 97.08
 ```
 
 ```r
@@ -119,8 +119,8 @@ summary(bron$SEXE)
 ```
 
 ```
-##    F    M         I 
-##  664 1109    0    1
+##    F    I    M      
+##  900    1 1431    0
 ```
 
 ```r
@@ -137,7 +137,7 @@ summary(ped2.age)
 
 ```
 ##     Min.  1st Qu.   Median     Mean  3rd Qu.     Max. 
-##  0.03333  4.56700 10.67000 10.90000 16.80000 24.07000
+##  0.03333  4.73300 10.83000 11.05000 17.00000 24.07000
 ```
 
 ```r
@@ -180,6 +180,7 @@ __ATENTION__: les gaphiques de ce paragraphe ne sont exact que __dpr__ ne concer
 
 nombre de cas de grippes diagnostiqués aux urgences:
 
+- 2013: 626
 - 2014: 289
 - 2015: 1111
 
@@ -187,12 +188,22 @@ Grippes en 2014 et 2015
 ------------------------
 
 ```r
+anc <- 2014
+
+titre <- paste0("Syndromes grippaux", " - ", anc-1)
+m2013<-month(g2013$ENTREE,label=T)
+barplot(table(m2013),main = titre, xlab="Mois", ylab = "nombre de RPU", las = 2)
+```
+
+![](dp_files/figure-html/grppe_2014_2015-1.png) 
+
+```r
 titre <- paste0("Syndromes grippaux", " - ", anc)
 m2014<-month(g2014$ENTREE,label=T)
 barplot(table(m2014),main = titre, xlab="Mois", ylab = "nombre de RPU", las = 2)
 ```
 
-![](dp_files/figure-html/grppe_2014_2015-1.png) 
+![](dp_files/figure-html/grppe_2014_2015-2.png) 
 
 ```r
 titre <- paste0("Syndromes grippaux", " - ", anc + 1)
@@ -200,7 +211,7 @@ m2015<-month(g2015$ENTREE,label=T)
 barplot(table(m2015),main = "2015", xlab="Mois", ylab = "nombre de RPU", las = 2)
 ```
 
-![](dp_files/figure-html/grppe_2014_2015-2.png) 
+![](dp_files/figure-html/grppe_2014_2015-3.png) 
 
 
 Répartition par age
@@ -212,8 +223,8 @@ Gravité
 
 ```
 ## 
-##   1   2   3   4   5   D   P     
-## 415 852  62   1   0   1   0   0
+##    1    2    3    4    5    D    P      
+##  538 1326   85    3    1    1    0    0
 ```
 
 
@@ -221,7 +232,7 @@ Comparaison 2014 - 2015
 -----------------------
 Utilise __tapply__ avec une liste de deux factors, l'année et le mois. On obtient une matrice de 2 lignes (2014 et 2015) et 12 colonnes pour chacun des mois. On peut construire un graphe avec 2 barres par mois (beside).
 
-![](dp_files/figure-html/grippe2-1.png) ![](dp_files/figure-html/grippe2-2.png) ![](dp_files/figure-html/grippe2-3.png) ![](dp_files/figure-html/grippe2-4.png) ![](dp_files/figure-html/grippe2-5.png) 
+![](dp_files/figure-html/grippe2-1.png) ![](dp_files/figure-html/grippe2-2.png) ![](dp_files/figure-html/grippe2-3.png) ![](dp_files/figure-html/grippe2-4.png) ![](dp_files/figure-html/grippe2-5.png) ![](dp_files/figure-html/grippe2-6.png) 
 
 Allergies respiratoires
 =======================
