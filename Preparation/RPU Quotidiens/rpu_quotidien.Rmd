@@ -117,6 +117,8 @@ finess2hop <- function(a){
   a[a=="670780162"]<-"Dts"
   a[a=="670780212"]<-"Ane"
   a[a=="680000601"]<-"Tan"
+  a[a=="670009109"]<-"Ccm" # CCOM Ilkirch 2015-04-23
+  a[a=="680000627"]<-"Her" # Hasenrain  2015-04-23
   return(a)
 }
 ```

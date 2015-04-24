@@ -75,7 +75,7 @@ finess2hop <- function(a){
   a[a=="670783273"]<-"Hus" # HTP maj le 17/10/2014
   a[a=="680000197"]<-"3Fr"
   a[a=="680020096"]<-"3Fr" # maj le 30/5/2014 680020096
-  a[a=="680000627"]<-"Mul"
+  a[a=="680000627"]<-"Mul" # correspond au Hasenrain
   a[a=="670000157"]<-"Hag"
   a[a=="680000320"]<-"Dia" # DFO
   a[a=="680000395"]<-"Alk"
@@ -84,6 +84,8 @@ finess2hop <- function(a){
   a[a=="670780162"]<-"Dts" # DST
   a[a=="670780212"]<-"Ane"
   a[a=="680000601"]<-"Tan" # THA
+  a[a=="670009109"]<-"Ccm" # CCOM Ilkirch 2015-04-23
+  a[a=="680004546"]<-"Emr" # Emile muller  2015-04-23
   return(a)
 }
 
