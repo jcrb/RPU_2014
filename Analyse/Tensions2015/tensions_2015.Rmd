@@ -303,7 +303,7 @@ lines(rollmean(xts(m.dpas.75, order.by = as.Date(names(m.dpas.75))), k = 7), col
 
 rôle de la grippe
 --------------------
-![grippe 2015](../DP_CIM10/dp_files/figure-html/grippe2-2.png)
+![grippe 2015](../DP_CIM10/dp2_files/figure-html/grippe2-2.png)
 
 - mode de transport indicateurs
 

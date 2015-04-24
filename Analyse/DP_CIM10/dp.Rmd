@@ -4,12 +4,6 @@ author: "JcB"
 date: "01/10/2014"
 output:
   html_document:
-    keep_md: yes
-    number_sections: yes
-    toc: yes
-  pdf_document:
-    fig_caption: yes
-    keep_tex: yes
     number_sections: yes
     toc: yes
 ---
@@ -35,13 +29,15 @@ source("../Temps_passage/passage.R") # copyright
 
 path <- "../../"
 file <- "rpu2014d0112_c2.Rda"
-load(paste0(path, file))
-dx <- d14
+load(paste0(path, file)) # d14
+
+file3 <- "../RPU_2013/rpu2013d0112.Rda"
+load(paste0(path, file3)) # d1
 
 file2 <- "rpu2015d0112_provisoire.Rda" # d15
 #file2 <- "d15_p.Rda" # d15.p
 load(paste0(path, file2)) 
-dx <- rbind(dx, d15)
+dx <- rbind(d1, d14, d15)
 
 dpr<-dx[!is.na(dx$DP),c("DP","CODE_POSTAL","ENTREE","FINESS","GRAVITE","ORIENTATION","MODE_SORTIE","AGE","SEXE","TRANSPORT","DESTINATION", "NAISSANCE")]
 anc <- year(dpr$ENTREE[1]) # année courante
@@ -151,18 +147,26 @@ grippe<-dpr[substr(dpr$DP,1,3)=="J11"|substr(dpr$DP,1,3)=="J10"|substr(dpr$DP,1,
 grippe$date<-as.Date(grippe$ENTREE)
 
 # anc <- "2014"
+g2013 <- grippe[year(as.Date(grippe$ENTREE)) == "2013",]
 g2014 <- grippe[year(as.Date(grippe$ENTREE)) == "2014",]
 g2015 <- grippe[year(as.Date(grippe$ENTREE)) == "2015",]
 ```
 
 nombre de cas de grippes diagnostiqués aux urgences:
 
+- 2013: `r nrow(g2013)`
 - 2014: `r nrow(g2014)`
 - 2015: `r nrow(g2015)`
 
 Grippes en 2014 et 2015
 ------------------------
 ```{r grppe_2014_2015}
+anc <- 2014
+
+titre <- paste0("Syndromes grippaux", " - ", anc-1)
+m2013<-month(g2013$ENTREE,label=T)
+barplot(table(m2013),main = titre, xlab="Mois", ylab = "nombre de RPU", las = 2)
+
 titre <- paste0("Syndromes grippaux", " - ", anc)
 m2014<-month(g2014$ENTREE,label=T)
 barplot(table(m2014),main = titre, xlab="Mois", ylab = "nombre de RPU", las = 2)
@@ -203,10 +207,18 @@ barplot(a, beside = TRUE, main = "Syndrome grippal par mois", ylab = "Fréquence
 
 # par semaine
 b <- tapply(as.Date(grippe$ENTREE),list(year(as.Date(grippe$ENTREE)), week(as.Date(grippe$ENTREE))), length )
-cols <- c("chartreuse", "yellow")
+cols <- c( "gold", "yellow", "chartreuse")
 barplot(b, beside = TRUE, main = "Syndromes grippaux vus aux urgences en Alsace", ylab = "Fréquence hebdomadaire", las = 2, cex.names = 0.8, col = cols, xlab = "semaines")
 legend("topright", legend = rownames(a), col = cols, pch = 15, bty = "n")
 copyright()
+
+# idem limité à 20 semaines
+b <- tapply(as.Date(grippe$ENTREE),list(year(as.Date(grippe$ENTREE)), week(as.Date(grippe$ENTREE))), length )
+cols <- c( "gold", "yellow", "chartreuse")
+barplot(b[,1:20], beside = TRUE, main = "Syndromes grippaux vus aux urgences en Alsace", ylab = "Fréquence hebdomadaire", las = 2, cex.names = 0.8, col = cols, xlab = "semaines")
+legend("topright", legend = rownames(a), col = cols, pch = 15, bty = "n")
+copyright()
+
 
 # en utilisant XTS
 a <- tapply(as.Date(grippe$ENTREE),as.Date(grippe$ENTREE), length )
@@ -215,7 +227,7 @@ plot(b, minor.ticks = FALSE, main = "Syndrome grippaux en Alsace", ylab = "Fréq
 
 # par semaine et par an. On obtient un dataframe de 2 lignes (2014 et 2015). Les 2 lignes sont mises bout à bout pour être barplottées.
 a <- tapply(as.Date(grippe$ENTREE),list(year(as.Date(grippe$ENTREE)), week(as.Date(grippe$ENTREE))), length )
-b <- c(a[1,], a[2,])
+b <- c(a[1,], a[2,], a[3,])
 plot(b, ylab = "Fréquence hebdomadaire", main = "Syndromes grippaux aux SU d'Alsace", type = "l")
 barplot(b, ylab = "Fréquence hebdomadaire", main = "Syndromes grippaux hebdomadaires aux SU d'Alsace", sub = "2014 - 2015")
 
