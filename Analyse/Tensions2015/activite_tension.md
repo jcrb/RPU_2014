@@ -1,0 +1,79 @@
+# Activité 2013-2014
+jcb  
+24 avril 2015  
+
+Problème: comparer l'activité des SU pendant la période de tension au cours des années 2013 à 2015.
+
+ref: http://stackoverflow.com/questions/4843969/plotting-time-series-with-date-labels-on-x-axis
+
+pour les graduations de l'axe des x: http://earlh.com/blog/2009/07/07/plotting-with-custom-x-axis-labels-in-r-part-5-in-a-series/
+
+
+```r
+library(lubridate)
+library(xts)
+```
+
+```
+## Loading required package: zoo
+## 
+## Attaching package: 'zoo'
+## 
+## The following objects are masked from 'package:base':
+## 
+##     as.Date, as.Date.numeric
+```
+
+```r
+source("../Temps_passage/passage.R")
+
+# récupérer les 3 années
+load("~/Documents/Stat Resural/RPU_2014/rpu2014d0112_c2.Rda")
+load("~/Documents/Stat Resural/RPU_2014/rpu2015d0112_provisoire.Rda")
+load("~/Documents/Stat Resural/RPU_2013/rpu2013d0112.Rda")
+dx <- rbind(d1, d14, d15)
+
+# on se limite aux 4 premier mois de l'année (pas de données pour décembre 2012)
+dxt1 <- dx[as.Date(dx$ENTREE) >= "2013-01-01" & as.Date(dx$ENTREE) < "2013-04-15",]
+dxt2 <- dx[as.Date(dx$ENTREE) >= "2014-01-01" & as.Date(dx$ENTREE) < "2014-04-15",]
+dxt3 <- dx[as.Date(dx$ENTREE) >= "2015-01-01" & as.Date(dx$ENTREE) < "2015-04-15",]
+
+# on formeun grand dataframe
+# dt = RPU des 4 premiers mois des années 2013 à 2015
+dt <- rbind(dxt1,dxt2,dxt3)
+
+# pour chaque jour de la période (jours transformés en n° du jour de l'année), on calcule le nombre de RPU. On obtient une matrice de 3 lignes (1 par année) et 98 jours.
+rpu.jour <- tapply(as.Date(dt$ENTREE), list(yday(as.Date(dt$ENTREE)), year(as.Date(dt$ENTREE))), length)
+
+# La matrice est transformée en dataframe
+rpu.jour <- data.frame(rpu.jour)
+
+# auquel on ajoute une colonne de dates.On choisit arbitrairement 2015 pour les dates
+x <- seq(as.Date("2015-01-01"), as.Date("2015-04-14"), 1)
+rpu.jour$date <- x
+
+# graphique
+# on utilise plot pour tracer 2013 (xaxt = "n" empêche de tracer l'axe des x), puis lines pour 2014 et 2015
+plot(rollmean(rpu.jour$X2013, 7, fill=NA)  ~ rpu.jour$date, type = "l", xaxt = "n", ylim=c(650, 1500), col = "green", ylab = "nombre de RPU", xlab = "jours", main = "Activité comparée des SU Alsace (moyennes lissées)", lwd = 3)
+
+# la partie délicate est l'axe des x qui est dessiné à part avec axis. On redéfinit l'abcisse des points à tracer en créant une séquence de dates espacées de 7 jours. Chaque date correspondra à une abcisse
+at <- seq(as.Date("2015-01-01"), as.Date("2015-04-14"), 7)
+# axis(1, x, format(x, "%b %d"), cex.axis = .7, las = 2)
+
+# finalement on dessine l'axe des x (1), en mettant une graduation (at) selon le vecteur précédamment définit et qui s'affichera sous forme jour + mois (format)
+axis(1, at, format(at, "%b %d"), las = 2, cex.axis = 0.7)
+
+
+lines(rollmean(rpu.jour$X2014, 7, fill=NA)  ~ rpu.jour$date, col = "blue", lwd = 3)
+lines(rollmean(rpu.jour$X2015, 7, fill=NA)  ~ rpu.jour$date, col = "red", lwd = 3)
+
+legend("bottomright", legend = c("2013","2014","2015"), col = c("green","blue","red"), lty = 1, lwd = 2, bty = "n", cex = 0.8 )
+
+abline(v = at, col='grey', lwd=0.5)
+abline(h = c(800,1000,1200,1400), col='grey', lwd=0.5)
+
+copyright()
+```
+
+![](activite_tension_files/figure-html/unnamed-chunk-1-1.png) 
+

@@ -99,8 +99,14 @@ legend("topleft", legend = c("Passages","Taux d'hospitalisation"), col = c("blac
 # enregistrement du dataframe en csv:
 write.csv(devenir, file = "devenir.csv", row.names = FALSE)
 
+```
+
+Nombre de RPU par jour et par établissement
+-------------------------------------------
+```{r rpu_jour_finess}
 
 ```
+
 
 
 Circuit rapide
