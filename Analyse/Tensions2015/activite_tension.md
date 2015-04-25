@@ -26,6 +26,7 @@ library(xts)
 
 ```r
 source("../Temps_passage/passage.R")
+source("activite_tension.R") # graphique
 
 # récupérer les 3 années
 load("~/Documents/Stat Resural/RPU_2014/rpu2014d0112_c2.Rda")
@@ -38,10 +39,45 @@ dxt1 <- dx[as.Date(dx$ENTREE) >= "2013-01-01" & as.Date(dx$ENTREE) < "2013-04-15
 dxt2 <- dx[as.Date(dx$ENTREE) >= "2014-01-01" & as.Date(dx$ENTREE) < "2014-04-15",]
 dxt3 <- dx[as.Date(dx$ENTREE) >= "2015-01-01" & as.Date(dx$ENTREE) < "2015-04-15",]
 
-# on formeun grand dataframe
+# on forme un grand dataframe
 # dt = RPU des 4 premiers mois des années 2013 à 2015
 dt <- rbind(dxt1,dxt2,dxt3)
 
+head(dt)
+```
+
+```
+##                                 id CODE_POSTAL   COMMUNE DESTINATION   DP
+## 1 2c9d83843bf5e01d013bf5e985d20225       67600  SELESTAT        <NA> R104
+## 2 2c9d83843bf5e01d013bf5e986950226       67600  SELESTAT        <NA> J038
+## 3 2c9d83843bf5e01d013bf5e987620227       67600  SELESTAT        <NA> S617
+## 4 2c9d83843bf5e01d013bf5e988060228       67600  SELESTAT        <NA> M485
+## 5 2c9d83843bf5e01d013bf5e9889c0229       67600 EBERSHEIM        <NA> T261
+## 6 2c9d83843bf5e01d013bf5e98958022a       67560   ROSHEIM        <NA> S018
+##                ENTREE             EXTRACT FINESS GRAVITE MODE_ENTREE
+## 1 2013-01-01 00:04:00 2013-01-01 05:37:00    Sel       2    Domicile
+## 2 2013-01-01 00:16:00 2013-01-01 05:37:00    Sel       2    Domicile
+## 3 2013-01-01 00:26:00 2013-01-01 05:37:00    Sel       3    Domicile
+## 4 2013-01-01 00:32:00 2013-01-01 05:37:00    Sel       2    Domicile
+## 5 2013-01-01 00:41:00 2013-01-01 05:37:00    Sel       2    Domicile
+## 6 2013-01-01 01:00:00 2013-01-01 05:37:00    Sel       1    Domicile
+##   MODE_SORTIE      MOTIF           NAISSANCE ORIENTATION PROVENANCE SEXE
+## 1    Domicile   GASTRO04 1960-04-08 00:00:00        <NA>        PEA    M
+## 2    Domicile   DIVERS23 1986-03-05 00:00:00        <NA>        PEA    M
+## 3    Domicile TRAUMATO10 1971-12-22 00:00:00        <NA>        PEA    M
+## 4    Domicile TRAUMATO02 1927-04-27 00:00:00        <NA>        PEA    F
+## 5    Domicile OPHTALMO04 1973-07-30 00:00:00        <NA>        PEA    M
+## 6    Domicile TRAUMATO09 2003-05-13 00:00:00        <NA>        PEA    M
+##                SORTIE TRANSPORT TRANSPORT_PEC AGE
+## 1 2013-01-01 02:38:00     PERSO         AUCUN  52
+## 2 2013-01-01 00:38:00     PERSO         AUCUN  26
+## 3 2013-01-01 02:07:00     PERSO         AUCUN  41
+## 4 2013-01-01 01:52:00      AMBU       PARAMED  85
+## 5 2013-01-01 01:24:00     PERSO         AUCUN  39
+## 6 2013-01-01 01:34:00     PERSO         AUCUN   9
+```
+
+```r
 # pour chaque jour de la période (jours transformés en n° du jour de l'année), on calcule le nombre de RPU. On obtient une matrice de 3 lignes (1 par année) et 98 jours.
 rpu.jour <- tapply(as.Date(dt$ENTREE), list(yday(as.Date(dt$ENTREE)), year(as.Date(dt$ENTREE))), length)
 
@@ -52,28 +88,43 @@ rpu.jour <- data.frame(rpu.jour)
 x <- seq(as.Date("2015-01-01"), as.Date("2015-04-14"), 1)
 rpu.jour$date <- x
 
+head(rpu.jour)
+```
+
+```
+##   X2013 X2014 X2015       date
+## 1   931   972  1304 2015-01-01
+## 2   849  1055  1332 2015-01-02
+## 3   722  1038  1182 2015-01-03
+## 4   749   982  1197 2015-01-04
+## 5   760   918  1325 2015-01-05
+## 6   741  1000  1241 2015-01-06
+```
+
+```r
 # graphique
-# on utilise plot pour tracer 2013 (xaxt = "n" empêche de tracer l'axe des x), puis lines pour 2014 et 2015
-plot(rollmean(rpu.jour$X2013, 7, fill=NA)  ~ rpu.jour$date, type = "l", xaxt = "n", ylim=c(650, 1500), col = "green", ylab = "nombre de RPU", xlab = "jours", main = "Activité comparée des SU Alsace (moyennes lissées)", lwd = 3)
-
-# la partie délicate est l'axe des x qui est dessiné à part avec axis. On redéfinit l'abcisse des points à tracer en créant une séquence de dates espacées de 7 jours. Chaque date correspondra à une abcisse
-at <- seq(as.Date("2015-01-01"), as.Date("2015-04-14"), 7)
-# axis(1, x, format(x, "%b %d"), cex.axis = .7, las = 2)
-
-# finalement on dessine l'axe des x (1), en mettant une graduation (at) selon le vecteur précédamment définit et qui s'affichera sous forme jour + mois (format)
-axis(1, at, format(at, "%b %d"), las = 2, cex.axis = 0.7)
-
-
-lines(rollmean(rpu.jour$X2014, 7, fill=NA)  ~ rpu.jour$date, col = "blue", lwd = 3)
-lines(rollmean(rpu.jour$X2015, 7, fill=NA)  ~ rpu.jour$date, col = "red", lwd = 3)
-
-legend("bottomright", legend = c("2013","2014","2015"), col = c("green","blue","red"), lty = 1, lwd = 2, bty = "n", cex = 0.8 )
-
-abline(v = at, col='grey', lwd=0.5)
-abline(h = c(800,1000,1200,1400), col='grey', lwd=0.5)
-
-copyright()
+graphe.activite(rpu.jour)
 ```
 
 ![](activite_tension_files/figure-html/unnamed-chunk-1-1.png) 
+
+Même chose pour les 75 ans et plus:
+
+```r
+dx75 <- dx[dx$AGE > 74,]
+rpu.jour.75 <- create.dxt(dx75)
+graphe.activite(rpu.jour.75, "75 ans et plus")
+```
+
+![](activite_tension_files/figure-html/rpu75-1.png) 
+
+Proportion des 75 ans et plus au sein de l'ensemble des passages. On calcule la proportion rpu.jour.75 sur rpu.jour.
+
+```r
+prop <- rpu.jour.75[1:3] * 100 / rpu.jour[1:3]
+prop$date <- rpu.jour$date
+graphe.activite2(prop, "% 75 ans et plus")
+```
+
+![](activite_tension_files/figure-html/prop.75-1.png) 
 

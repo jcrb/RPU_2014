@@ -17,6 +17,7 @@ pour les graduations de l'axe des x: http://earlh.com/blog/2009/07/07/plotting-w
 library(lubridate)
 library(xts)
 source("../Temps_passage/passage.R")
+source("activite_tension.R") # graphique
 
 # récupérer les 3 années
 load("~/Documents/Stat Resural/RPU_2014/rpu2014d0112_c2.Rda")
@@ -29,9 +30,11 @@ dxt1 <- dx[as.Date(dx$ENTREE) >= "2013-01-01" & as.Date(dx$ENTREE) < "2013-04-15
 dxt2 <- dx[as.Date(dx$ENTREE) >= "2014-01-01" & as.Date(dx$ENTREE) < "2014-04-15",]
 dxt3 <- dx[as.Date(dx$ENTREE) >= "2015-01-01" & as.Date(dx$ENTREE) < "2015-04-15",]
 
-# on formeun grand dataframe
+# on forme un grand dataframe
 # dt = RPU des 4 premiers mois des années 2013 à 2015
 dt <- rbind(dxt1,dxt2,dxt3)
+
+head(dt)
 
 # pour chaque jour de la période (jours transformés en n° du jour de l'année), on calcule le nombre de RPU. On obtient une matrice de 3 lignes (1 par année) et 98 jours.
 rpu.jour <- tapply(as.Date(dt$ENTREE), list(yday(as.Date(dt$ENTREE)), year(as.Date(dt$ENTREE))), length)
@@ -43,26 +46,25 @@ rpu.jour <- data.frame(rpu.jour)
 x <- seq(as.Date("2015-01-01"), as.Date("2015-04-14"), 1)
 rpu.jour$date <- x
 
+head(rpu.jour)
+
 # graphique
-# on utilise plot pour tracer 2013 (xaxt = "n" empêche de tracer l'axe des x), puis lines pour 2014 et 2015
-plot(rollmean(rpu.jour$X2013, 7, fill=NA)  ~ rpu.jour$date, type = "l", xaxt = "n", ylim=c(650, 1500), col = "green", ylab = "nombre de RPU", xlab = "jours", main = "Activité comparée des SU Alsace (moyennes lissées)", lwd = 3)
+graphe.activite(rpu.jour)
 
-# la partie délicate est l'axe des x qui est dessiné à part avec axis. On redéfinit l'abcisse des points à tracer en créant une séquence de dates espacées de 7 jours. Chaque date correspondra à une abcisse
-at <- seq(as.Date("2015-01-01"), as.Date("2015-04-14"), 7)
-# axis(1, x, format(x, "%b %d"), cex.axis = .7, las = 2)
+```
 
-# finalement on dessine l'axe des x (1), en mettant une graduation (at) selon le vecteur précédamment définit et qui s'affichera sous forme jour + mois (format)
-axis(1, at, format(at, "%b %d"), las = 2, cex.axis = 0.7)
+Même chose pour les 75 ans et plus:
+```{r rpu75}
+dx75 <- dx[dx$AGE > 74,]
+rpu.jour.75 <- create.dxt(dx75)
+graphe.activite(rpu.jour.75, "75 ans et plus")
+```
 
+Proportion des 75 ans et plus au sein de l'ensemble des passages. On calcule la proportion rpu.jour.75 sur rpu.jour.
+```{r prop.75}
+prop <- rpu.jour.75[1:3] * 100 / rpu.jour[1:3]
+prop$date <- rpu.jour$date
+graphe.activite2(prop, "% 75 ans et plus")
 
-lines(rollmean(rpu.jour$X2014, 7, fill=NA)  ~ rpu.jour$date, col = "blue", lwd = 3)
-lines(rollmean(rpu.jour$X2015, 7, fill=NA)  ~ rpu.jour$date, col = "red", lwd = 3)
-
-legend("bottomright", legend = c("2013","2014","2015"), col = c("green","blue","red"), lty = 1, lwd = 2, bty = "n", cex = 0.8 )
-
-abline(v = at, col='grey', lwd=0.5)
-abline(h = c(800,1000,1200,1400), col='grey', lwd=0.5)
-
-copyright()
 ```
 
