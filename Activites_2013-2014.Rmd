@@ -123,7 +123,7 @@ plot(p2013$V2, type="l")
 lines(p2013$V3, p2013$V4)
 
 # nb rpu/jpour en 2015
-load("d01_provisoire.Rda")
+load("d15_p.Rda")
 p2015 <- rpu.par.jour(d01.p$ENTREE)
 plot(p2015$V2, type="l")
 lines(p2015$V3, p2015$V4)
