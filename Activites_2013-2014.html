@@ -85,7 +85,7 @@ img {
 <div id="activite-2013-2014" class="section level1">
 <h1>Activité 2013-2014</h1>
 <p>On crée le fichier <strong>d2</strong> concaténation de 2013 (d1) et 2014 (dx):</p>
-<pre><code>load(&quot;../RPU_2013/rpu2013d0112.Rda&quot;) # d1
+<pre class="r"><code>load(&quot;../RPU_2013/rpu2013d0112.Rda&quot;) # d1
 load(&quot;rpu2014d0112_c.Rda&quot;)
 d2 &lt;- rbind(d1,d14)
 save(d2, file=&quot;rpu2013-2014.Rda&quot;)</code></pre>
@@ -93,7 +93,7 @@ save(d2, file=&quot;rpu2013-2014.Rda&quot;)</code></pre>
 <pre class="r"><code>load(&quot;rpu2013-2014.Rda&quot;)</code></pre>
 <div id="librairies-et-routines-necessaires" class="section level2">
 <h2>Librairies et routines nécessaires</h2>
-<p>La librairie <strong>xtsExtra</strong> be fait pas partie des librairiees standards, il faut la charger sur <em>source-forge</em>: install.packages(“xtsExtra”, repos=“<a href="http://R-Forge.R-project.org">http://R-Forge.R-project.org</a>”)</p>
+<p>La librairie <strong>xtsExtra</strong> be fait pas partie des librairiees standards, il faut la charger sur <em>source-forge</em>: install.packages(“xtsExtra”, repos=“<a href="http://R-Forge.R-project.org" class="uri">http://R-Forge.R-project.org</a>”)</p>
 <pre class="r"><code>library(&quot;xtsExtra&quot;)</code></pre>
 <pre><code>## Loading required package: zoo
 ## 

@@ -7,7 +7,8 @@ Activité 2013-2014
 
 On crée le fichier __d2__ concaténation de 2013 (d1) et 2014 (dx):
 
-```{}
+
+```r
 load("../RPU_2013/rpu2013d0112.Rda") # d1
 load("rpu2014d0112_c.Rda")
 d2 <- rbind(d1,d14)

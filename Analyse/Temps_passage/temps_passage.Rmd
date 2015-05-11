@@ -277,6 +277,23 @@ On forme un dataframe avec:
 - DP
 - Age
 
+Rappel: si on commence ici il faut:
+library(lubridate)
+source("Analyse/Temps_passage/passage.R")
+load("~/Documents/Resural/Stat Resural/RPU_2014/rpu2014d0112_c2.Rda") # d14 (2014)
+load("~/Documents/Resural/Stat Resural/RPU_2014/rpu2015d0112_provisoire.Rda") # d15 (2015)
+
+# pour 2014
+d14$DPAS <- as.numeric(duree.passage(d14$ENTREE, d14$SORTIE))
+dpas2014 <- temps.passage(d14) # nouvelle fonction
+# durée de passage moyenne en fonction de l'heure d'entrée
+a <- tapply(dpas2014$DPAS, dpas2014$HEURE.E, mean)
+plot(a, type = "l", xlim = c(0,25), ylab = "Durée de passage", xlab = "Heure d'entrée", main = "Temps de passage moyen en fonction de l'heure d'entrée", lwd = 3, col="blue")
+boxplot(dpas2014$DPAS ~ dpas2014$HEURE.E, outline = FALSE, ylab = "Durée de passage", xlab = "Heure d'entrée",main = "Temps de passage en fonction de l'heure d'entrée")
+
+# pour 2015
+
+
 ```{r heure_passage, echo=FALSE}
 dpas.heure <- d14[, c("ENTREE","DPAS","MOTIF","DP","AGE")]
 
@@ -285,7 +302,7 @@ dpas.heure <- dpas.heure[!is.na(dpas.heure$DPAS) & dpas.heure$DPAS > 0 & dpas.he
 dpas.heure$DATE <- substr(dpas.heure$ENTREE, 1, 10) # date entrée AAAA-MM-DD
 dpas.heure$HEURE.E <- hour(dpas.heure$ENTREE) # heure entrée (heures entières)
 
-# durée de passage en fonction de l'heure d'entrée
+# durée de passage moyenne en fonction de l'heure d'entrée
 tapply(dpas.heure$DPAS, dpas.heure$HEURE.E, mean)
 a <- tapply(dpas.heure$DPAS, dpas.heure$HEURE.E, mean)
 plot(a, type = "l", xlim = c(0,25), ylab = "Durée de passage", xlab = "Heure d'entrée", main = "Temps de passage moyen en fonction de l'heure d'entrée", lwd = 3, col="blue")

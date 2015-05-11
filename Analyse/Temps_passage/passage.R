@@ -82,7 +82,9 @@ copyright <- function(an ="2013-2015",side=4,line=-1,cex=0.8, titre = "Resural")
 }
 
 #===========================================================================
+#
 # CUSUM - C2
+#
 #===========================================================================
 # méthode C2
 #'@param v2 vecteur de valeurs
@@ -107,3 +109,31 @@ cusum.c2 <- function(v2, k=0.5, seuil = 2){
   return(d)
 }
 
+#===========================================================================
+#
+# temps de passage
+#
+#===========================================================================
+# Crée un dataframe ne contenant que les durées de passage comprises entre
+# 0 et 48 heures, avec:
+#   
+# - FINESS
+# - date
+# - heure d'entrée
+# - durée de passage (mn)
+# - motif
+# - DP
+# - Age
+#'@param dx un dataframe de type RPU 
+
+temps.passage <- function(dx){
+  # dx dataframe RPU. On ajpoute une colonne DPAS (durée de passage)
+  dx$DPAS <- as.numeric(duree.passage(dx$ENTREE, dx$SORTIE))
+  #
+  dpas.heure <- dx[, c("FINESS","ENTREE","DPAS","MOTIF","DP","AGE")]
+  # on ne garde que les duréesde passage exploitables
+  dpas.heure <- dpas.heure[!is.na(dpas.heure$DPAS) & dpas.heure$DPAS > 0 & dpas.heure$DPAS <= 2*24*60, ]
+  dpas.heure$DATE <- substr(dpas.heure$ENTREE, 1, 10) # date entrée AAAA-MM-DD
+  dpas.heure$HEURE.E <- hour(dpas.heure$ENTREE) # heure entrée (heures entières)
+  return(dpas.heure)
+}
