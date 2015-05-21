@@ -24,6 +24,7 @@
 #' - create.col.territoire
 #' - add.territoire
 #' - finess2territoires
+#' - rpu.par.jour
 
 #=======================================
 #
@@ -551,4 +552,21 @@ add.territoire <- function(dx){
 finess2territoires <- function(finess){
   finess <- factor(finess, levels = c('Wis','Hag','Sav','Hus','Ane','Odi','Dts','Sel','Col','Geb','Mul', 'Alk','Dia','Ros','3Fr'))
   return(finess)
+}
+
+#=======================================
+#
+# rpu.par.jour
+#
+#=======================================
+# retourne une table contenant le nombre de RPU par jour et par FINESS
+#'@param dx un dataframe de type rpu ayant un minimum 2 colonnes ENTREE et FINESS
+#'@usage rpu.par.jour(d04)
+#'
+#           3Fr Alk Ane Col Dia Dts Geb Hag Hus Mul Odi Ros Sav Sel Wis
+# 2015-01-01  48  51   0 190  59  29  52 129 306 220  15   9  83  85  28
+# 2015-01-02  45  52   0 210 102  27  43 118 292 200  10  28  94  81  30
+# 2015-01-03  31  43   0 203  85  30  64 135 325   0   2  13 106 103  42
+rpu.par.jour <- function(dx){
+  return(table(as.Date(dx$ENTREE), dx$FINESS))
 }

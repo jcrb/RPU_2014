@@ -186,8 +186,8 @@ source("Preparation/RPU Quotidiens/quot_utils.R")
 file.to.delete <- "/home/jcb/Documents/Resural/Stat Resural/Archives_Sagec/dataQ/archivesCsv/rpu2014.data"
 file.remove(file.to.delete)
 
-date1 <- "2015-03-08"
-date2 <- "2015-05-14"
+date1 <- "2015-05-04"
+date2 <- "2015-05-04"
 
 mc <- substr(date1, 6, 7)
 ac <- substr(date1, 1,4)
@@ -235,7 +235,8 @@ max(as.Date(dx$ENTREE))
 d15 <- dx
 save(d15, file="rpu2015d0112_provisoire.Rda")
 
-table(as.Date(d04$ENTREE), d04$FINESS)
+# Table des RPU par jour et par FINESS pour le mois en cours
+rpu.par.jour(d04)
 ```
 
 
