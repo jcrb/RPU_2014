@@ -318,6 +318,23 @@ On forme un dataframe avec:
 - DP
 - Age
 
+Rappel: si on commence ici il faut:
+library(lubridate)
+source("Analyse/Temps_passage/passage.R")
+load("~/Documents/Resural/Stat Resural/RPU_2014/rpu2014d0112_c2.Rda") # d14 (2014)
+load("~/Documents/Resural/Stat Resural/RPU_2014/rpu2015d0112_provisoire.Rda") # d15 (2015)
+
+# pour 2014
+d14$DPAS <- as.numeric(duree.passage(d14$ENTREE, d14$SORTIE))
+dpas2014 <- temps.passage(d14) # nouvelle fonction
+# durée de passage moyenne en fonction de l'heure d'entrée
+a <- tapply(dpas2014$DPAS, dpas2014$HEURE.E, mean)
+plot(a, type = "l", xlim = c(0,25), ylab = "Durée de passage", xlab = "Heure d'entrée", main = "Temps de passage moyen en fonction de l'heure d'entrée", lwd = 3, col="blue")
+boxplot(dpas2014$DPAS ~ dpas2014$HEURE.E, outline = FALSE, ylab = "Durée de passage", xlab = "Heure d'entrée",main = "Temps de passage en fonction de l'heure d'entrée")
+
+# pour 2015
+
+
 
 ```
 ##         0         1         2         3         4         5         6 
@@ -369,8 +386,8 @@ ec7 <- (x.sum[7:365] - rmean) /sd7
 ```
 
 ```
-## Warning in (x.sum[7:365] - rmean)/sd7: la taille d'un objet plus long
-## n'est pas multiple de la taille d'un objet plus court
+## Warning in (x.sum[7:365] - rmean)/sd7: la taille d'un objet plus long n'est
+## pas multiple de la taille d'un objet plus court
 ```
 
 ```r

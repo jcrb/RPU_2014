@@ -47,7 +47,7 @@ load(paste0(path, "../rpu2015d0112.Rda")) # 2015
 ```
 
 ```{r init, echo=FALSE}
-path <- "../"
+path <- ""
 source("/home/jcb/Documents/Resural/FEDORU/Trame_Commune/rapport_2014.R")
 load(paste0(path, "../rpu2015d0112.Rda")) # 2015
 
