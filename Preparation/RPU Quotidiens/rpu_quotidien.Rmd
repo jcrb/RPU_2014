@@ -186,8 +186,8 @@ source("Preparation/RPU Quotidiens/quot_utils.R")
 file.to.delete <- "/home/jcb/Documents/Resural/Stat Resural/Archives_Sagec/dataQ/archivesCsv/rpu2014.data"
 file.remove(file.to.delete)
 
-date1 <- "2015-05-04"
-date2 <- "2015-05-04"
+date1 <- "2015-05-13"
+date2 <- "2015-05-26"
 
 mc <- substr(date1, 6, 7)
 ac <- substr(date1, 1,4)
@@ -208,16 +208,16 @@ num.mc <- 1 # numéro du mois courant
 mois.c <- paste("d", )
 
 ```{}
-d04 <- dx[as.Date(dx$ENTREE) >= "2015-04-01" & as.Date(dx$ENTREE) < "2015-05-01",]
-max(as.Date(d04$ENTREE))
-min(as.Date(d04$ENTREE))
-d04 <- normalise(d04)
-save(d04, file="rpu2015d04_provisoire.Rda")
+d05 <- dx[as.Date(dx$ENTREE) >= "2015-05-01" & as.Date(dx$ENTREE) < "2015-06-01",]
+max(as.Date(d05$ENTREE))
+min(as.Date(d05$ENTREE))
+d05 <- normalise(d05)
+save(d05, file="rpu2015d05_provisoire.Rda")
 rm(dx)
 
 # si le mois est complet:
-# save(d04, file="rpu2015d04.Rda")
-# rm(rpu2015d04_provisoire.Rda)
+# save(d05, file="rpu2015d05.Rda")
+# rm(rpu2015d05_provisoire.Rda)
 
 # uniquement le premier mois
 # d15 <- d01
@@ -227,8 +227,9 @@ rm(dx)
 load("rpu2015d01.Rda") # mois précédent
 load("rpu2015d02.Rda") # mois précédent
 load("rpu2015d03.Rda") # mois précédent
+load("rpu2015d04.Rda") # mois précédent
 
-dx <- rbind(d01, d02, d03, d04)
+dx <- rbind(d01, d02, d03, d04, d05)
 min(as.Date(dx$ENTREE))
 max(as.Date(dx$ENTREE))
 
@@ -236,7 +237,7 @@ d15 <- dx
 save(d15, file="rpu2015d0112_provisoire.Rda")
 
 # Table des RPU par jour et par FINESS pour le mois en cours
-rpu.par.jour(d04)
+rpu.par.jour(d05)
 ```
 
 
@@ -316,7 +317,7 @@ Objet: mesure de l'activité au jour le jour avant consolidation. En pratique re
 1. récupérer le fichier source, le décompacter.
 2. appeler la fonction __parse_rpu__ avec la date du jour, qui le transforme en dataframe
 ```{}
-d <- parse_rpu("2015-05-07")
+d <- parse_rpu("2015-05-26")
 min(as.Date(d$ENTREE))
 max(as.Date(d$ENTREE))
 ```
