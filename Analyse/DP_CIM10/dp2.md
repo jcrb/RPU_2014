@@ -60,7 +60,7 @@ R53+1  R600  S011  S015  S018 S0600  S223  S300 S3200 S4220  S430  S460
 
 ```
    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-   0.00   57.75   63.00   60.94   69.00   92.00 
+    0.0    58.0    63.0    61.1    69.0    92.0 
 ```
 
 ![](dp2_files/figure-html/diag_par_jour-1.png) 
@@ -81,7 +81,7 @@ round(n2 * 100 / n.bron, 2) # % de 2 ans et moins
 ```
 
 ```
-## [1] 96.9
+## [1] 96.93
 ```
 
 ```r
@@ -120,7 +120,7 @@ summary(bron$SEXE)
 
 ```
 ##    F    M         I 
-##  664 1109    0    1
+##  690 1167    0    1
 ```
 
 ```r
@@ -137,7 +137,7 @@ summary(ped2.age)
 
 ```
 ##     Min.  1st Qu.   Median     Mean  3rd Qu.     Max. 
-##  0.03333  4.56700 10.67000 10.90000 16.80000 24.07000
+##  0.03333  4.60000 10.77000 10.95000 16.87000 24.07000
 ```
 
 ```r
@@ -181,7 +181,7 @@ __ATENTION__: les gaphiques de ce paragraphe ne sont exact que __dpr__ ne concer
 nombre de cas de grippes diagnostiqués aux urgences:
 
 - 2014: 289
-- 2015: 1111
+- 2015: 1152
 
 Grippes en 2014 et 2015
 ------------------------
@@ -213,7 +213,7 @@ Gravité
 ```
 ## 
 ##   1   2   3   4   5   D   P     
-## 415 852  62   1   0   1   0   0
+## 425 883  62   1   0   1   0   0
 ```
 
 

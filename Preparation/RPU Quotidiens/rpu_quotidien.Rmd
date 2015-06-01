@@ -186,8 +186,8 @@ source("Preparation/RPU Quotidiens/quot_utils.R")
 file.to.delete <- "/home/jcb/Documents/Resural/Stat Resural/Archives_Sagec/dataQ/archivesCsv/rpu2014.data"
 file.remove(file.to.delete)
 
-date1 <- "2015-05-13"
-date2 <- "2015-05-26"
+date1 <- "2015-05-26"
+date2 <- "2015-05-31"
 
 mc <- substr(date1, 6, 7)
 ac <- substr(date1, 1,4)
@@ -239,6 +239,23 @@ save(d15, file="rpu2015d0112_provisoire.Rda")
 # Table des RPU par jour et par FINESS pour le mois en cours
 rpu.par.jour(d05)
 ```
+#### Nombre de attendus pour l'année:
+```{r rpu_extrapoles}
+n <- nrow(d15)
+td <- max(as.Date(d15$ENTREE)) - min(as.Date(dx$ENTREE))
+n * 365 / as.numeric(td)
+
+```
+
+### Recherche de doublons: CODE_POSTAL, COMMUNE, ENTREE, FINESS, NAISSANCE, SEXE
+```{r doublons}
+a <- duplicated(d15[, c(2,3,6,8,13,16)])
+sum(a)
+which(a) # quelle ligne
+d15[which(a), c(2,3,6,8,13,16)]
+
+```
+
 
 
 #### Eventuellement sauvegarder au format .Rda
@@ -300,8 +317,11 @@ z <- as.zoo(x)
 plot(z, col="blue", ylab="nombre de RPU", xlab=paste0("Année ", year(Sys.Date())), main="Activité des SU d'Alsace en nombre de RPU")
 lines(rollmean(z, 7), col="red")
 
-plot.xts2(x, ylab="nombre de RPU", xlab=paste0("Année ", year(Sys.Date())), main="Activité des SU d'Alsace en nombre de RPU", col="blue", minor.ticks = FALSE)
-lines(rollmean(x, 7), col="red")
+x <- as.xts(a$RPU, a$Date)
+
+z <- as.zoo(x)
+plot(z, col="blue", ylab="nombre de RPU", xlab=paste0("Année ", year(Sys.Date())), main="Activité des SU d'Alsace en nombre de RPU")
+lines(rollmean(z, 7), col="red")
 ```
 Activité 2013-2014
 ==================
@@ -317,7 +337,7 @@ Objet: mesure de l'activité au jour le jour avant consolidation. En pratique re
 1. récupérer le fichier source, le décompacter.
 2. appeler la fonction __parse_rpu__ avec la date du jour, qui le transforme en dataframe
 ```{}
-d <- parse_rpu("2015-05-26")
+d <- parse_rpu("2015-05-31")
 min(as.Date(d$ENTREE))
 max(as.Date(d$ENTREE))
 ```

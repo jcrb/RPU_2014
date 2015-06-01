@@ -60,7 +60,7 @@ ex. avec Sélestat: on crée un objet de type liste formé d'autant de listes qu
 
 ```
    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-   0.00   57.00   62.00   61.05   68.00   92.00 
+   0.00   57.00   62.00   61.14   68.00   92.00 
 ```
 
 ![](dp_files/figure-html/diag_par_jour-1.png) 
@@ -81,7 +81,7 @@ round(n2 * 100 / n.bron, 2) # % de 2 ans et moins
 ```
 
 ```
-## [1] 97.08
+## [1] 97.1
 ```
 
 ```r
@@ -120,7 +120,7 @@ summary(bron$SEXE)
 
 ```
 ##    F    I    M      
-##  900    1 1431    0
+##  926    1 1489    0
 ```
 
 ```r
@@ -137,7 +137,7 @@ summary(ped2.age)
 
 ```
 ##     Min.  1st Qu.   Median     Mean  3rd Qu.     Max. 
-##  0.03333  4.73300 10.83000 11.05000 17.00000 24.07000
+##  0.03333  4.76700 10.90000 11.08000 17.03000 24.07000
 ```
 
 ```r
@@ -182,7 +182,7 @@ nombre de cas de grippes diagnostiqués aux urgences:
 
 - 2013: 626
 - 2014: 289
-- 2015: 1111
+- 2015: 1152
 
 Grippes en 2014 et 2015
 ------------------------
@@ -224,7 +224,7 @@ Gravité
 ```
 ## 
 ##    1    2    3    4    5    D    P      
-##  538 1326   85    3    1    1    0    0
+##  548 1357   85    3    1    1    0    0
 ```
 
 

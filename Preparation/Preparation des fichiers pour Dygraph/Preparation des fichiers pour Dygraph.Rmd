@@ -42,7 +42,7 @@ Le dataframe s'appelle __devenir__ et il s'enregistre dans _devenir.csv_ [read.c
 Expérimentation d'un graphe avec 2 courbes ayant des échelles différentes. Référence [Multiple Y-axis in a R plot](http://www.r-bloggers.com/multiple-y-axis-in-a-r-plot/)
 
 ```{r tx_hosp}
-path <- "../../"
+path <- "../../" # path <= ""
 load(paste0(path, "rpu2014d0112_c.Rda")) # d14
 # load(paste0(path, "rpu2015d0112_provisoire.Rda")) # d01
 load(paste0(path, "d15_p.Rda")) # d15.p
