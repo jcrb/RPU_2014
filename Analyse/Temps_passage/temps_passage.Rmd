@@ -289,7 +289,7 @@ dpas2014 <- temps.passage(d14) # nouvelle fonction
 # durée de passage moyenne en fonction de l'heure d'entrée
 a <- tapply(dpas2014$DPAS, dpas2014$HEURE.E, mean)
 plot(a, type = "l", xlim = c(0,25), ylab = "Durée de passage", xlab = "Heure d'entrée", main = "Temps de passage moyen en fonction de l'heure d'entrée", lwd = 3, col="blue")
-boxplot(dpas2014$DPAS ~ dpas2014$HEURE.E, outline = FALSE, ylab = "Durée de passage", xlab = "Heure d'entrée",main = "Temps de passage en fonction de l'heure d'entrée")
+boxplot(dpas2014$DPAS ~ dpas2014$HEURE.E, outline = FALSE, ylab = "Durée de passage (minutes)", xlab = "Heure d'entrée",main = "Temps de passage en fonction de l'heure d'entrée")
 
 # pour 2015
 
