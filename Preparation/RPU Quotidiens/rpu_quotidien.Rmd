@@ -398,6 +398,27 @@ svg("activite SU alsace 2015.svg")
 plot()
 dev.off()
 
+Focus mains
+============
+
+En 2014:
+```{}
+mains <- d14[d14$FINESS %in% c("Dts","Ros"),]
+nrow(mains)/nrow(d14)
+nrow(mains)*100/nrow(d14)
+
+ros <- d14[d14$FINESS == "Ros",]
+nrow(ros)
+
+dts <- d14[d14$FINESS == "Dts",]
+nrow(dts)
+min(as.Date(dts$ENTREE))
+max(as.Date(dts$ENTREE))
+c <- tapply(as.Date(dts$ENTREE), as.Date(dts$ENTREE), length)
+cbind(c)
+
+```
+
 
 
 
