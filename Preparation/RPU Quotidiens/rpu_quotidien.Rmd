@@ -419,6 +419,32 @@ cbind(c)
 
 ```
 
+Nombre de DP par jour
+=====================
+Exemple avec 2015
+```{r}
+# dataframe date, DP, FINESS
+dp <- d15[, c("ENTREE", "DP", "FINESS")]
+# diagnostic non codés par jour
+dp.non.code <- tapply(dp$DP, as.Date(dp$ENTREE), is.na)
+# en nombre
+n.dp.non.code <- unlist(lapply(b, sum))
+# en pourcentages
+p.dp.non.code <- unlist(lapply(b, mean))
+```
+Pour chaque établisement
+```{r}
+x <- function(x){mean(is.na(x))}
+b <- tapply(dp$DP, list(as.Date(dp$ENTREE), dp$FINESS), x)
+# dataframe du % de DP non codés
+c <- data.frame(unlist(b))
+plot(b[,"Wis"], type = "l")
+mean(b[,"Wis"], type = "l")
+plot(b[,"Mul"], type = "l")
+mean(b[,"Mul"], na.rm=T)
+
+```
+
 
 
 
