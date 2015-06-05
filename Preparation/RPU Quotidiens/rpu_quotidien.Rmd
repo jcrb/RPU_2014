@@ -240,7 +240,7 @@ save(d15, file="rpu2015d0112_provisoire.Rda")
 rpu.par.jour(d05)
 ```
 #### Nombre de attendus pour l'année:
-```{r rpu_extrapoles}
+```{ rpu_extrapoles}
 n <- nrow(d15)
 td <- max(as.Date(d15$ENTREE)) - min(as.Date(dx$ENTREE))
 n * 365 / as.numeric(td)
@@ -248,7 +248,7 @@ n * 365 / as.numeric(td)
 ```
 
 ### Recherche de doublons: CODE_POSTAL, COMMUNE, ENTREE, FINESS, NAISSANCE, SEXE
-```{r doublons}
+```{ doublons}
 a <- duplicated(d15[, c(2,3,6,8,13,16)])
 sum(a)
 which(a) # quelle ligne
@@ -422,7 +422,7 @@ cbind(c)
 Nombre de DP par jour
 =====================
 Exemple avec 2015
-```{r}
+```{}
 # dataframe date, DP, FINESS
 dp <- d15[, c("ENTREE", "DP", "FINESS")]
 # diagnostic non codés par jour
@@ -433,7 +433,7 @@ n.dp.non.code <- unlist(lapply(b, sum))
 p.dp.non.code <- unlist(lapply(b, mean))
 ```
 Pour chaque établisement
-```{r}
+```{}
 x <- function(x){mean(is.na(x))}
 b <- tapply(dp$DP, list(as.Date(dp$ENTREE), dp$FINESS), x)
 # dataframe du % de DP non codés
@@ -444,7 +444,6 @@ plot(b[,"Mul"], type = "l")
 mean(b[,"Mul"], na.rm=T)
 
 ```
-
 
 
 
