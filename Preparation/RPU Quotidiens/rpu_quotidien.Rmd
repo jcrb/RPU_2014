@@ -425,23 +425,36 @@ Exemple avec 2015
 ```{}
 # dataframe date, DP, FINESS
 dp <- d15[, c("ENTREE", "DP", "FINESS")]
-# diagnostic non codés par jour
+# diagnostic non codés par jour: renvoie un array de n listes. n est égal au nombre de jours couverts par le dataframe. Chaque liste est égale au nombre de RPU du jour. Chaque élément de la liste contient vrai ou faux selon que le DP est codé ou non.
 dp.non.code <- tapply(dp$DP, as.Date(dp$ENTREE), is.na)
-# en nombre
-n.dp.non.code <- unlist(lapply(b, sum))
+# en nombre: on calcule la somme de chaque liste, puis on déliste. On obtient pour chaque jour, le nombre de DP non codés.
+n.dp.non.code <- unlist(lapply(dp.non.code, sum))
 # en pourcentages
-p.dp.non.code <- unlist(lapply(b, mean))
+p.dp.non.code <- unlist(lapply(dp.non.code, mean))
 ```
 Pour chaque établisement
 ```{}
+# on forme une matrice de n lignes et c colonnes. Chaque ligne correspond à un jour de la période, chaque colonne correspond à un établissement. Chaque valeur correspond au % de DP non codés un jour donné pour un établissement donné.
 x <- function(x){mean(is.na(x))}
 b <- tapply(dp$DP, list(as.Date(dp$ENTREE), dp$FINESS), x)
-# dataframe du % de DP non codés
+
+# on transforme la matrice des % de DP non codés en dataframe
 c <- data.frame(unlist(b))
+
 plot(b[,"Wis"], type = "l")
 mean(b[,"Wis"], type = "l")
 plot(b[,"Mul"], type = "l")
 mean(b[,"Mul"], na.rm=T)
+
+boxplot(b, las = 2, outline = FALSE, ylab = "% de  DP non codés", main = "Complétude du diagnostic principal")
+abline(h = 0.2, lty = 2, col = "red")
+
+
+# idem mais on calcule le nombre de DP non codé:
+x <- function(x){sum(is.na(x))}
+b2 <- tapply(dp$DP, list(as.Date(dp$ENTREE), dp$FINESS), x)
+c2 <- data.frame(unlist(b2))
+boxplot(b2, las = 2, outline = FALSE, ylab = "nombre de  DP non codés", main = "Complétude du diagnostic principal")
 
 ```
 
