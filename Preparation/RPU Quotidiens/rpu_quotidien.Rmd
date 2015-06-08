@@ -446,6 +446,7 @@ mean(b[,"Wis"], type = "l")
 plot(b[,"Mul"], type = "l")
 mean(b[,"Mul"], na.rm=T)
 
+# pour être considéré comme acceptable, un rectangle doit se situer sous la ligne pointillé rouge. De plus, plus le rectangle est écrasé et plus la dispersion de codage d'un jour à l'autre est faible. Ces 2 éléments sont nécessaire pour l'InVS.
 boxplot(b, las = 2, outline = FALSE, ylab = "% de  DP non codés", main = "Complétude du diagnostic principal")
 abline(h = 0.2, lty = 2, col = "red")
 
