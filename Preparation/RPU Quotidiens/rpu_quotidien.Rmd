@@ -237,6 +237,8 @@ d15 <- dx
 save(d15, file="rpu2015d0112_provisoire.Rda")
 
 # Table des RPU par jour et par FINESS pour le mois en cours
+# n <- tapply(as.Date(dsi$ENTREE), list(as.Date(dsi$ENTREE), dsi$FINESS), length)
+
 rpu.par.jour(d05)
 ```
 #### Nombre de attendus pour l'année:
@@ -459,6 +461,41 @@ boxplot(b2, las = 2, outline = FALSE, ylab = "nombre de  DP non codés", main = 
 
 ```
 
+Nombre de RPU CCMU1 aux horaires de PDS (qs posée par Ste Anne:
+- nécessite lubridate
+- on forme un dataframe à 2 colonnes: ENTREE et CCMU = 1
+- on ajoute une colonne JOUR pour le type de jour (dimanche = 1)
+- on ajoute une colonne HEURE (heure entière)
+- on fabrique un vecteur pour découper en tranches horaires
+- on calcule le nb de RPU dans chaque classe
+
+```{}
+library(lubridate)
+ane <- ane2104[ane2104$GRAVITE == 1 & !is.na(ane2104$GRAVITE), c("GRAVITE","ENTREE")]
+ane$JOUR <- wday(as.Date(ane$ENTREE))
+ane$HEURE <- hour(ane$ENTREE)
+h <- c(0, 8, 20, 23)
+t <- cut(ane$HEURE, h, right = FALSE)
+table(t)
+# uniquement en semaine
+t <- cut(ane$HEURE[ane$JOUR %in% 2:6], h, right = FALSE)
+table(t)
+# le samedi de 12 à 20h
+t <- ane[ane$JOUR == 7 & ane$HEURE %in% 12:19,]
+nrow(t)
+# le dimanche de 8h à 20h
+t <- ane[ane$JOUR == 7 & ane$HEURE %in% 12:19,]
+nrow(t)
+
+```
+
+Seuil d'alerte lorsque le nombre deRPU transmis est anormalement bas. On calcule la moyenne er l'écart-type du nb de RPU par jour et par établissement au cours des 3 premiers mois de 2015. Le seuil est fixé à m - 1.96 * sd:
+```{}
+n <- tapply(as.Date(dsi$ENTREE), list(as.Date(dsi$ENTREE), dsi$FINESS), length)
+m <- apply(n, 2, mean, na.rm = TRUE)
+s <- apply(n, 2, sd, na.rm = TRUE)
+seuil <- m - 1.96 * s
+```
 
 
 

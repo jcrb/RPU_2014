@@ -2,6 +2,8 @@
 #   aligne.sur.calendrier
 #   copyrigth
 #   CUSUM - C2
+#   duree.utile
+#   temps.passage
 
 #===========================================================================
 #
