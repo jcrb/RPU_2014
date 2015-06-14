@@ -238,7 +238,13 @@ d15 <- dx
 save(d15, file="rpu2015d0112_provisoire.Rda")
 
 # Table des RPU par jour et par FINESS pour le mois en cours
+<<<<<<< HEAD
 rpu.par.jour(d06)
+=======
+# n <- tapply(as.Date(dsi$ENTREE), list(as.Date(dsi$ENTREE), dsi$FINESS), length)
+
+rpu.par.jour(d05)
+>>>>>>> dd48535fad39ab89dd637c24ae1ccb99e8e3ce0e
 ```
 #### Nombre de attendus pour l'année:
 ```{ rpu_extrapoles}
@@ -427,8 +433,9 @@ Exemple avec 2015
 ```{}
 # dataframe date, DP, FINESS
 dp <- d15[, c("ENTREE", "DP", "FINESS")]
-# diagnostic non codés par jour
+# diagnostic non codés par jour: renvoie un array de n listes. n est égal au nombre de jours couverts par le dataframe. Chaque liste est égale au nombre de RPU du jour. Chaque élément de la liste contient vrai ou faux selon que le DP est codé ou non.
 dp.non.code <- tapply(dp$DP, as.Date(dp$ENTREE), is.na)
+<<<<<<< HEAD
 # en nombre
 n.dp.non.code <- unlist(lapply(dp.non.code, sum))
 # en pourcentages
@@ -438,12 +445,24 @@ summary(p.dp.non.code)
 # plot
 plot(p.dp.non.code, type = "l", ylim = c(0,1), ylab = "% de DP non codés", xlab = "2015 (jours)", main = "Pourcetage de RPU dont le DP est manquant")
 
+=======
+# en nombre: on calcule la somme de chaque liste, puis on déliste. On obtient pour chaque jour, le nombre de DP non codés.
+n.dp.non.code <- unlist(lapply(dp.non.code, sum))
+# en pourcentages
+p.dp.non.code <- unlist(lapply(dp.non.code, mean))
+>>>>>>> dd48535fad39ab89dd637c24ae1ccb99e8e3ce0e
 ```
 Pour chaque établisement
 ```{}
+# on forme une matrice de n lignes et c colonnes. Chaque ligne correspond à un jour de la période, chaque colonne correspond à un établissement. Chaque valeur correspond au % de DP non codés un jour donné pour un établissement donné.
 x <- function(x){mean(is.na(x))}
 b <- tapply(dp$DP, list(as.Date(dp$ENTREE), dp$FINESS), x)
+<<<<<<< HEAD
 # dataframe du % de DP non codés par jour et par FINESS
+=======
+
+# on transforme la matrice des % de DP non codés en dataframe
+>>>>>>> dd48535fad39ab89dd637c24ae1ccb99e8e3ce0e
 c <- data.frame(unlist(b))
 
 plot(b[,"Wis"], type = "l")
@@ -460,8 +479,54 @@ text(1:15, p.codage + 0.05, names(p.codage))
 abline(h = 0.8, lty = 2, col = "red")
 
 
+# pour être considéré comme acceptable, un rectangle doit se situer sous la ligne pointillé rouge. De plus, plus le rectangle est écrasé et plus la dispersion de codage d'un jour à l'autre est faible. Ces 2 éléments sont nécessaire pour l'InVS.
+boxplot(b, las = 2, outline = FALSE, ylab = "% de  DP non codés", main = "Complétude du diagnostic principal")
+abline(h = 0.2, lty = 2, col = "red")
+
+
+# idem mais on calcule le nombre de DP non codé:
+x <- function(x){sum(is.na(x))}
+b2 <- tapply(dp$DP, list(as.Date(dp$ENTREE), dp$FINESS), x)
+c2 <- data.frame(unlist(b2))
+boxplot(b2, las = 2, outline = FALSE, ylab = "nombre de  DP non codés", main = "Complétude du diagnostic principal")
+
 ```
 
+Nombre de RPU CCMU1 aux horaires de PDS (qs posée par Ste Anne:
+- nécessite lubridate
+- on forme un dataframe à 2 colonnes: ENTREE et CCMU = 1
+- on ajoute une colonne JOUR pour le type de jour (dimanche = 1)
+- on ajoute une colonne HEURE (heure entière)
+- on fabrique un vecteur pour découper en tranches horaires
+- on calcule le nb de RPU dans chaque classe
+
+```{}
+library(lubridate)
+ane <- ane2104[ane2104$GRAVITE == 1 & !is.na(ane2104$GRAVITE), c("GRAVITE","ENTREE")]
+ane$JOUR <- wday(as.Date(ane$ENTREE))
+ane$HEURE <- hour(ane$ENTREE)
+h <- c(0, 8, 20, 23)
+t <- cut(ane$HEURE, h, right = FALSE)
+table(t)
+# uniquement en semaine
+t <- cut(ane$HEURE[ane$JOUR %in% 2:6], h, right = FALSE)
+table(t)
+# le samedi de 12 à 20h
+t <- ane[ane$JOUR == 7 & ane$HEURE %in% 12:19,]
+nrow(t)
+# le dimanche de 8h à 20h
+t <- ane[ane$JOUR == 7 & ane$HEURE %in% 12:19,]
+nrow(t)
+
+```
+
+Seuil d'alerte lorsque le nombre deRPU transmis est anormalement bas. On calcule la moyenne er l'écart-type du nb de RPU par jour et par établissement au cours des 3 premiers mois de 2015. Le seuil est fixé à m - 1.96 * sd:
+```{}
+n <- tapply(as.Date(dsi$ENTREE), list(as.Date(dsi$ENTREE), dsi$FINESS), length)
+m <- apply(n, 2, mean, na.rm = TRUE)
+s <- apply(n, 2, sd, na.rm = TRUE)
+seuil <- m - 1.96 * s
+```
 
 
 

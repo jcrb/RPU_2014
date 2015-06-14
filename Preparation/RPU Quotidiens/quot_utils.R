@@ -394,6 +394,18 @@ jours.manquants <- function(date1, date2, data){
   return(calendar[!ok]) # liste des jours manquants
 }
 
+# Application de la formule: nombre de jours manquants par FINESS dans un dataframe 
+# de type RPU:
+# tapply(d15$ENTREE, d15$FINESS, F=function(x){length(jours.manquants("2015-01-01", "2015-04-02", x))})
+#
+# 3Fr Alk Ane Col Dia Dts Geb Hag Hus Mul Odi Ros Sav Sel Wis 
+# 0   0  25   1   0   0   0   0   0   1   1   0   0   4   0
+#
+# tapply(d15$ENTREE, d15$FINESS, F=function(x){jours.manquants(
+#   "2015-01-01", "2015-04-02", x)})
+# Retourne une liste de dates par Finess correspondant aux jours manquants
+
+
 #=======================================
 #
 # normalise.caracteres()
