@@ -2,6 +2,8 @@
 #   aligne.sur.calendrier
 #   copyrigth
 #   CUSUM - C2
+#   duree.utile
+#   temps.passage
 
 #===========================================================================
 #
@@ -111,6 +113,20 @@ cusum.c2 <- function(v2, k=0.5, seuil = 2){
 
 #===========================================================================
 #
+# Duree de passage utiles
+#
+#===========================================================================
+# 
+duree.utile <- function(dx, h){
+    # on ne garde que les duréesde passage exploitables
+    dpas.heure <- dpas.heure[!is.na(dpas.heure$DPAS) & dpas.heure$DPAS > 0 & dpas.heure$DPAS <= 2*24*60, ]
+    dpas.heure$DATE <- substr(dpas.heure$ENTREE, 1, 10) # date entrée AAAA-MM-DD
+    dpas.heure$HEURE.E <- hour(dpas.heure$ENTREE) # heure entrée (heures entières)
+    return(dpas.heure)
+}
+
+#===========================================================================
+#
 # temps de passage
 #
 #===========================================================================
@@ -125,6 +141,8 @@ cusum.c2 <- function(v2, k=0.5, seuil = 2){
 # - DP
 # - Age
 #'@param dx un dataframe de type RPU 
+#'@details utilise la fonction duree.passage
+#'@return un vecteur de durée de passage
 
 temps.passage <- function(dx){
   # dx dataframe RPU. On ajpoute une colonne DPAS (durée de passage)
