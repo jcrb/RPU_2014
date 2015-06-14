@@ -435,7 +435,7 @@ Exemple avec 2015
 dp <- d15[, c("ENTREE", "DP", "FINESS")]
 # diagnostic non codés par jour: renvoie un array de n listes. n est égal au nombre de jours couverts par le dataframe. Chaque liste est égale au nombre de RPU du jour. Chaque élément de la liste contient vrai ou faux selon que le DP est codé ou non.
 dp.non.code <- tapply(dp$DP, as.Date(dp$ENTREE), is.na)
-<<<<<<< HEAD
+
 # en nombre
 n.dp.non.code <- unlist(lapply(dp.non.code, sum))
 # en pourcentages
@@ -445,24 +445,14 @@ summary(p.dp.non.code)
 # plot
 plot(p.dp.non.code, type = "l", ylim = c(0,1), ylab = "% de DP non codés", xlab = "2015 (jours)", main = "Pourcetage de RPU dont le DP est manquant")
 
-=======
-# en nombre: on calcule la somme de chaque liste, puis on déliste. On obtient pour chaque jour, le nombre de DP non codés.
-n.dp.non.code <- unlist(lapply(dp.non.code, sum))
-# en pourcentages
-p.dp.non.code <- unlist(lapply(dp.non.code, mean))
->>>>>>> dd48535fad39ab89dd637c24ae1ccb99e8e3ce0e
 ```
 Pour chaque établisement
 ```{}
 # on forme une matrice de n lignes et c colonnes. Chaque ligne correspond à un jour de la période, chaque colonne correspond à un établissement. Chaque valeur correspond au % de DP non codés un jour donné pour un établissement donné.
 x <- function(x){mean(is.na(x))}
 b <- tapply(dp$DP, list(as.Date(dp$ENTREE), dp$FINESS), x)
-<<<<<<< HEAD
-# dataframe du % de DP non codés par jour et par FINESS
-=======
 
-# on transforme la matrice des % de DP non codés en dataframe
->>>>>>> dd48535fad39ab89dd637c24ae1ccb99e8e3ce0e
+# on transforme la matrice des % de DP non codés en dataframe du % de DP non codés par jour et par FINESS
 c <- data.frame(unlist(b))
 
 plot(b[,"Wis"], type = "l")
