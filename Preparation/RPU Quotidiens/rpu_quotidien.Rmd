@@ -186,8 +186,8 @@ source("Preparation/RPU Quotidiens/quot_utils.R")
 file.to.delete <- "/home/jcb/Documents/Resural/Stat Resural/Archives_Sagec/dataQ/archivesCsv/rpu2014.data"
 file.remove(file.to.delete)
 
-date1 <- "2015-05-26"
-date2 <- "2015-05-31"
+date1 <- "2015-06-08"
+date2 <- "2015-06-11"
 
 mc <- substr(date1, 6, 7)
 ac <- substr(date1, 1,4)
@@ -208,11 +208,11 @@ num.mc <- 1 # numéro du mois courant
 mois.c <- paste("d", )
 
 ```{}
-d05 <- dx[as.Date(dx$ENTREE) >= "2015-05-01" & as.Date(dx$ENTREE) < "2015-06-01",]
-max(as.Date(d05$ENTREE))
-min(as.Date(d05$ENTREE))
-d05 <- normalise(d05)
-save(d05, file="rpu2015d05_provisoire.Rda")
+d06 <- dx[as.Date(dx$ENTREE) >= "2015-06-01" & as.Date(dx$ENTREE) < "2015-07-01",]
+max(as.Date(d06$ENTREE))
+min(as.Date(d06$ENTREE))
+d06 <- normalise(d06)
+save(d06, file="rpu2015d06_provisoire.Rda")
 rm(dx)
 
 # si le mois est complet:
@@ -228,8 +228,9 @@ load("rpu2015d01.Rda") # mois précédent
 load("rpu2015d02.Rda") # mois précédent
 load("rpu2015d03.Rda") # mois précédent
 load("rpu2015d04.Rda") # mois précédent
+load("rpu2015d05.Rda") # mois précédent
 
-dx <- rbind(d01, d02, d03, d04, d05)
+dx <- rbind(d01, d02, d03, d04, d05, d06)
 min(as.Date(dx$ENTREE))
 max(as.Date(dx$ENTREE))
 
@@ -237,7 +238,7 @@ d15 <- dx
 save(d15, file="rpu2015d0112_provisoire.Rda")
 
 # Table des RPU par jour et par FINESS pour le mois en cours
-rpu.par.jour(d05)
+rpu.par.jour(d06)
 ```
 #### Nombre de attendus pour l'année:
 ```{ rpu_extrapoles}
@@ -274,7 +275,8 @@ Pour fabriquer les courbes interactives d'activité, voir le projet **dygraph**.
 
 exhaustivité des données
 ------------------------
-On forme une table en croisant FINESS et ENTREE:
+On forme une table en croisant FINESS et ENTREE pour constituer le fichier __exaustivite_rpu.csv__, ensemble des RPU de l'année par FINESS.
+
 ```{}
 dx$FINESS <- factor(dx$FINESS) # supprime les facteurs vide
 rpu <- table(as.Date(dx$ENTREE), dx$FINESS) # tous les RPU de l'année par FINESS
@@ -337,7 +339,7 @@ Objet: mesure de l'activité au jour le jour avant consolidation. En pratique re
 1. récupérer le fichier source, le décompacter.
 2. appeler la fonction __parse_rpu__ avec la date du jour, qui le transforme en dataframe
 ```{}
-d <- parse_rpu("2015-05-31")
+d <- parse_rpu("2015-06-11")
 min(as.Date(d$ENTREE))
 max(as.Date(d$ENTREE))
 ```
@@ -382,7 +384,7 @@ a <-tapply(as.Date(d15.p$ENTREE), as.Date(d15.p$ENTREE), length)
 xts.a <- xts(a, order.by = unique(as.Date(d15.p$ENTREE)))
 
 svg("activite SU alsace 2015.svg")
-plot(xts.a, las = 2, main = "Activité des SU d'Alsace", ylab = "nombre de RPU créés par jour", ylim = c(800,1600))
+plot(xts.a, las = 2, main = "Activité des SU d'Alsace en 2015", ylab = "nombre de RPU créés par jour", ylim = c(950,1650))
 mean2014 <- 1141.734
 sd2014 <- 154.7858
 abline(h = mean2014, col = "red") # nb moyende RPU en 2014
@@ -428,20 +430,35 @@ dp <- d15[, c("ENTREE", "DP", "FINESS")]
 # diagnostic non codés par jour
 dp.non.code <- tapply(dp$DP, as.Date(dp$ENTREE), is.na)
 # en nombre
-n.dp.non.code <- unlist(lapply(b, sum))
+n.dp.non.code <- unlist(lapply(dp.non.code, sum))
 # en pourcentages
-p.dp.non.code <- unlist(lapply(b, mean))
+p.dp.non.code <- unlist(lapply(dp.non.code, mean))
+# résumé du pourcentage de diagnostic non codés
+summary(p.dp.non.code)
+# plot
+plot(p.dp.non.code, type = "l", ylim = c(0,1), ylab = "% de DP non codés", xlab = "2015 (jours)", main = "Pourcetage de RPU dont le DP est manquant")
+
 ```
 Pour chaque établisement
 ```{}
 x <- function(x){mean(is.na(x))}
 b <- tapply(dp$DP, list(as.Date(dp$ENTREE), dp$FINESS), x)
-# dataframe du % de DP non codés
+# dataframe du % de DP non codés par jour et par FINESS
 c <- data.frame(unlist(b))
+
 plot(b[,"Wis"], type = "l")
-mean(b[,"Wis"], type = "l")
+mean(b[,"Wis"])
 plot(b[,"Mul"], type = "l")
-mean(b[,"Mul"], na.rm=T)
+mean(b[,"Mul"], na.rm = TRUE)
+
+```
+Tabbleau de codeurs
+```{}
+p.codage <- 1 - apply(b, 2, mean, na.rm = TRUE)
+plot(p.codage, col="blue", ylim = c(0,1.1), ylab = "% de DP codés", main = "Pourcentages de RPU dont le DP est renseigné")
+text(1:15, p.codage + 0.05, names(p.codage))
+abline(h = 0.8, lty = 2, col = "red")
+
 
 ```
 
