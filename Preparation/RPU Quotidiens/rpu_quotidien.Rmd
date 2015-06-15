@@ -423,19 +423,30 @@ cbind(c)
 
 Nombre de DP par jour
 =====================
-Exemple avec 2015
+Exemple avec 2015 (étude SI 2015). TODO: RETIRER LES DP OU LE MODE  DE SORTIE NE PERMET PAS DE CODER LE DP (SCAM,FUGUE, ETC.)
 ```{}
 # dataframe date, DP, FINESS
 dp <- d15[, c("ENTREE", "DP", "FINESS")]
+# on se limite au 3 premiers mois de l(année)
+dp <- dp[as.Date(dp$ENTREE) < as.Date("2015-04-01"),]
+# nombre de RPU
+n <- nrow(dp)
 # diagnostic non codés par jour: renvoie un array de n listes. n est égal au nombre de jours couverts par le dataframe. Chaque liste est égale au nombre de RPU du jour. Chaque élément de la liste contient vrai ou faux selon que le DP est codé ou non.
 dp.non.code <- tapply(dp$DP, as.Date(dp$ENTREE), is.na)
 # en nombre: on calcule la somme de chaque liste, puis on déliste. On obtient pour chaque jour, le nombre de DP non codés.
 n.dp.non.code <- unlist(lapply(dp.non.code, sum))
 # en pourcentages
 p.dp.non.code <- unlist(lapply(dp.non.code, mean))
+# nombre total de non codé
+n.dp.non.code <- sum(n.dp.non.code)
+
 ```
 Pour chaque établisement
 ```{}
+# nombre de RPU sur la période par établissement:
+n.rpu <- tapply(as.Date(dp$ENTREE), dp$FINESS, length)
+
+# % de DP non codés par établissement:
 # on forme une matrice de n lignes et c colonnes. Chaque ligne correspond à un jour de la période, chaque colonne correspond à un établissement. Chaque valeur correspond au % de DP non codés un jour donné pour un établissement donné.
 x <- function(x){mean(is.na(x))}
 b <- tapply(dp$DP, list(as.Date(dp$ENTREE), dp$FINESS), x)
@@ -458,6 +469,16 @@ x <- function(x){sum(is.na(x))}
 b2 <- tapply(dp$DP, list(as.Date(dp$ENTREE), dp$FINESS), x)
 c2 <- data.frame(unlist(b2))
 boxplot(b2, las = 2, outline = FALSE, ylab = "nombre de  DP non codés", main = "Complétude du diagnostic principal")
+
+# somme des DP non codés par établissement
+n.non.code <- apply(c2, 2, sum, na.rm = TRUE)
+
+# % non codage par établissement
+n.non.code/n.rpu
+
+# % exhaustivité
+round(1 - n.non.code/n.rpu, 2)
+
 
 ```
 

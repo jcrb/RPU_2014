@@ -307,6 +307,8 @@ d15 &lt;- dx
 save(d15, file=&quot;rpu2015d0112_provisoire.Rda&quot;)
 
 # Table des RPU par jour et par FINESS pour le mois en cours
+# n &lt;- tapply(as.Date(dsi$ENTREE), list(as.Date(dsi$ENTREE), dsi$FINESS), length)
+
 rpu.par.jour(d05)</code></pre>
 </div>
 <div id="nombre-de-attendus-pour-lannee" class="section level4">
@@ -432,25 +434,82 @@ cbind(c)
 </div>
 <div id="nombre-de-dp-par-jour" class="section level1">
 <h1>Nombre de DP par jour</h1>
-<p>Exemple avec 2015</p>
+<p>Exemple avec 2015 (étude SI 2015)</p>
 <pre><code># dataframe date, DP, FINESS
 dp &lt;- d15[, c(&quot;ENTREE&quot;, &quot;DP&quot;, &quot;FINESS&quot;)]
-# diagnostic non codés par jour
+# on se limite au 3 premiers mois de l(année)
+dp &lt;- dp[as.Date(dp$ENTREE) &lt; as.Date(&quot;2015-04-01&quot;),]
+# nombre de RPU
+n &lt;- nrow(dp)
+# diagnostic non codés par jour: renvoie un array de n listes. n est égal au nombre de jours couverts par le dataframe. Chaque liste est égale au nombre de RPU du jour. Chaque élément de la liste contient vrai ou faux selon que le DP est codé ou non.
 dp.non.code &lt;- tapply(dp$DP, as.Date(dp$ENTREE), is.na)
-# en nombre
-n.dp.non.code &lt;- unlist(lapply(b, sum))
+# en nombre: on calcule la somme de chaque liste, puis on déliste. On obtient pour chaque jour, le nombre de DP non codés.
+n.dp.non.code &lt;- unlist(lapply(dp.non.code, sum))
 # en pourcentages
-p.dp.non.code &lt;- unlist(lapply(b, mean))</code></pre>
+p.dp.non.code &lt;- unlist(lapply(dp.non.code, mean))
+# nombre total de non codé
+n.dp.non.code &lt;- sum(n.dp.non.code)
+</code></pre>
 <p>Pour chaque établisement</p>
-<pre><code>x &lt;- function(x){mean(is.na(x))}
+<pre><code># nombre de RPU sur la période par établissement:
+n.rpu &lt;- tapply(as.Date(dp$ENTREE), dp$FINESS, length)
+
+# % de DP non codés par établissement:
+# on forme une matrice de n lignes et c colonnes. Chaque ligne correspond à un jour de la période, chaque colonne correspond à un établissement. Chaque valeur correspond au % de DP non codés un jour donné pour un établissement donné.
+x &lt;- function(x){mean(is.na(x))}
 b &lt;- tapply(dp$DP, list(as.Date(dp$ENTREE), dp$FINESS), x)
-# dataframe du % de DP non codés
+
+# on transforme la matrice des % de DP non codés en dataframe
 c &lt;- data.frame(unlist(b))
+
 plot(b[,&quot;Wis&quot;], type = &quot;l&quot;)
 mean(b[,&quot;Wis&quot;], type = &quot;l&quot;)
 plot(b[,&quot;Mul&quot;], type = &quot;l&quot;)
 mean(b[,&quot;Mul&quot;], na.rm=T)
+
+# pour être considéré comme acceptable, un rectangle doit se situer sous la ligne pointillé rouge. De plus, plus le rectangle est écrasé et plus la dispersion de codage d'un jour à l'autre est faible. Ces 2 éléments sont nécessaire pour l'InVS.
+boxplot(b, las = 2, outline = FALSE, ylab = &quot;% de  DP non codés&quot;, main = &quot;Complétude du diagnostic principal&quot;)
+abline(h = 0.2, lty = 2, col = &quot;red&quot;)
+
+
+# idem mais on calcule le nombre de DP non codé:
+x &lt;- function(x){sum(is.na(x))}
+b2 &lt;- tapply(dp$DP, list(as.Date(dp$ENTREE), dp$FINESS), x)
+c2 &lt;- data.frame(unlist(b2))
+boxplot(b2, las = 2, outline = FALSE, ylab = &quot;nombre de  DP non codés&quot;, main = &quot;Complétude du diagnostic principal&quot;)
+
+# somme des DP non codés par établissement
+n.non.code &lt;- apply(c2, 2, sum, na.rm = TRUE)
+
+# % non codage par établissement
+n.non.code/n.rpu
+
+# % exhaustivité
+1 - n.non.code/n.rpu
 </code></pre>
+<p>Nombre de RPU CCMU1 aux horaires de PDS (qs posée par Ste Anne: - nécessite lubridate - on forme un dataframe à 2 colonnes: ENTREE et CCMU = 1 - on ajoute une colonne JOUR pour le type de jour (dimanche = 1) - on ajoute une colonne HEURE (heure entière) - on fabrique un vecteur pour découper en tranches horaires - on calcule le nb de RPU dans chaque classe</p>
+<pre><code>library(lubridate)
+ane &lt;- ane2104[ane2104$GRAVITE == 1 &amp; !is.na(ane2104$GRAVITE), c(&quot;GRAVITE&quot;,&quot;ENTREE&quot;)]
+ane$JOUR &lt;- wday(as.Date(ane$ENTREE))
+ane$HEURE &lt;- hour(ane$ENTREE)
+h &lt;- c(0, 8, 20, 23)
+t &lt;- cut(ane$HEURE, h, right = FALSE)
+table(t)
+# uniquement en semaine
+t &lt;- cut(ane$HEURE[ane$JOUR %in% 2:6], h, right = FALSE)
+table(t)
+# le samedi de 12 à 20h
+t &lt;- ane[ane$JOUR == 7 &amp; ane$HEURE %in% 12:19,]
+nrow(t)
+# le dimanche de 8h à 20h
+t &lt;- ane[ane$JOUR == 7 &amp; ane$HEURE %in% 12:19,]
+nrow(t)
+</code></pre>
+<p>Seuil d’alerte lorsque le nombre deRPU transmis est anormalement bas. On calcule la moyenne er l’écart-type du nb de RPU par jour et par établissement au cours des 3 premiers mois de 2015. Le seuil est fixé à m - 1.96 * sd:</p>
+<pre><code>n &lt;- tapply(as.Date(dsi$ENTREE), list(as.Date(dsi$ENTREE), dsi$FINESS), length)
+m &lt;- apply(n, 2, mean, na.rm = TRUE)
+s &lt;- apply(n, 2, sd, na.rm = TRUE)
+seuil &lt;- m - 1.96 * s</code></pre>
 </div>
 
 
