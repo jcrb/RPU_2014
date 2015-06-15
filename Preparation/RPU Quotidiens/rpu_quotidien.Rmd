@@ -423,7 +423,7 @@ cbind(c)
 
 Nombre de DP par jour
 =====================
-Exemple avec 2015 (étude SI 2015). TODO: RETIRER LES DP OU LE MODE  DE SORTIE NE PERMET PAS DE CODER LE DP (SCAM,FUGUE, ETC.)
+Exemple avec 2015 (étude SI 2015). TODO: RETIRER LES DP OU 'ORIENTATION' NE PERMET PAS DE CODER LE DP (SCAM,PSA,FUGUE, ETC.)
 ```{}
 # dataframe date, DP, FINESS
 dp <- d15[, c("ENTREE", "DP", "FINESS")]
