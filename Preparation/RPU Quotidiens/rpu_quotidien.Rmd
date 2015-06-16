@@ -187,7 +187,7 @@ file.to.delete <- "/home/jcb/Documents/Resural/Stat Resural/Archives_Sagec/dataQ
 file.remove(file.to.delete)
 
 date1 <- "2015-06-08"
-date2 <- "2015-06-11"
+date2 <- "2015-06-15"
 
 mc <- substr(date1, 6, 7)
 ac <- substr(date1, 1,4)
@@ -238,14 +238,9 @@ d15 <- dx
 save(d15, file="rpu2015d0112_provisoire.Rda")
 
 # Table des RPU par jour et par FINESS pour le mois en cours
-<<<<<<< HEAD
 rpu.par.jour(d06)
-=======
-# n <- tapply(as.Date(dsi$ENTREE), list(as.Date(dsi$ENTREE), dsi$FINESS), length)
-
-rpu.par.jour(d05)
->>>>>>> dd48535fad39ab89dd637c24ae1ccb99e8e3ce0e
 ```
+
 #### Nombre de attendus pour l'année:
 ```{ rpu_extrapoles}
 n <- nrow(d15)
