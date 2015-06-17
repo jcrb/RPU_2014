@@ -83,7 +83,7 @@ Choix de l'établissement
 # d14 <- d14[d14$FINESS != "Hus",]
 
 # Uniquement Sélestat
- d14 <- d14[d14$FINESS == "Mul",]
+# d14 <- d14[d14$FINESS == "Mul",]
 
 titre <- ""
 ```
@@ -123,6 +123,22 @@ copyright()
 - moyenne durée de passage: `r mean(p14$DPAS)` minutes
 - médiane durée de passage: `r median(p14$DPAS)` minutes
 
+Durée moyenne de passage et MODE_SORTIE
+---------------------------------------
+```{r duree_mode_sortie, echo=FALSE}
+# si retour au domicile
+mean.duree.dom <- mean(p14$DPAS[p14$MODE_SORTIE == "Domicile"], na.rm = TRUE)
+median.duree.dom <- median(p14$DPAS[p14$MODE_SORTIE == "Domicile"], na.rm = TRUE)
+# en cas d'hospitalisation
+mean.duree.hosp <- mean(p14$DPAS[p14$MODE_SORTIE %in% c("Mutation","Transfert")], na.rm = TRUE)
+median.duree.hosp <- median(p14$DPAS[p14$MODE_SORTIE %in% c("Mutation","Transfert")], na.rm = TRUE)
+```
+- nombre de RPU: `r nrow(p14)`
+- moyenne durée de passage en cas de retour à domicile: `r mean.duree.dom` minutes.
+- moyenne durée de passage en cas d'hospitalisation: `r mean.duree.hosp` minutes.
+
+- médiane durée de passage en cas de retour à domicile: `r median.duree.dom` minutes.
+- médiane durée de passage en cas d'hospitalisation: `r median.duree.hosp` minutes.
 
 Analyse des durées de passage > 6 heures
 ----------------------------------------

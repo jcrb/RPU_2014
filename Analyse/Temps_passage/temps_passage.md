@@ -113,16 +113,25 @@ On ne garde que les RPU avec une durée de passage exploitable et qui soit posit
 
 
 
-- nombre de RPU exploitable: 48 294
-- nombre de RPU totaux: 59 471
+- nombre de RPU exploitable: 372 067
+- nombre de RPU totaux: 416 733
 
 Durée moyenne de passage
 -------------------------
 
 ![](temps_passage_files/figure-html/paddage_moyenne-1.png) ![](temps_passage_files/figure-html/paddage_moyenne-2.png) 
-- moyenne durée de passage: 189.1939578 minutes
-- médiane durée de passage: 153 minutes
+- moyenne durée de passage: 154.9188157 minutes
+- médiane durée de passage: 109 minutes
 
+Durée moyenne de passage et MODE_SORTIE
+---------------------------------------
+
+- nombre de RPU: 372067
+- moyenne durée de passage en cas de retour à domicile: 145.8773466 minutes.
+- moyenne durée de passage en cas d'hospitalisation: 187.5583825 minutes.
+
+- médiane durée de passage en cas de retour à domicile: 104 minutes.
+- médiane durée de passage en cas d'hospitalisation: 148 minutes.
 
 Analyse des durées de passage > 6 heures
 ----------------------------------------
@@ -145,14 +154,13 @@ summary(p6h.jour) # résumé passage de plus de 6 heures"
 ```
 
 ```
-##    calendrier              rpu       
-##  Min.   :2014-01-01   Min.   : 1.00  
-##  1st Qu.:2014-04-02   1st Qu.:10.75  
-##  Median :2014-07-02   Median :15.00  
-##  Mean   :2014-07-02   Mean   :15.21  
-##  3rd Qu.:2014-10-01   3rd Qu.:20.00  
-##  Max.   :2014-12-31   Max.   :38.00  
-##                       NA's   :5
+##    calendrier              rpu        
+##  Min.   :2014-01-01   Min.   : 31.00  
+##  1st Qu.:2014-04-02   1st Qu.: 59.00  
+##  Median :2014-07-02   Median : 75.00  
+##  Mean   :2014-07-02   Mean   : 79.92  
+##  3rd Qu.:2014-10-01   3rd Qu.: 95.00  
+##  Max.   :2014-12-31   Max.   :195.00
 ```
 
 ```r
@@ -160,7 +168,7 @@ sum(is.na(p6h.jour)) # nb de jours sur la période sans passage > 6 heures
 ```
 
 ```
-## [1] 5
+## [1] 0
 ```
 
 ```r
@@ -168,7 +176,7 @@ mean(is.na(p6h.jour)) # idem en %
 ```
 
 ```
-## [1] 0.006849315
+## [1] 0
 ```
 
 Aspect graphique
@@ -188,8 +196,8 @@ summary(pop75$DPAS)
 ```
 
 ```
-##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-##     1.0   173.0   274.0   290.5   379.2  1440.0
+##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max.    NA's 
+##     1.0    79.0   187.0   218.5   310.0  2880.0       4
 ```
 
 ```r
@@ -217,8 +225,8 @@ summary(r)
 ```
 
 ```
-##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max.    NA's 
-##   1.818   8.333  10.400  10.560  12.700  24.040      19
+##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+##   7.089  12.000  13.460  13.400  14.780  20.790
 ```
 
 ```r
@@ -242,20 +250,20 @@ head(ms)
 ```
 
 ```
-##         date passages.jour.rpu hospit.jour mutations.jour.rpu
-## 1 2014-01-02                14           4                  4
-## 2 2014-01-03                19           8                  8
-## 3 2014-01-04                13           3                  3
-## 4 2014-01-05                16           7                  7
-## 5 2014-01-06                17          10                 10
-## 6 2014-01-07                15          10                  9
-##   transfert.jour.rpu taux.hosp
-## 1                  0     28.57
-## 2                  0     42.11
-## 3                  0     23.08
-## 4                  0     43.75
-## 5                  0     58.82
-## 6                  1     66.67
+##                  date passages.jour.rpu hospit.jour mutations.jour.rpu
+## 2014-01-01 2014-01-01                99          57                 52
+## 2014-01-02 2014-01-02               183         111                103
+## 2014-01-03 2014-01-03               181         110                103
+## 2014-01-04 2014-01-04               153          86                 83
+## 2014-01-05 2014-01-05                97          54                 50
+## 2014-01-06 2014-01-06               142          85                 83
+##            transfert.jour.rpu taux.hosp
+## 2014-01-01                  5     57.58
+## 2014-01-02                  8     60.66
+## 2014-01-03                  7     60.77
+## 2014-01-04                  3     56.21
+## 2014-01-05                  4     55.67
+## 2014-01-06                  2     59.86
 ```
 
 ```r
@@ -290,9 +298,9 @@ round(rpu.finess.75ans * 100/ rpu.finess, 2)
 
 ```
 ##   3Fr   Alk   Ane   Col   Dia   Dts   Geb   Hag   Hus   Mul   Odi   Ros 
-##    NA    NA    NA    NA    NA    NA    NA    NA    NA 12.58    NA    NA 
+## 11.09 14.80  9.37 12.66 14.07  3.91 10.66 17.26 19.97 12.58  5.17  5.02 
 ##   Sav   Sel   Wis 
-##    NA    NA    NA
+## 13.71 13.48 17.26
 ```
 
 ```r
@@ -301,8 +309,8 @@ round(rpu.territoire.75 * 100/ rpu.territoire, 2)
 ```
 
 ```
-##    T4 
-## 12.58
+##    T1    T2    T3    T4 
+## 15.98 14.76 12.58 12.53
 ```
 
 Durée de passage en fonction de l'heure d'arrivée
@@ -337,14 +345,12 @@ boxplot(dpas2014$DPAS ~ dpas2014$HEURE.E, outline = FALSE, ylab = "Durée de pas
 
 
 ```
-##         0         1         2         3         4         5         6 
-## 216.32838 214.90406 207.18956 231.85476 230.68996 242.21190 234.48692 
-##         7         8         9        10        11        12        13 
-## 226.02890 195.75825 194.81626 205.26765 223.11990 223.85709 219.75291 
-##        14        15        16        17        18        19        20 
-## 197.11014 194.92653 183.04241 173.30851 156.00000 136.75801 118.19686 
-##        21        22        23 
-##  95.05004  67.48742  41.04605
+##        0        1        2        3        4        5        6        7 
+## 200.5799 187.1566 193.2850 201.1650 209.6375 208.7492 202.1397 176.0302 
+##        8        9       10       11       12       13       14       15 
+## 148.7852 152.9192 159.5309 165.7557 167.6780 162.7129 151.1152 149.5504 
+##       16       17       18       19       20       21       22       23 
+## 146.0409 144.6830 144.5115 139.4657 135.1092 140.2599 123.3579 124.7641
 ```
 
 ![](temps_passage_files/figure-html/heure_passage-1.png) ![](temps_passage_files/figure-html/heure_passage-2.png) 
@@ -358,7 +364,7 @@ Le temps cumulé le plus long s'observe à 10 heures du matin. On isole le group
 
 
 ```
-## [1] 355
+## [1] 365
 ```
 
 ![](temps_passage_files/figure-html/x10-1.png) 
@@ -372,25 +378,13 @@ On utilise __x.sum__ qui est un vecteur constitué par la somme quotidienne des 
 A partir de ce vecteur on calcule la moyenne mobile et l'écart-type mobile sur 7 jours (pas = 7).
 
 ```
-## [1] 355
+## [1] 365
 ```
 Avec ces éléments, on peut calculer le vecteur centré et réduit des temps de passage cumulés
 
 ```r
 ec7 <- (x.sum[7:365] - rmean) /sd7
-```
 
-```
-## Warning in x.sum[7:365] - rmean: la taille d'un objet plus long n'est pas
-## multiple de la taille d'un objet plus court
-```
-
-```
-## Warning in (x.sum[7:365] - rmean)/sd7: la taille d'un objet plus long n'est
-## pas multiple de la taille d'un objet plus court
-```
-
-```r
 # ec7 <- x.sum
 # max(as.Date(h10$ENTREE))
 # min(as.Date(h10$ENTREE))
@@ -432,18 +426,18 @@ Variation durées de passage par mois
 ##    aov(formula = DPAS ~ mois, data = dpas.heure)
 ## 
 ## Terms:
-##                      mois Residuals
-## Sum of Squares     278948 964935740
-## Deg. of Freedom         1     48292
+##                        mois   Residuals
+## Sum of Squares       358652 10954538176
+## Deg. of Freedom           1      372065
 ## 
-## Residual standard error: 141.3551
+## Residual standard error: 171.5883
 ## Estimated effects may be unbalanced
 ```
 
 ```
-##                Df    Sum Sq Mean Sq F value   Pr(>F)    
-## mois            1    278948  278948   13.96 0.000187 ***
-## Residuals   48292 964935740   19981                     
+##                 Df    Sum Sq Mean Sq F value   Pr(>F)    
+## mois             1 3.587e+05  358652   12.18 0.000483 ***
+## Residuals   372065 1.095e+10   29443                     
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ```
@@ -455,7 +449,7 @@ Variation durées de passage par mois
 ## 
 ## Coefficients:
 ## (Intercept)         mois  
-##    184.7148       0.6896
+##    152.9952       0.2834
 ```
 
 ```
@@ -465,27 +459,27 @@ Variation durées de passage par mois
 ## 
 ## Residuals:
 ##     Min      1Q  Median      3Q     Max 
-## -191.99 -102.23  -36.40   67.77 1253.91 
+## -155.40  -99.70  -46.11   46.15 2726.44 
 ## 
 ## Coefficients:
-##             Estimate Std. Error t value Pr(>|t|)    
-## (Intercept) 184.7148     1.3605 135.773  < 2e-16 ***
-## mois          0.6896     0.1846   3.736 0.000187 ***
+##              Estimate Std. Error t value Pr(>|t|)    
+## (Intercept) 152.99520    0.61879  247.25  < 2e-16 ***
+## mois          0.28337    0.08119    3.49 0.000483 ***
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ## 
-## Residual standard error: 141.4 on 48292 degrees of freedom
-## Multiple R-squared:  0.000289,	Adjusted R-squared:  0.0002683 
-## F-statistic: 13.96 on 1 and 48292 DF,  p-value: 0.0001869
+## Residual standard error: 171.6 on 372065 degrees of freedom
+## Multiple R-squared:  3.274e-05,	Adjusted R-squared:  3.005e-05 
+## F-statistic: 12.18 on 1 and 372065 DF,  p-value: 0.0004827
 ```
 
 ```
 ## Analysis of Variance Table
 ## 
 ## Response: DPAS
-##              Df    Sum Sq Mean Sq F value    Pr(>F)    
-## mois          1    278948  278948   13.96 0.0001869 ***
-## Residuals 48292 964935740   19981                      
+##               Df     Sum Sq Mean Sq F value    Pr(>F)    
+## mois           1 3.5865e+05  358652  12.181 0.0004827 ***
+## Residuals 372065 1.0955e+10   29443                      
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ```
