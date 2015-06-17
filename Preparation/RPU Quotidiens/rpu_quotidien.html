@@ -83,7 +83,9 @@ img {
 <li><a href="#resume-activite">Résumé activité</a></li>
 <li><a href="#activites-quotidienne">Activités quotidienne</a></li>
 <li><a href="#focus-mains">Focus mains</a></li>
-<li><a href="#nombre-de-dp-par-jour">Nombre de DP par jour</a></li>
+<li><a href="#nombre-de-dp-par-jour">Nombre de DP par jour</a><ul>
+<li><a href="#tableau-de-codeurs">Tableau de codeurs</a></li>
+</ul></li>
 </ul>
 </div>
 
@@ -461,7 +463,8 @@ mean(b[,&quot;Wis&quot;])
 plot(b[,&quot;Mul&quot;], type = &quot;l&quot;)
 mean(b[,&quot;Mul&quot;], na.rm = TRUE)
 </code></pre>
-<p>Tabbleau de codeurs</p>
+<div id="tableau-de-codeurs" class="section level2">
+<h2>Tableau de codeurs</h2>
 <pre><code>p.codage &lt;- 1 - apply(b, 2, mean, na.rm = TRUE)
 plot(p.codage, col=&quot;blue&quot;, ylim = c(0,1.1), ylab = &quot;% de DP codés&quot;, main = &quot;Pourcentages de RPU dont le DP est renseigné&quot;)
 text(1:15, p.codage + 0.05, names(p.codage))
@@ -502,6 +505,7 @@ nrow(t)
 m &lt;- apply(n, 2, mean, na.rm = TRUE)
 s &lt;- apply(n, 2, sd, na.rm = TRUE)
 seuil &lt;- m - 1.96 * s</code></pre>
+</div>
 </div>
 
 

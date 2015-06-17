@@ -456,7 +456,9 @@ plot(b[,"Mul"], type = "l")
 mean(b[,"Mul"], na.rm = TRUE)
 
 ```
-Tabbleau de codeurs
+Tableau de codeurs
+------------------------
+
 ```{}
 p.codage <- 1 - apply(b, 2, mean, na.rm = TRUE)
 plot(p.codage, col="blue", ylim = c(0,1.1), ylab = "% de DP codés", main = "Pourcentages de RPU dont le DP est renseigné")
