@@ -261,7 +261,7 @@ file.to.delete &lt;- &quot;/home/jcb/Documents/Resural/Stat Resural/Archives_Sag
 file.remove(file.to.delete)
 
 date1 &lt;- &quot;2015-06-08&quot;
-date2 &lt;- &quot;2015-06-11&quot;
+date2 &lt;- &quot;2015-06-15&quot;
 
 mc &lt;- substr(date1, 6, 7)
 ac &lt;- substr(date1, 1,4)
@@ -309,6 +309,7 @@ save(d15, file=&quot;rpu2015d0112_provisoire.Rda&quot;)
 
 # Table des RPU par jour et par FINESS pour le mois en cours
 <<<<<<< HEAD
+<<<<<<< HEAD
 # n &lt;- tapply(as.Date(dsi$ENTREE), list(as.Date(dsi$ENTREE), dsi$FINESS), length)
 
 rpu.par.jour(d05)</code></pre>
@@ -321,6 +322,9 @@ rpu.par.jour(d06)
 rpu.par.jour(d05)
 &gt;&gt;&gt;&gt;&gt;&gt;&gt; dd48535fad39ab89dd637c24ae1ccb99e8e3ce0e</code></pre>
 >>>>>>> 07895abd26767fab8c29cfcbef7aaf858e9d7a42
+=======
+rpu.par.jour(d06)</code></pre>
+>>>>>>> f3563fb10689def9b28448fd2e8b594712ced1b5
 </div>
 <div id="nombre-de-attendus-pour-lannee" class="section level4">
 <h4>Nombre de attendus pour l’année:</h4>
@@ -378,7 +382,7 @@ write.csv(rpu, file=&quot;exaustivite_rpu.csv&quot;) # enregistre la table au fo
 <ol style="list-style-type: decimal">
 <li>récupérer le fichier source, le décompacter.</li>
 <li><p>appeler la fonction <strong>parse_rpu</strong> avec la date du jour, qui le transforme en dataframe</p>
-<pre><code>d &lt;- parse_rpu(&quot;2015-06-11&quot;)
+<pre><code>d &lt;- parse_rpu(&quot;2015-06-15&quot;)
 min(as.Date(d$ENTREE))
 max(as.Date(d$ENTREE))</code></pre></li>
 <li><p>puis la méthode <strong>analyse_rpu</strong>. Normalement on doit obtenir <strong>16 valeurs</strong>:</p>

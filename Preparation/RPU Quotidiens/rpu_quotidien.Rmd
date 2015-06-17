@@ -186,8 +186,13 @@ source("Preparation/RPU Quotidiens/quot_utils.R")
 file.to.delete <- "/home/jcb/Documents/Resural/Stat Resural/Archives_Sagec/dataQ/archivesCsv/rpu2014.data"
 file.remove(file.to.delete)
 
+<<<<<<< HEAD
 date1 <- "2015-05-26"
 date2 <- "2015-05-31"
+=======
+date1 <- "2015-06-08"
+date2 <- "2015-06-15"
+>>>>>>> f3563fb10689def9b28448fd2e8b594712ced1b5
 
 mc <- substr(date1, 6, 7)
 ac <- substr(date1, 1,4)
@@ -237,10 +242,15 @@ d15 <- dx
 save(d15, file="rpu2015d0112_provisoire.Rda")
 
 # Table des RPU par jour et par FINESS pour le mois en cours
+<<<<<<< HEAD
 # n <- tapply(as.Date(dsi$ENTREE), list(as.Date(dsi$ENTREE), dsi$FINESS), length)
 
 rpu.par.jour(d05)
+=======
+rpu.par.jour(d06)
+>>>>>>> f3563fb10689def9b28448fd2e8b594712ced1b5
 ```
+
 #### Nombre de attendus pour l'année:
 ```{ rpu_extrapoles}
 n <- nrow(d15)
@@ -339,7 +349,11 @@ Objet: mesure de l'activité au jour le jour avant consolidation. En pratique re
 1. récupérer le fichier source, le décompacter.
 2. appeler la fonction __parse_rpu__ avec la date du jour, qui le transforme en dataframe
 ```{}
+<<<<<<< HEAD
 d <- parse_rpu("2015-05-31")
+=======
+d <- parse_rpu("2015-06-15")
+>>>>>>> f3563fb10689def9b28448fd2e8b594712ced1b5
 min(as.Date(d$ENTREE))
 max(as.Date(d$ENTREE))
 ```
@@ -479,6 +493,10 @@ n.non.code/n.rpu
 # % exhaustivité
 round(1 - n.non.code/n.rpu, 2)
 
+# graphe
+a <- sort(round(1 - n.non.code/n.rpu, 2))
+plot(a, ylim = c(0, 1.1))
+text(1:15, a + 0.1, names(a), cex = 0.8)
 
 ```
 
