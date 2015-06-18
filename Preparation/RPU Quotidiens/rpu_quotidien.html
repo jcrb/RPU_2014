@@ -83,7 +83,9 @@ img {
 <li><a href="#resume-activite">Résumé activité</a></li>
 <li><a href="#activites-quotidienne">Activités quotidienne</a></li>
 <li><a href="#focus-mains">Focus mains</a></li>
-<li><a href="#nombre-de-dp-par-jour">Nombre de DP par jour</a></li>
+<li><a href="#nombre-de-dp-par-jour">Nombre de DP par jour</a><ul>
+<li><a href="#tableau-de-codeurs">Tableau de codeurs</a></li>
+</ul></li>
 </ul>
 </div>
 
@@ -260,8 +262,13 @@ table(as.Date(rj$ENTREE), rj$FINESS)</code></pre>
 file.to.delete &lt;- &quot;/home/jcb/Documents/Resural/Stat Resural/Archives_Sagec/dataQ/archivesCsv/rpu2014.data&quot;
 file.remove(file.to.delete)
 
+&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD
+date1 &lt;- &quot;2015-05-26&quot;
+date2 &lt;- &quot;2015-05-31&quot;
+=======
 date1 &lt;- &quot;2015-06-08&quot;
 date2 &lt;- &quot;2015-06-15&quot;
+&gt;&gt;&gt;&gt;&gt;&gt;&gt; f3563fb10689def9b28448fd2e8b594712ced1b5
 
 mc &lt;- substr(date1, 6, 7)
 ac &lt;- substr(date1, 1,4)
@@ -278,11 +285,11 @@ max(as.Date(dx$ENTREE))</code></pre>
 <div id="selectionner-une-periode-particuliere-ie.-mai-2014" class="section level4">
 <h4>Sélectionner une période particulière (ie. mai 2014)</h4>
 <p>num.mc &lt;- 1 # numéro du mois courant mois.c &lt;- paste(“d”, )</p>
-<pre><code>d06 &lt;- dx[as.Date(dx$ENTREE) &gt;= &quot;2015-06-01&quot; &amp; as.Date(dx$ENTREE) &lt; &quot;2015-07-01&quot;,]
-max(as.Date(d06$ENTREE))
-min(as.Date(d06$ENTREE))
-d06 &lt;- normalise(d06)
-save(d06, file=&quot;rpu2015d06_provisoire.Rda&quot;)
+<pre><code>d05 &lt;- dx[as.Date(dx$ENTREE) &gt;= &quot;2015-05-01&quot; &amp; as.Date(dx$ENTREE) &lt; &quot;2015-06-01&quot;,]
+max(as.Date(d05$ENTREE))
+min(as.Date(d05$ENTREE))
+d05 &lt;- normalise(d05)
+save(d05, file=&quot;rpu2015d05_provisoire.Rda&quot;)
 rm(dx)
 
 # si le mois est complet:
@@ -298,9 +305,8 @@ load(&quot;rpu2015d01.Rda&quot;) # mois précédent
 load(&quot;rpu2015d02.Rda&quot;) # mois précédent
 load(&quot;rpu2015d03.Rda&quot;) # mois précédent
 load(&quot;rpu2015d04.Rda&quot;) # mois précédent
-load(&quot;rpu2015d05.Rda&quot;) # mois précédent
 
-dx &lt;- rbind(d01, d02, d03, d04, d05, d06)
+dx &lt;- rbind(d01, d02, d03, d04, d05)
 min(as.Date(dx$ENTREE))
 max(as.Date(dx$ENTREE))
 
@@ -308,23 +314,13 @@ d15 &lt;- dx
 save(d15, file=&quot;rpu2015d0112_provisoire.Rda&quot;)
 
 # Table des RPU par jour et par FINESS pour le mois en cours
-<<<<<<< HEAD
-<<<<<<< HEAD
-# n &lt;- tapply(as.Date(dsi$ENTREE), list(as.Date(dsi$ENTREE), dsi$FINESS), length)
-
-rpu.par.jour(d05)</code></pre>
-=======
 &lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD
-rpu.par.jour(d06)
-=======
 # n &lt;- tapply(as.Date(dsi$ENTREE), list(as.Date(dsi$ENTREE), dsi$FINESS), length)
 
 rpu.par.jour(d05)
-&gt;&gt;&gt;&gt;&gt;&gt;&gt; dd48535fad39ab89dd637c24ae1ccb99e8e3ce0e</code></pre>
->>>>>>> 07895abd26767fab8c29cfcbef7aaf858e9d7a42
 =======
-rpu.par.jour(d06)</code></pre>
->>>>>>> f3563fb10689def9b28448fd2e8b594712ced1b5
+rpu.par.jour(d06)
+&gt;&gt;&gt;&gt;&gt;&gt;&gt; f3563fb10689def9b28448fd2e8b594712ced1b5</code></pre>
 </div>
 <div id="nombre-de-attendus-pour-lannee" class="section level4">
 <h4>Nombre de attendus pour l’année:</h4>
@@ -350,7 +346,7 @@ rpu.par.jour(d06)</code></pre>
 </div>
 <div id="exhaustivite-des-donnees" class="section level2">
 <h2>exhaustivité des données</h2>
-<p>On forme une table en croisant FINESS et ENTREE pour constituer le fichier <strong>exaustivite_rpu.csv</strong>, ensemble des RPU de l’année par FINESS.</p>
+<p>On forme une table en croisant FINESS et ENTREE:</p>
 <pre><code>dx$FINESS &lt;- factor(dx$FINESS) # supprime les facteurs vide
 rpu &lt;- table(as.Date(dx$ENTREE), dx$FINESS) # tous les RPU de l'année par FINESS
 write.csv(rpu, file=&quot;exaustivite_rpu.csv&quot;) # enregistre la table au format .csv mais à la différence de write.table, une case vide est ajoutée dans le header pour éviter le décalage des colonnes.</code></pre>
@@ -382,7 +378,11 @@ write.csv(rpu, file=&quot;exaustivite_rpu.csv&quot;) # enregistre la table au fo
 <ol style="list-style-type: decimal">
 <li>récupérer le fichier source, le décompacter.</li>
 <li><p>appeler la fonction <strong>parse_rpu</strong> avec la date du jour, qui le transforme en dataframe</p>
-<pre><code>d &lt;- parse_rpu(&quot;2015-06-15&quot;)
+<pre><code>&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD
+d &lt;- parse_rpu(&quot;2015-05-31&quot;)
+=======
+d &lt;- parse_rpu(&quot;2015-06-15&quot;)
+&gt;&gt;&gt;&gt;&gt;&gt;&gt; f3563fb10689def9b28448fd2e8b594712ced1b5
 min(as.Date(d$ENTREE))
 max(as.Date(d$ENTREE))</code></pre></li>
 <li><p>puis la méthode <strong>analyse_rpu</strong>. Normalement on doit obtenir <strong>16 valeurs</strong>:</p>
@@ -416,7 +416,7 @@ a &lt;-tapply(as.Date(d15.p$ENTREE), as.Date(d15.p$ENTREE), length)
 xts.a &lt;- xts(a, order.by = unique(as.Date(d15.p$ENTREE)))
 
 svg(&quot;activite SU alsace 2015.svg&quot;)
-plot(xts.a, las = 2, main = &quot;Activité des SU d'Alsace en 2015&quot;, ylab = &quot;nombre de RPU créés par jour&quot;, ylim = c(950,1650))
+plot(xts.a, las = 2, main = &quot;Activité des SU d'Alsace&quot;, ylab = &quot;nombre de RPU créés par jour&quot;, ylim = c(800,1600))
 mean2014 &lt;- 1141.734
 sd2014 &lt;- 154.7858
 abline(h = mean2014, col = &quot;red&quot;) # nb moyende RPU en 2014
@@ -449,10 +449,9 @@ cbind(c)
 </div>
 <div id="nombre-de-dp-par-jour" class="section level1">
 <h1>Nombre de DP par jour</h1>
-<p>Exemple avec 2015 (étude SI 2015)</p>
+<p>Exemple avec 2015 (étude SI 2015). TODO: RETIRER LES DP OU ‘ORIENTATION’ NE PERMET PAS DE CODER LE DP (SCAM,PSA,FUGUE, ETC.)</p>
 <pre><code># dataframe date, DP, FINESS
 dp &lt;- d15[, c(&quot;ENTREE&quot;, &quot;DP&quot;, &quot;FINESS&quot;)]
-<<<<<<< HEAD
 # on se limite au 3 premiers mois de l(année)
 dp &lt;- dp[as.Date(dp$ENTREE) &lt; as.Date(&quot;2015-04-01&quot;),]
 # nombre de RPU
@@ -476,43 +475,21 @@ x &lt;- function(x){mean(is.na(x))}
 b &lt;- tapply(dp$DP, list(as.Date(dp$ENTREE), dp$FINESS), x)
 
 # on transforme la matrice des % de DP non codés en dataframe
-=======
-# diagnostic non codés par jour: renvoie un array de n listes. n est égal au nombre de jours couverts par le dataframe. Chaque liste est égale au nombre de RPU du jour. Chaque élément de la liste contient vrai ou faux selon que le DP est codé ou non.
-dp.non.code &lt;- tapply(dp$DP, as.Date(dp$ENTREE), is.na)
-
-# en nombre
-n.dp.non.code &lt;- unlist(lapply(dp.non.code, sum))
-# en pourcentages
-p.dp.non.code &lt;- unlist(lapply(dp.non.code, mean))
-# résumé du pourcentage de diagnostic non codés
-summary(p.dp.non.code)
-# plot
-plot(p.dp.non.code, type = &quot;l&quot;, ylim = c(0,1), ylab = &quot;% de DP non codés&quot;, xlab = &quot;2015 (jours)&quot;, main = &quot;Pourcetage de RPU dont le DP est manquant&quot;)
-</code></pre>
-<p>Pour chaque établisement</p>
-<pre><code># on forme une matrice de n lignes et c colonnes. Chaque ligne correspond à un jour de la période, chaque colonne correspond à un établissement. Chaque valeur correspond au % de DP non codés un jour donné pour un établissement donné.
-x &lt;- function(x){mean(is.na(x))}
-b &lt;- tapply(dp$DP, list(as.Date(dp$ENTREE), dp$FINESS), x)
-
-# on transforme la matrice des % de DP non codés en dataframe du % de DP non codés par jour et par FINESS
->>>>>>> 07895abd26767fab8c29cfcbef7aaf858e9d7a42
 c &lt;- data.frame(unlist(b))
 
 plot(b[,&quot;Wis&quot;], type = &quot;l&quot;)
-mean(b[,&quot;Wis&quot;])
+mean(b[,&quot;Wis&quot;], type = &quot;l&quot;)
 plot(b[,&quot;Mul&quot;], type = &quot;l&quot;)
-<<<<<<< HEAD
-mean(b[,&quot;Mul&quot;], na.rm=T)
-=======
 mean(b[,&quot;Mul&quot;], na.rm = TRUE)
 </code></pre>
-<p>Tabbleau de codeurs</p>
+<div id="tableau-de-codeurs" class="section level2">
+<h2>Tableau de codeurs</h2>
 <pre><code>p.codage &lt;- 1 - apply(b, 2, mean, na.rm = TRUE)
-plot(p.codage, col=&quot;blue&quot;, ylim = c(0,1.1), ylab = &quot;% de DP codés&quot;, main = &quot;Pourcentages de RPU dont le DP est renseigné&quot;)
+
+plot(p.codage, pch = 16, col= ifelse(p.codage &gt; 0.8,&quot;blue&quot;,&quot;green&quot;), ylim = c(0,1.1), ylab = &quot;% de DP codés&quot;, main = &quot;Pourcentages de RPU dont le DP est renseigné&quot;, xlab = &quot;CH Alsace - 2015 (1er trimestre)&quot;)
+
 text(1:15, p.codage + 0.05, names(p.codage))
 abline(h = 0.8, lty = 2, col = &quot;red&quot;)
-
->>>>>>> 07895abd26767fab8c29cfcbef7aaf858e9d7a42
 
 # pour être considéré comme acceptable, un rectangle doit se situer sous la ligne pointillé rouge. De plus, plus le rectangle est écrasé et plus la dispersion de codage d'un jour à l'autre est faible. Ces 2 éléments sont nécessaire pour l'InVS.
 boxplot(b, las = 2, outline = FALSE, ylab = &quot;% de  DP non codés&quot;, main = &quot;Complétude du diagnostic principal&quot;)
@@ -524,7 +501,6 @@ x &lt;- function(x){sum(is.na(x))}
 b2 &lt;- tapply(dp$DP, list(as.Date(dp$ENTREE), dp$FINESS), x)
 c2 &lt;- data.frame(unlist(b2))
 boxplot(b2, las = 2, outline = FALSE, ylab = &quot;nombre de  DP non codés&quot;, main = &quot;Complétude du diagnostic principal&quot;)
-<<<<<<< HEAD
 
 # somme des DP non codés par établissement
 n.non.code &lt;- apply(c2, 2, sum, na.rm = TRUE)
@@ -533,9 +509,12 @@ n.non.code &lt;- apply(c2, 2, sum, na.rm = TRUE)
 n.non.code/n.rpu
 
 # % exhaustivité
-1 - n.non.code/n.rpu
-=======
->>>>>>> 07895abd26767fab8c29cfcbef7aaf858e9d7a42
+round(1 - n.non.code/n.rpu, 2)
+
+# graphe
+a &lt;- sort(round(1 - n.non.code/n.rpu, 2))
+plot(a, ylim = c(0, 1.1))
+text(1:15, a + 0.1, names(a), cex = 0.8)
 </code></pre>
 <p>Nombre de RPU CCMU1 aux horaires de PDS (qs posée par Ste Anne: - nécessite lubridate - on forme un dataframe à 2 colonnes: ENTREE et CCMU = 1 - on ajoute une colonne JOUR pour le type de jour (dimanche = 1) - on ajoute une colonne HEURE (heure entière) - on fabrique un vecteur pour découper en tranches horaires - on calcule le nb de RPU dans chaque classe</p>
 <pre><code>library(lubridate)
@@ -560,6 +539,7 @@ nrow(t)
 m &lt;- apply(n, 2, mean, na.rm = TRUE)
 s &lt;- apply(n, 2, sd, na.rm = TRUE)
 seuil &lt;- m - 1.96 * s</code></pre>
+</div>
 </div>
 
 

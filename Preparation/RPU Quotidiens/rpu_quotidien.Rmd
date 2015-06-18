@@ -471,7 +471,19 @@ c <- data.frame(unlist(b))
 plot(b[,"Wis"], type = "l")
 mean(b[,"Wis"], type = "l")
 plot(b[,"Mul"], type = "l")
-mean(b[,"Mul"], na.rm=T)
+mean(b[,"Mul"], na.rm = TRUE)
+
+```
+Tableau de codeurs
+------------------------
+
+```{}
+p.codage <- 1 - apply(b, 2, mean, na.rm = TRUE)
+
+plot(p.codage, pch = 16, col= ifelse(p.codage > 0.8,"blue","green"), ylim = c(0,1.1), ylab = "% de DP codés", main = "Pourcentages de RPU dont le DP est renseigné", xlab = "CH Alsace - 2015 (1er trimestre)")
+
+text(1:15, p.codage + 0.05, names(p.codage))
+abline(h = 0.8, lty = 2, col = "red")
 
 # pour être considéré comme acceptable, un rectangle doit se situer sous la ligne pointillé rouge. De plus, plus le rectangle est écrasé et plus la dispersion de codage d'un jour à l'autre est faible. Ces 2 éléments sont nécessaire pour l'InVS.
 boxplot(b, las = 2, outline = FALSE, ylab = "% de  DP non codés", main = "Complétude du diagnostic principal")
