@@ -81,6 +81,8 @@ img {
 <li><a href="#exhaustivite-des-donnees">exhaustivité des données</a></li>
 </ul></li>
 <li><a href="#resume-activite">Résumé activité</a></li>
+<li><a href="#trace-de-la-courbe-des-rpu-avec-plot.xts">Tracé de la courbe des RPU avec PLOT.XTS</a></li>
+<li><a href="#trace-de-la-courbe-des-rpu-avec-plot.zoo">Tracé de la courbe des RPU avec PLOT.ZOO</a></li>
 <li><a href="#activites-quotidienne">Activités quotidienne</a></li>
 <li><a href="#focus-mains">Focus mains</a></li>
 <li><a href="#nombre-de-dp-par-jour">Nombre de DP par jour</a><ul>
@@ -262,13 +264,8 @@ table(as.Date(rj$ENTREE), rj$FINESS)</code></pre>
 file.to.delete &lt;- &quot;/home/jcb/Documents/Resural/Stat Resural/Archives_Sagec/dataQ/archivesCsv/rpu2014.data&quot;
 file.remove(file.to.delete)
 
-&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD
-date1 &lt;- &quot;2015-05-26&quot;
-date2 &lt;- &quot;2015-05-31&quot;
-=======
 date1 &lt;- &quot;2015-06-08&quot;
-date2 &lt;- &quot;2015-06-15&quot;
-&gt;&gt;&gt;&gt;&gt;&gt;&gt; f3563fb10689def9b28448fd2e8b594712ced1b5
+date2 &lt;- &quot;2015-06-21&quot;
 
 mc &lt;- substr(date1, 6, 7)
 ac &lt;- substr(date1, 1,4)
@@ -285,11 +282,11 @@ max(as.Date(dx$ENTREE))</code></pre>
 <div id="selectionner-une-periode-particuliere-ie.-mai-2014" class="section level4">
 <h4>Sélectionner une période particulière (ie. mai 2014)</h4>
 <p>num.mc &lt;- 1 # numéro du mois courant mois.c &lt;- paste(“d”, )</p>
-<pre><code>d05 &lt;- dx[as.Date(dx$ENTREE) &gt;= &quot;2015-05-01&quot; &amp; as.Date(dx$ENTREE) &lt; &quot;2015-06-01&quot;,]
-max(as.Date(d05$ENTREE))
-min(as.Date(d05$ENTREE))
-d05 &lt;- normalise(d05)
-save(d05, file=&quot;rpu2015d05_provisoire.Rda&quot;)
+<pre><code>d06 &lt;- dx[as.Date(dx$ENTREE) &gt;= &quot;2015-06-01&quot; &amp; as.Date(dx$ENTREE) &lt; &quot;2015-07-01&quot;,]
+max(as.Date(d06$ENTREE))
+min(as.Date(d06$ENTREE))
+d06 &lt;- normalise(d06)
+save(d06, file=&quot;rpu2015d06_provisoire.Rda&quot;)
 rm(dx)
 
 # si le mois est complet:
@@ -305,8 +302,9 @@ load(&quot;rpu2015d01.Rda&quot;) # mois précédent
 load(&quot;rpu2015d02.Rda&quot;) # mois précédent
 load(&quot;rpu2015d03.Rda&quot;) # mois précédent
 load(&quot;rpu2015d04.Rda&quot;) # mois précédent
+load(&quot;rpu2015d05.Rda&quot;) # mois précédent
 
-dx &lt;- rbind(d01, d02, d03, d04, d05)
+dx &lt;- rbind(d01, d02, d03, d04, d05, d06)
 min(as.Date(dx$ENTREE))
 max(as.Date(dx$ENTREE))
 
@@ -314,13 +312,9 @@ d15 &lt;- dx
 save(d15, file=&quot;rpu2015d0112_provisoire.Rda&quot;)
 
 # Table des RPU par jour et par FINESS pour le mois en cours
-&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD
 # n &lt;- tapply(as.Date(dsi$ENTREE), list(as.Date(dsi$ENTREE), dsi$FINESS), length)
 
-rpu.par.jour(d05)
-=======
-rpu.par.jour(d06)
-&gt;&gt;&gt;&gt;&gt;&gt;&gt; f3563fb10689def9b28448fd2e8b594712ced1b5</code></pre>
+rpu.par.jour(d06)</code></pre>
 </div>
 <div id="nombre-de-attendus-pour-lannee" class="section level4">
 <h4>Nombre de attendus pour l’année:</h4>
@@ -366,7 +360,13 @@ write.csv(rpu, file=&quot;exaustivite_rpu.csv&quot;) # enregistre la table au fo
 <p>colnames(a) &lt;- c(“Date”,“RPU”) a<span class="math">\(Date &lt;- as.Date(a\)</span>Date) a<span class="math">\(RPU &lt;- as.numeric(as.character(a\)</span>RPU)) # transforme les facteurs en nombre</p>
 <p>library(“xts”) library(“lubridate”)</p>
 <p>plot(a<span class="math">\(Date, a\)</span>RPU, type=“l”, ylab=“nombre de RPU”, xlab=paste0(“Année”, year(Sys.Date())), main=“Activité des SU d’Alsace en nombre de RPU”)</p>
-<p>x &lt;- as.xts(a<span class="math">\(RPU, a\)</span>Date)</p>
+</div>
+<div id="trace-de-la-courbe-des-rpu-avec-plot.xts" class="section level1">
+<h1>Tracé de la courbe des RPU avec PLOT.XTS</h1>
+<p>x &lt;- as.xts(a<span class="math">\(RPU, a\)</span>Date) plot(x , major.ticks= “weeks”, las = 2, minor.ticks = FALSE, major.format = “%d %b”, cex.axis = 0.8, main = “RPU 2015”, ylab = “Nombre de RPU par jour”, col = “brown”) # {“years”, “months”, “weeks”, “days”, “hours”, “minutes”, “seconds”} lines(rollmean(x, 7), col=“red”, lwd = 3)</p>
+</div>
+<div id="trace-de-la-courbe-des-rpu-avec-plot.zoo" class="section level1">
+<h1>Tracé de la courbe des RPU avec PLOT.ZOO</h1>
 <p>z &lt;- as.zoo(x) plot(z, col=“blue”, ylab=“nombre de RPU”, xlab=paste0(“Année”, year(Sys.Date())), main=“Activité des SU d’Alsace en nombre de RPU”) lines(rollmean(z, 7), col=“red”)</p>
 <p>x &lt;- as.xts(a<span class="math">\(RPU, a\)</span>Date)</p>
 <p>z &lt;- as.zoo(x) plot(z, col=“blue”, ylab=“nombre de RPU”, xlab=paste0(“Année”, year(Sys.Date())), main=“Activité des SU d’Alsace en nombre de RPU”) lines(rollmean(z, 7), col=“red”) ``` Activité 2013-2014 ==================</p>
