@@ -7,6 +7,9 @@ output:
     fig_caption: yes
     keep_md: yes
     toc: yes
+  pdf_document:
+    number_sections: yes
+    toc: yes
   word_document: default
 ---
 
@@ -264,5 +267,31 @@ t <- data.frame(rownames(hop), hop$total, hop$hospitalisation)
 colnames(t)<-c("date","passages","hospitalisations")
 write.csv(t, file="data2.csv", row.names = FALSE)
 
-
 ```
+
+Préparation fichiers pour nouveau site RESURAL
+==============================================
+
+1. RPU du jour
+2. Ajout aux RPU du mois (rpu2015dMM_provisoire.R)
+3. Ajout aux RPU des mois précédents (rpu2015d0112_provisoire.R)
+4. calcul complet (jusqu'à la dernière semaine non consolidée = d15.p)
+5. dp.rmd = syndrome grippaux
+6. Préparation des fichiers pour dygraph
+    - dygraph.test est construit à partir des données SAMU67. Rajouter SAMU68
+    - la préparation normale fournit le fichier __devenir.csv__
+7. Transfert sur Mac du fichier _devenir.csv_
+    - date
+    - passages.jour.rpu
+    - hospit.jour
+    - mutation.jour.rpu
+    - transfert.jour.rpu
+    - taux.hospit
+8. Dossier jcb/resural.github.pages/resural.github.io/graph_rpu
+    - faire glisser _devenir.csv_ dans ce dossier 
+    - le renommer __data.csv__
+    - tester le résultat en lançant localement le fichier _index.html_
+    - faire glisser __resural.github.io__ dans une console (équivalent à ouvrir une consale et faire un __cd__ vers le dossier _resural.git.hub.io).
+    - git add -A
+    - git commit -m "newdata"
+    - git push
