@@ -49,7 +49,7 @@ path <- "../../" # path <= ""
 load(paste0(path, "rpu2014d0112_c.Rda")) # d14
 # load(paste0(path, "rpu2015d0112_provisoire.Rda")) # d01
 load(paste0(path, "d15_p.Rda")) # d15.p
-source(paste0(path, "new_functions.R")) # fonction mode.sotie()
+source(paste0(path, "new_functions.R")) # fonction mode.sortie()
 library(xts)
 library(dygraphs)
 
