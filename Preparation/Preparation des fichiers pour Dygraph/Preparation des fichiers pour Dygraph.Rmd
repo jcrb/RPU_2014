@@ -295,3 +295,23 @@ Préparation fichiers pour nouveau site RESURAL
     - git add -A
     - git commit -m "newdata"
     - git push
+
+Transférer le fichier _devenir.csv_ avec R
+--------------------------------------------
+L'objectif est de faire glisser une copie du fichier _devenir.csv_ vers le dossier contenant les pages github à transférer vers le site, directement à partir de R.
+
+```{}
+# sauvegarde du répertoire de travail
+wd <- getwd()
+# définition des dossiers source et destination
+destination <- "~/resural_github_pages/resural.github.io/graph-rpu"
+source <- "~/Documents/Stat Resural/RPU_2014/Preparation/Preparation des fichiers pour Dygraph/"
+# copie locale du fichier sous le nom de data.csv
+system("cp devenir.csv data.csv")
+# tansfert du fichier par copie
+system(paste("cp devenir.csv", destination))
+# on retaure le dossier de départ
+setwd(wd)
+
+```
+
