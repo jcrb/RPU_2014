@@ -292,6 +292,8 @@ write.csv(rpu, file="exaustivite_rpu.csv") # enregistre la table au format .csv 
 
   -> voir _Préparation des fichiers pour Dygraph.Rmd_
   
+  -> explorer [cart.js](http://www.chartjs.org/) qui fait des diagrammes interactifs en étoile.
+  
 Résumé activité
 ===============
  On crée un tableau Finess x Jour de l'année permettant de voir rapidement où sont les "trous". A partir du tableau __rpu__ on crée un dataframe __a__ comportant deux colonnes: la date du jour et le nombre de RPU correspondants pour l'ensemble des SU d'Alsace. Ce dataframe peut être utilisé pour __Dygraph__.
