@@ -190,7 +190,7 @@ file.to.delete <- "/home/jcb/Documents/Resural/Stat Resural/Archives_Sagec/dataQ
 file.remove(file.to.delete)
 
 date1 <- "2015-06-08"
-date2 <- "2015-06-21"
+date2 <- "2015-06-23"
 
 mc <- substr(date1, 6, 7)
 ac <- substr(date1, 1,4)
@@ -347,11 +347,9 @@ Objet: mesure de l'activité au jour le jour avant consolidation. En pratique re
 1. récupérer le fichier source, le décompacter.
 2. appeler la fonction __parse_rpu__ avec la date du jour, qui le transforme en dataframe
 ```{}
-<<<<<<< HEAD
-d <- parse_rpu("2015-05-31")
-=======
-d <- parse_rpu("2015-06-15")
->>>>>>> f3563fb10689def9b28448fd2e8b594712ced1b5
+
+d <- parse_rpu("2015-06-23")
+
 min(as.Date(d$ENTREE))
 max(as.Date(d$ENTREE))
 ```
@@ -396,7 +394,7 @@ a <-tapply(as.Date(d15.p$ENTREE), as.Date(d15.p$ENTREE), length)
 xts.a <- xts(a, order.by = unique(as.Date(d15.p$ENTREE)))
 
 svg("activite SU alsace 2015.svg")
-plot(xts.a, las = 2, main = "Activité des SU d'Alsace", ylab = "nombre de RPU créés par jour", ylim = c(800,1600))
+plot(xts.a, major.ticks= "weeks", minor.ticks = FALSE, major.format = "%d %b", cex.axis = 0.8, las = 2, main = "Activité des SU d'Alsace", ylab = "nombre de RPU créés par jour", ylim = c(800,1700))
 mean2014 <- 1141.734
 sd2014 <- 154.7858
 abline(h = mean2014, col = "red") # nb moyende RPU en 2014
