@@ -190,7 +190,7 @@ file.to.delete <- "/home/jcb/Documents/Resural/Stat Resural/Archives_Sagec/dataQ
 file.remove(file.to.delete)
 
 date1 <- "2015-06-08"
-date2 <- "2015-06-23"
+date2 <- "2015-06-29"
 
 mc <- substr(date1, 6, 7)
 ac <- substr(date1, 1,4)
@@ -292,6 +292,8 @@ write.csv(rpu, file="exaustivite_rpu.csv") # enregistre la table au format .csv 
 
   -> voir _Préparation des fichiers pour Dygraph.Rmd_
   
+  -> explorer [cart.js](http://www.chartjs.org/) qui fait des diagrammes interactifs en étoile.
+  
 Résumé activité
 ===============
  On crée un tableau Finess x Jour de l'année permettant de voir rapidement où sont les "trous". A partir du tableau __rpu__ on crée un dataframe __a__ comportant deux colonnes: la date du jour et le nombre de RPU correspondants pour l'ensemble des SU d'Alsace. Ce dataframe peut être utilisé pour __Dygraph__.
@@ -348,7 +350,7 @@ Objet: mesure de l'activité au jour le jour avant consolidation. En pratique re
 2. appeler la fonction __parse_rpu__ avec la date du jour, qui le transforme en dataframe
 ```{}
 
-d <- parse_rpu("2015-06-23")
+d <- parse_rpu("2015-06-29")
 
 min(as.Date(d$ENTREE))
 max(as.Date(d$ENTREE))
