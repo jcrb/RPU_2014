@@ -159,7 +159,7 @@ demi.petit.axe <- function(applatissement, a){
 #'@references https://fr.wikipedia.org/wiki/WGS_84
 #'@references http://geodesie.ign.fr/contenu/fichiers/Modeles_ellipsoides_France.pdf
 first.ex <- function(a, b){
-  e1 <- sqrt((a*a - b*b) / a*a)
+  e1 <- sqrt((a*a - b*b) / (a*a))
   return(e1)
 }
 
