@@ -168,6 +168,7 @@ source("Preparation/RPU Quotidiens/quot_utils.R")
 
 si un seul fichier
 ------------------
+NB: le fichier doit se trouver dans la dossier __dataQ__.
 ```{}
 rj <- rpu_jour("2014-11-18")
 dj <- assemble(comment = TRUE)
@@ -175,6 +176,19 @@ dj <- assemble(comment = TRUE)
 # Exhaustivité des RPU du jour:
 table(as.Date(rj$ENTREE), rj$FINESS)
 ```
+
+Si un seul fichier de rattrapage
+--------------------------------
+NB: le fichier doit se trouver dans la dossier __dataQ__.
+```{}
+wd <- getwd()
+rj <- parse_rpu("2015-0607")
+rpu.par.jour(rj)
+# les RPU sont bruts sauf le FINESS qui est transcodé. Pour les rendre compatibles, il faut appeler rpu2factor
+rj <- rpu2factor(rj)
+setwd(wd)
+```
+
 
 
 Si on a une collection de fichiers:
@@ -189,8 +203,8 @@ source("Preparation/RPU Quotidiens/quot_utils.R")
 file.to.delete <- "/home/jcb/Documents/Resural/Stat Resural/Archives_Sagec/dataQ/archivesCsv/rpu2014.data"
 file.remove(file.to.delete)
 
-date1 <- "2015-06-08"
-date2 <- "2015-07-27"
+date1 <- "2015-07-01"
+date2 <- "2015-07-29"
 
 mc <- substr(date1, 6, 7)
 ac <- substr(date1, 1,4)
@@ -212,8 +226,9 @@ mois.c <- paste("d", )
 
 ```{}
 d07 <- dx[as.Date(dx$ENTREE) >= "2015-07-01" & as.Date(dx$ENTREE) < "2015-08-01",]
-max(as.Date(d07$ENTREE))
 min(as.Date(d07$ENTREE))
+max(as.Date(d07$ENTREE))
+
 d07 <- normalise(d07)
 save(d07, file="rpu2015d07_provisoire.Rda")
 rm(dx)
@@ -244,7 +259,6 @@ save(d15, file="rpu2015d0112_provisoire.Rda")
 # Table des RPU par jour et par FINESS pour le mois en cours
 # n <- tapply(as.Date(dsi$ENTREE), list(as.Date(dsi$ENTREE), dsi$FINESS), length)
 
-rpu.par.jour(d07)
 ```
 
 #### Nombre de attendus pour l'année:

@@ -99,6 +99,8 @@ finess2hop <- function(a){
 #' Le dataframe contient tous les RPU de la veille plus ceux des 7 derniers jours (j-1 à j-7)
 #' Préalable: disposer d'une base de donnée MySql avec une table appelée "archives".
 #' Cette base doit être référencée dans le fichier .my.conf
+#' La fonction crée la colonne AGE à partir de la date de naissance er de la date d'entrée. Les ages < 0 ou > 120
+#' sont transfprmés en NA.
 #' 
 #'@name parse_rpu
 #'@title 2014-03-01
