@@ -72,8 +72,8 @@ finess2hop <- function(a){
   a[a=="670000272"]<-"Wis"
   a[a=="680000700"]<-"Geb"
   a[a=="670780055"]<-"Hus"
-  a[a=="670000025"]<-"Hus" # NHC maj le 17/10/2014
-  a[a=="670783273"]<-"Hus" # HTP maj le 17/10/2014
+  a[a=="670000025"]<-"NHC" # NHC maj le 17/10/2014
+  a[a=="670783273"]<-"HTP" # HTP maj le 17/10/2014
   a[a=="680000197"]<-"3Fr"
   a[a=="680020096"]<-"3Fr" # maj le 30/5/2014 680020096
   a[a=="680000627"]<-"Mul" # correspond au Hasenrain
@@ -99,6 +99,8 @@ finess2hop <- function(a){
 #' Le dataframe contient tous les RPU de la veille plus ceux des 7 derniers jours (j-1 à j-7)
 #' Préalable: disposer d'une base de donnée MySql avec une table appelée "archives".
 #' Cette base doit être référencée dans le fichier .my.conf
+#' La fonction crée la colonne AGE à partir de la date de naissance er de la date d'entrée. Les ages < 0 ou > 120
+#' sont transfprmés en NA.
 #' 
 #'@name parse_rpu
 #'@title 2014-03-01
