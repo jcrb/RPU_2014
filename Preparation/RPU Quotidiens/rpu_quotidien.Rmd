@@ -203,8 +203,8 @@ source("Preparation/RPU Quotidiens/quot_utils.R")
 file.to.delete <- "/home/jcb/Documents/Resural/Stat Resural/Archives_Sagec/dataQ/archivesCsv/rpu2014.data"
 file.remove(file.to.delete)
 
-date1 <- "2015-07-01"
-date2 <- "2015-07-29"
+date1 <- "2015-07-29"
+date2 <- "2015-08-03"
 
 mc <- substr(date1, 6, 7)
 ac <- substr(date1, 1,4)
@@ -258,7 +258,7 @@ save(d15, file="rpu2015d0112_provisoire.Rda")
 
 # Table des RPU par jour et par FINESS pour le mois en cours
 # n <- tapply(as.Date(dsi$ENTREE), list(as.Date(dsi$ENTREE), dsi$FINESS), length)
-
+rpu.par.jour(d07)
 ```
 
 #### Nombre de attendus pour l'année:
