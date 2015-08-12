@@ -203,8 +203,8 @@ source("Preparation/RPU Quotidiens/quot_utils.R")
 file.to.delete <- "/home/jcb/Documents/Resural/Stat Resural/Archives_Sagec/dataQ/archivesCsv/rpu2014.data"
 file.remove(file.to.delete)
 
-date1 <- "2015-07-29"
-date2 <- "2015-08-03"
+date1 <- "2015-08-07"
+date2 <- "2015-08-11"
 
 mc <- substr(date1, 6, 7)
 ac <- substr(date1, 1,4)
@@ -225,12 +225,12 @@ num.mc <- 1 # numéro du mois courant
 mois.c <- paste("d", )
 
 ```{}
-d07 <- dx[as.Date(dx$ENTREE) >= "2015-07-01" & as.Date(dx$ENTREE) < "2015-08-01",]
-min(as.Date(d07$ENTREE))
-max(as.Date(d07$ENTREE))
+d08 <- dx[as.Date(dx$ENTREE) >= "2015-08-01" & as.Date(dx$ENTREE) < "2015-09-01",]
+min(as.Date(d08$ENTREE))
+max(as.Date(d08$ENTREE))
 
-d07 <- normalise(d07)
-save(d07, file="rpu2015d07_provisoire.Rda")
+d08 <- normalise(d08)
+save(d08, file="rpu2015d08_provisoire.Rda")
 rm(dx)
 
 # si le mois est complet:
@@ -248,6 +248,7 @@ load("rpu2015d03.Rda") # mois précédent
 load("rpu2015d04.Rda") # mois précédent
 load("rpu2015d05.Rda") # mois précédent
 load("rpu2015d06.Rda") # mois précédent
+load("rpu2015d07.Rda") # mois précédent
 
 dx <- rbind(d01, d02, d03, d04, d05, d06, d07)
 min(as.Date(dx$ENTREE))
@@ -268,6 +269,24 @@ td <- max(as.Date(d15$ENTREE)) - min(as.Date(dx$ENTREE))
 n * 365 / as.numeric(td)
 
 ```
+
+### bilan des RPU à la ate du 31/7/2015
+```{}
+rpu.jour <- rpu.par.jour(d15) # matrice des RPU depuis le début année
+write.csv(rpu.jour, file = "rpu.jour_31-07-2015.csv") # sauvegarde de la matrice
+rpu.manquant <- function(x){length(which(x == 0))} # fonction qui compte le nombre de rpu = 0 dans le vecteur x
+apply(rpu.jour, 2, rpu.manquant) # applique la fonction à la matrice rpu.jour
+
+3Fr Alk Ane Col Dia Dts Geb Hag Hus Mul Odi Ros Sav Sel Wis HTP NHC 
+  0   0  46   1   0   0   0   0  61   4   1   0   0  13   0 151 151 
+
+moins de 20 rpu/jour
+rpu.manquant <- function(x){length(which(x < 20))}
+3Fr Alk Ane Col Dia Dts Geb Hag Hus Mul Odi Ros Sav Sel Wis HTP NHC 
+  0   0  46   1   0   7   0   0  61   5   5  80   0  26   2 151 151
+
+```
+
 
 ### Recherche de doublons: CODE_POSTAL, COMMUNE, ENTREE, FINESS, NAISSANCE, SEXE
 ```{ doublons}
@@ -341,13 +360,13 @@ lines(rollmean(x, 7), col="red", lwd = 3)
 
 # Tracé de la courbe des RPU avec PLOT.ZOO
 z <- as.zoo(x)
-plot(z, col="blue", ylab="nombre de RPU", xlab=paste0("Année ", year(Sys.Date())), main="Activité des SU d'Alsace en nombre de RPU")
-lines(rollmean(z, 7), col="red")
+plot(z, col="cornflowerblue", ylab="nombre de RPU", xlab=paste0("Année ", year(Sys.Date())), main="Activité des SU d'Alsace en nombre de RPU")
+lines(rollmean(z, 7), col="red", lwd = 3)
 
 x <- as.xts(a$RPU, a$Date)
 
 z <- as.zoo(x)
-plot(z, col="blue", ylab="nombre de RPU", xlab=paste0("Année ", year(Sys.Date())), main="Activité des SU d'Alsace en nombre de RPU")
+plot(z, col="cornflowerblue", ylab="nombre de RPU", xlab=paste0("Année ", year(Sys.Date())), main="Activité des SU d'Alsace en nombre de RPU")
 lines(rollmean(z, 7), col="red")
 ```
 Activité 2013-2014
@@ -411,7 +430,7 @@ a <-tapply(as.Date(d15.p$ENTREE), as.Date(d15.p$ENTREE), length)
 xts.a <- xts(a, order.by = unique(as.Date(d15.p$ENTREE)))
 
 svg("activite SU alsace 2015.svg")
-plot(xts.a, major.ticks= "weeks", minor.ticks = FALSE, major.format = "%d %b", cex.axis = 0.8, las = 2, main = "Activité des SU d'Alsace", ylab = "nombre de RPU créés par jour", ylim = c(800,1700))
+plot(xts.a, major.ticks= "weeks", minor.ticks = FALSE, major.format = "%d %b", cex.axis = 0.8, las = 2, main = "Activité des SU d'Alsace", ylab = "nombre de RPU créés par jour", ylim = c(900,1700))
 mean2014 <- 1141.734
 sd2014 <- 154.7858
 abline(h = mean2014, col = "red") # nb moyende RPU en 2014
