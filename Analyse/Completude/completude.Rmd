@@ -3,15 +3,16 @@ title: "Completude"
 author: "jcb"
 date: "30 mars 2015"
 output:
+  pdf_document:
+    fig_crop: no
+    fig_height: 6
+    keep_tex: yes
+    number_sections: yes
+    toc: yes
   html_document:
     fig_height: 7
     fig_width: 9
     keep_md: yes
-    toc: yes
-  pdf_document:
-    fig_height: 6
-    keep_tex: yes
-    number_sections: yes
     toc: yes
 ---
 Complétude des données
@@ -26,6 +27,7 @@ MAJ
 
 - 12/4/2014: enrgistrement des graphiques, impression du tableau de completude
 - 15/4/2015: Ajout légende, amélioration du titre, élargissement du graphique
+- `r Sys.Date()`: dernière mise à jour.
 
 TODO
 ----
@@ -33,28 +35,35 @@ TODO
 Données
 -------
 
-connexion MAC:
-```{}
-path <- "../"
-source(paste0(path, "../../RESURAL/Trame_Commune/rapport_2014.R"))
-load(paste0(path, "rpu2015d0112.Rda")) # 2015
+```{r systeme, echo=FALSE, comment="", message=FALSE}
+library(R.utils)
+
+host <- System$getHostname()
+
+if (host == "XPS"){
+  # Connexion XPS
+  path <- "../../"
+  source("/home/jcb/Documents/Resural/FEDORU/Trame_Commune/Rapport/rapport_2014.R")
+  load(paste0(path, "rpu2015d0112_provisoire.Rda")) # 2015
+}
+# else {
+#  # connexion MAC:
+#   path <- "../"
+#   source(paste0(path, "../../RESURAL/Trame_Commune/rapport_2014.R"))
+#   load(paste0(path, "rpu2015d0112.Rda")) # 2015
+# }
 ```
-Connexion XPS
-```{}
-path <- "../"
-source("/home/jcb/Documents/Resural/FEDORU/Trame_Commune/rapport_2014.R")
-load(paste0(path, "../rpu2015d0112.Rda")) # 2015
-```
+Système utilisé: `r host`
+
 
 ```{r init, echo=FALSE}
-path <- ""
-source("/home/jcb/Documents/Resural/FEDORU/Trame_Commune/rapport_2014.R")
-load(paste0(path, "../rpu2015d0112.Rda")) # 2015
 
 dx <- d15
 rm(d15)
 
 finess <- unique(as.character(dx$FINESS)) # liste des établissements
+d1 <- min(as.Date(dx$ENTREE))
+d2 <- max(as.Date(dx$ENTREE))
 # finess <- "Wis"
 ```
 
@@ -88,7 +97,7 @@ Complétude régionale
 --------------------
 C'est la complétude calculée pour tous les RPU quelque soit l'établissement producteur.
 
-```{r comp_regionale, echo=TRUE, message=FALSE, comment=""}
+```{r comp_regionale, echo=FALSE, message=FALSE, comment=""}
 completude_region <- completude(dx)
 radar.completude(completude_region)
 n.items <- length(completude_region) # nb d'items pris en compte N = 19
@@ -112,7 +121,8 @@ TOdo:
 - comparer le score en foction du logiciel utilisé et sa version.
 
 
-```{r finess, echo=TRUE, comment="", fig.width=9, fig.height=7}
+```{r finess, echo=FALSE, comment="", fig.width=9, fig.height=7}
+library(lubridate)
 
 for(i in 1:length(finess)){
   # données de l'établissement
@@ -122,7 +132,9 @@ for(i in 1:length(finess)){
   d.completude <- completude(d)
   d.completude["MOTIF DE RECOURS"] <- as.numeric(m[i,4])
   
-  radar.completude(d.completude, paste0(finess[i], " (1er trimestre 2015)"))
+  titre <- paste("( du", d1, "au", d2, ")")
+  
+  radar.completude(d.completude, paste0(finess[i], titre))
   # completude régionale
   radial.plot(completude_region, rp.type="p",radial.lim=c(0,100),start = 1.57,clockwise = TRUE, line.col = "blue", add = TRUE)
   legend(-150, -120, legend = c("complétude régionale"), lty = 1, lwd = 3, col = "blue", bty = "n", cex = 0.8)
@@ -134,7 +146,61 @@ for(i in 1:length(finess)){
   # note globale sur 100
   score.local <- sum(d.completude) / n.items
   cat(paste0("Score local: ", round(score.local, 2)), " sur 100")
+  
+  # Suivi des Complétude par établissement et par mois
+  #----------------------------------------------------
+  #d <- dx[dx$FINESS == finess[i],] # établissement
+  a <- by(d, month(as.Date(d$ENTREE)), completude) # split le DF par mois et lui applique la fonction completude
+  b <- matrix(unlist(a), ncol = length(a)) # transforme en matrice
+  # alternative: en dataframe
+  # b <- as.data.frame(matrix(unlist(a), ncol = length(a)))
+  colnames(b) <- paste("2015 -", names(a))
+  rownames(b) <- names(unlist(a[1][1]))
+  
+  print('')
+  print("=====================================================================")
+  print(finess[i])
+  print("=====================================================================")
+  print(b)
 }
 
+```
+Suivi des Complétude par établissement et par mois
+=====================================================
+
+Crée un tableau de complétude par mois:
+
+```{}
+
+
+tableau.des.completudes <- function(dx, finess){
+  d <- dx[dx$FINESS == finess[i],] # établissement
+  a <- by(d, month(as.Date(d$ENTREE)), completude) # split le DF par mois et lui applique la fonction completude
+  b <- matrix(unlist(a), ncol = length(a)) # transforme en matrice
+  # alternative: en dataframe
+  # b <- as.data.frame(matrix(unlist(a), ncol = length(a)))
+  colnames(b) <- paste("2015 -", names(a))
+  rownames(b) <- names(unlist(a[1][1]))
+  return(b)
+}
+
+for(i in 1:length(finess)){
+#   b <- tableau.des.completudes(dx, finess[i])
+  
+  d <- dx[dx$FINESS == finess[i],] # établissement
+  a <- by(d, month(as.Date(d$ENTREE)), completude) # split le DF par mois et lui applique la fonction completude
+  b <- matrix(unlist(a), ncol = length(a)) # transforme en matrice
+  # alternative: en dataframe
+  # b <- as.data.frame(matrix(unlist(a), ncol = length(a)))
+  colnames(b) <- paste("2015 -", names(a))
+  rownames(b) <- names(unlist(a[1][1]))
+  
+  print('')
+  print("=====================================================================")
+  print(finess[i])
+  print("=====================================================================")
+  print(b)
+  #print("=====================================================================")
+}
 ```
 
