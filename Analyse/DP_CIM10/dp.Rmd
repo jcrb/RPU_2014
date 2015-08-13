@@ -258,10 +258,19 @@ Pathologies liées à la chaleur
 ==============================
 
 - deshydratation: E86
+- coup de caleur et insolation: T67.0
+- syncope due à la chaleur: T67.1
+- crampes dues à la chaleur`: T67.2
+- épuisement du à la chaleur avec perte d'eau: T67.3
+- épuisement du à la chaleur avec perte de sel: T67.4
+- épuisement du à la chaleur: T67.5
+- fatigue transitoire due à la chaleur: T67.6
 
 ```{r}
 deshyd <-dpr[substr(dpr$DP,1,3)=="E86", ]
+chaleur <-dpr[substr(dpr$DP,1,3)=="T67", ]
 hist(as.Date(deshyd$ENTREE), start.on.monday = TRUE, breaks = "weeks", freq = TRUE, format = "", las = 2, border = "white", col = "cornflowerblue", main = "Déshydratation", cex = 0.6)
 
+hist(as.Date(chaleur$ENTREE), start.on.monday = TRUE, breaks = "weeks", freq = TRUE, format = "", las = 2, border = "white", col = "cornflowerblue", main = "Pathologies dues à la chaleur", cex = 0.6)
 ```
 
