@@ -267,6 +267,7 @@ Pathologies liées à la chaleur
 - fatigue transitoire due à la chaleur: T67.6
 
 ```{r}
+# 2014-2015
 deshyd <-dpr[substr(dpr$DP,1,3)=="E86", ]
 chaleur <-dpr[substr(dpr$DP,1,3)=="T67", ]
 hist(as.Date(deshyd$ENTREE), start.on.monday = TRUE, breaks = "weeks", freq = TRUE, format = "", las = 2, border = "white", col = "cornflowerblue", main = "Déshydratation", cex = 0.6)

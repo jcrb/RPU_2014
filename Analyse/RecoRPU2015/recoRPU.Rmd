@@ -1,0 +1,150 @@
+---
+title: "Recommandations RPU"
+author: "jcb"
+date: "14 août 2015"
+output:
+  html_document:
+    keep_md: yes
+    toc: yes
+  pdf_document:
+    number_sections: yes
+    toc: yes
+---
+
+```{r init, echo=FALSE}
+
+library(xts)
+path <- "../../"
+load("~/Documents/Stat Resural/RPU_2014/rpu2015d0112_provisoire.Rda")
+rpu <- read.csv(paste0(path, "rpu.jour_31-07-2015.csv"))
+colnames(rpu)[1] <- "date"
+colnames(rpu)[2] <- "3Fr"
+
+# le dataframe est trans formé en objet XTS
+xts <- xts(rpu, order.by = as.Date(rpu$date), frequency = TRUE)
+
+# FINESS par territoire
+finess <- c("Wis","Hag","Sav","Hus","HTP","NHC","Odi","Ane","Dts","Sel","Col","Geb","Mul","3Fr","Dia","Ros")
+
+source('~/Documents/Stat Resural/RPU_2014/Analyse/RecoRPU2015/reco.R')
+
+```
+
+
+Jours manquants
+===============
+
+On appelle _jours manquants_, les jours où le nombre de RPU est inférieur à un seuil _S_. En supposant que la distribution des RPU est normale, le seuil peut être fixé à 2 ou 3 écart-type (sd) en dessous de la moyenne du nombre de RPU quotidien.
+
+Par exemple pour le CH Sélestat on obtient:
+```{r sel1, echo=FALSE}
+# vecteur XTS por Sélestat
+a <- as.integer(xts$Sel)
+s <- summary(a)
+sd <- sd(a)
+```
+- $\mu = `r s['Mean']`$
+- $\sigma = `r sd`$
+
+et graphiquement (moyenne en trait plein, écart-type en pointillés):
+
+```{r graph_sel1, echo=FALSE}
+plot(xts$Sel, ylim = c(0, s["Max."]), las = 2, cex.axis = 0.6, main = "Nombre de RPU par jour en 2015", major.ticks= "weeks")
+# Two new arguments here are the major.ticks and minor.ticks settings. The major.ticks argument represents the periods in which we wish to chop up the horizontal axis; it is chosen from the set {"years", "months", "weeks", "days", "hours", "minutes", "seconds"}
+
+abline(h = s["Mean"], col = "red")
+abline(h = s["Mean"]-sd, col = "red", lty = 2)
+text(1, 32, "u - sd", cex = 0.8 )
+abline(h = s["Mean"]-sd*2, col = "red", lty = 2)
+```
+
+Cependant ces résultats sont faussés par les jours manquants qui "tirent" vers le bas la moyenne et augmentent l'écart-type. On refait le même calcul mais en supprimant les jours où le nombre de RPU est inférieur à la moyenne moins 2 sd:
+
+```{r sel2, echo=FALSE}
+# On retire de a les ours où le nb de RPU est plus petit que le nombre moyen de RPU - 2 sd:
+b <- a[a > s["Mean"]-sd*2]
+# on recalcule les paramètres de centralité et de dispersion:
+s.b <- summary(b)
+sd.b <- sd(b)
+
+```
+
+- $\mu = `r s.b['Mean']`$
+- $\sigma = `r sd.b`$
+
+```{r sel2_graphe, echo=FALSE}
+# on dessine les nouvelles limites:
+plot(xts$Sel, ylim = c(0, s["Max."]), las = 2, cex.axis = 0.6, main = "Nombre de RPU par jour en 2015 (moyenne corrigée)", major.ticks= "weeks")
+abline(h = summary(b)["Mean"], col = "blue")
+abline(h = summary(b)["Mean"] - sd(b), col = "blue", lty = 2)
+abline(h = summary(b)["Mean"] - sd(b) * 2, col = "blue", lty = 2)
+abline(h = summary(b)["Mean"] - sd(b) * 3, col = "blue", lty = 2)
+```
+
+A partir des données corrigées on peut fixer le seuil à partir ququel le nombre de RPU peut être considéré comme suspect à :
+
+$S = \mu - 3\sigma$
+
+$S = `r round(summary(b)["Mean"] - sd(b) * 3, 0)`$
+
+
+```{r sel3, echo=FALSE}
+jm <- length(which(a < 20))
+```
+
+soit: `r jm` jours.
+
+Tableau des seuils par établissement
+------------------------------------
+
+La routine _seuil_ établit la liste des seuils par établissement (la routine modifie légèrement l'algoritme précédent pour étiter des seuils négatifs lorsque les effectifs sont faibles ou les valeurs manquantes trop nombreuses):
+
+Un nombre quotidien de RPU inférieur à ce seuil est considéré comme anormal jusqu'à preuve du contraire:
+```{r liste, echo=FALSE, comment=""}
+# finess par territoires
+finess <- c("Wis","Hag","Sav","Hus","HTP","NHC","Odi","Ane","Dts","Sel","Col","Geb","Mul","3Fr","Dia","Ros")
+
+for(i in finess){print(paste(i, "=", round(seuil(rpu[, i]), 0)))}
+
+```
+
+
+
+```{r liste_graphique, echo=FALSE}
+for(i in finess){
+  seuil.graphe(xts[,i], seuil(rpu[, i]), i)
+}
+```
+
+Variabilité du codage (en cours)
+=====================
+
+On forme le rapport quotidien du nombre de RPU codés sur le nombre total de RPU transmis.
+
+Variabilité acceptable: différence interquartile ?
+
+```{r code, echo=FALSE}
+# on forme un dataframeà 2 colonnes pour 1 fINESS
+wis <- d15[d15$FINESS == "Wis", c("ENTREE", "DP")]
+wis$ENTREE <- as.Date(wis$ENTREE)
+
+t <- taux.codage.dp(wis)
+
+# résumé du taux de codage
+summary(t)
+sd(t$dp.code)
+
+boxplot(t[, 1:2])
+# graphe
+plot.taux.codage.dp(taux.codage.dp(d15[d15$FINESS == "Hag", c("ENTREE","DP")]), "CH Haguenau")
+
+plot.taux.codage.dp(taux.codage.dp(d15[d15$FINESS == "Hus", c("ENTREE","DP")]), "HUS")
+
+
+# for(i in finess){
+#   plot.taux.codage.dp(taux.codage.dp(d15[d15$FINESS == i, c("ENTREE","DP")]), i)
+# }
+
+# si des jours sont manquants: faire un merging sur un calendrier théorique
+```
+

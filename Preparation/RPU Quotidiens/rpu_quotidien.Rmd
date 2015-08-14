@@ -262,6 +262,14 @@ save(d15, file="rpu2015d0112_provisoire.Rda")
 rpu.par.jour(d07)
 ```
 
+Total RPU par mois et par FINESS
+```{}
+t <- tapply(as.Date(d15$ENTREE), list(d15$FINESS, months(as.Date(d15$ENTREE))), length)
+t <- t[, c("janvier","février","mars", "avril","mai","juin","juillet")]
+write.csv2(t, file = "rpu_par_mois.xls")
+```
+
+
 #### Nombre de attendus pour l'année:
 ```{ rpu_extrapoles}
 n <- nrow(d15)
@@ -284,6 +292,36 @@ moins de 20 rpu/jour
 rpu.manquant <- function(x){length(which(x < 20))}
 3Fr Alk Ane Col Dia Dts Geb Hag Hus Mul Odi Ros Sav Sel Wis HTP NHC 
   0   0  46   1   0   7   0   0  61   5   5  80   0  26   2 151 151
+  
+# graphe
+
+load("~/Documents/Stat Resural/RPU_2014/rpu2015d0112_provisoire.Rda")
+
+library(xts)
+rpu <- read.csv("rpu.jour_31-07-2015.csv")
+
+xts <- xts(rpu, order.by = as.Date(rpu$date), frequency = TRUE)
+a <- as.integer(xts$Sel)
+s <- summary(a)
+sd <- sd(a)
+
+plot(xts$Sel, ylim = c(0, s["Max."]), las = 2, cex.axis = 0.6, main = "Nombre de RPU par jour en 2015", major.ticks= "weeks")
+# Two new arguments here are the major.ticks and minor.ticks settings. The major.ticks argument represents the periods in which we wish to chop up the horizontal axis; it is chosen from the set {"years", "months", "weeks", "days", "hours", "minutes", "seconds"}
+
+abline(h = s["Mean"], col = "red")
+abline(h = s["Mean"]-sd, col = "red", lty = 2)
+abline(h = s["Mean"]-sd*2, col = "red", lty = 2)
+
+# Moyenne et sd corrigés: on recalcule les paramètres en ne tenant pas compte des jours aberrants (plus de 2sd).
+# On retire de a les ours où le nb de RPU est plus petit que le nombre moyen de RPU - 2 sd:
+b <- a[a > s["Mean"]-sd*2]
+# on recalcule les paramètres de centralité et de dispersion:
+s.b <- summary(b)
+sd.b <- sd(b)
+# on dessine les nouvelles limites:
+abline(h = summary(b)["Mean"] - sd(b), col = "blue", lty = 2)
+abline(h = summary(b)["Mean"] - sd(b) * 2, col = "blue", lty = 2)
+abline(h = summary(b)["Mean"] - sd(b) * 3, col = "blue", lty = 2)
 
 ```
 
