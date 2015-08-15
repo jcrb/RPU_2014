@@ -3,15 +3,15 @@ title: "Recommandations RPU"
 author: "jcb"
 date: "14 août 2015"
 output:
-  html_document:
-    keep_md: yes
-    toc: yes
   pdf_document:
     number_sections: yes
     toc: yes
+  html_document:
+    keep_md: yes
+    toc: yes
 ---
 
-```{r init, echo=FALSE}
+```{r init, echo=FALSE, comment="", message=FALSE}
 
 library(xts)
 path <- "../../"
@@ -25,6 +25,8 @@ xts <- xts(rpu, order.by = as.Date(rpu$date), frequency = TRUE)
 
 # FINESS par territoire
 finess <- c("Wis","Hag","Sav","Hus","HTP","NHC","Odi","Ane","Dts","Sel","Col","Geb","Mul","3Fr","Dia","Ros")
+
+hop <- c("CH Wissembourg","CH Haguenau","CH Saverne","Hus","HTP","NHC","Cl.Ste Odile","Cl.Ste Anne","Cl.Diaconat Strasbourg","CH Sélestat","CH Colmar","CH Guebwiller","CH Mulhouse","CH St Louis","Diaconat Fonderie","Diaconat Roosvelt")
 
 source('~/Documents/Stat Resural/RPU_2014/Analyse/RecoRPU2015/reco.R')
 
@@ -110,40 +112,29 @@ for(i in finess){print(paste(i, "=", round(seuil(rpu[, i]), 0)))}
 
 
 
-```{r liste_graphique, echo=FALSE}
-for(i in finess){
-  seuil.graphe(xts[,i], seuil(rpu[, i]), i)
+```{r liste_graphique, echo=FALSE, comment=""}
+for(i in 1:length(finess)){
+  seuil.graphe(xts[,finess[i]], seuil(rpu[, finess[i]]), hop[i])
+  print(' ')
 }
 ```
 
-Variabilité du codage (en cours)
+Variabilité du codage
 =====================
 
 On forme le rapport quotidien du nombre de RPU codés sur le nombre total de RPU transmis.
 
 Variabilité acceptable: différence interquartile ?
 
-```{r code, echo=FALSE}
-# on forme un dataframeà 2 colonnes pour 1 fINESS
-wis <- d15[d15$FINESS == "Wis", c("ENTREE", "DP")]
-wis$ENTREE <- as.Date(wis$ENTREE)
-
-t <- taux.codage.dp(wis)
+```{r code, echo=FALSE, comment=""}
 
 # résumé du taux de codage
-summary(t)
-sd(t$dp.code)
 
-boxplot(t[, 1:2])
-# graphe
-plot.taux.codage.dp(taux.codage.dp(d15[d15$FINESS == "Hag", c("ENTREE","DP")]), "CH Haguenau")
-
-plot.taux.codage.dp(taux.codage.dp(d15[d15$FINESS == "Hus", c("ENTREE","DP")]), "HUS")
-
-
-# for(i in finess){
-#   plot.taux.codage.dp(taux.codage.dp(d15[d15$FINESS == i, c("ENTREE","DP")]), i)
-# }
+for(i in 1:length(finess)){
+  codage <- taux.codage.dp(d15[d15$FINESS == finess[i], c("ENTREE","DP")])
+  plot.taux.codage.dp(codage, hop[i])
+  print(summary(codage$taux))
+}
 
 # si des jours sont manquants: faire un merging sur un calendrier théorique
 ```

@@ -73,13 +73,31 @@ taux.codage.dp <- function(dx){
   dp <- tapply(dx$DP[!is.na(dx$DP)], dx$ENTREE[!is.na(dx$DP)], length)
   
   # on lie les 2
-  a <- cbind(rpru, dp)
-  # on en fait un dataframe
-  b <- as.data.frame(a)
-  # on ajoute une colonne rapport DP/RPU
-  b$dp.code <- b$dp / b$rpru
+  # a <- cbind(rpru, dp)
   
-  return(b)
+  # transforme les vecteurs en matrice à 2 colonnes date + valeur
+  r <- as.data.frame(named.vector2matrix(rpru), stringsAsFactors = FALSE)
+  d <- as.data.frame(named.vector2matrix(dp), stringsAsFactors = FALSE)
+  # il faut renommer les noms des nouvelles colonnes. Il est important que la première
+  # colonne s'appelle 'date'
+  colnames(d) <- c("date", "vy")
+  colnames(r) <- c("date", "vx")
+  
+  # les 2 matrices sont mergées sur la colonne date. La matrice des RPU, r, fixe
+  # le nombre de jours attendus
+  a <- merge(r,d, all.x = TRUE)
+  # a$date <- as.character(a$date)
+  a$vx <- as.numeric(a$vx)
+  a$vy <- as.numeric(a$vy)
+  # on remplace NA de vy par 0
+  a$vy <- ifelse(is.na(a$vy), 0, a$vy)
+
+  # on en fait un dataframe
+  # b <- as.data.frame(a, stringsAsFactors = FALSE)
+  # on ajoute une colonne rapport DP/RPU
+  a$taux <- a$vy / a$vx
+  
+  return(a)
 }
 
 # ==============================
@@ -96,6 +114,20 @@ plot.taux.codage.dp <- function(b, hop = NULL){
     main = paste(hop, " - Variabilité du Taux de codage des DP")
   else
     main ="Variabilité du Taux de codage des DP"
-  xts <- as.xts(b, order.by = as.Date(rownames(b)))
-  plot(xts$dp.code, ylab = "taux codage", main = main, ylim = c(0,1))
+  
+  xts <- as.xts(b, order.by = as.Date(b$date))
+  plot(xts$taux, ylab = "taux codage", main = main, ylim = c(0,1))
+}
+
+# ==============================
+#
+#     named.vector2matrix
+#
+# ==============================
+#' @description transforme un vecteur nommé en matrice à 2 colonnes
+#' 
+named.vector2matrix <- function(vx){
+  m <- cbind(names(vx), vx)
+  colnames(m)[1] <- "name"
+  return(m)
 }
