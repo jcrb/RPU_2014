@@ -204,7 +204,7 @@ file.to.delete <- "/home/jcb/Documents/Resural/Stat Resural/Archives_Sagec/dataQ
 file.remove(file.to.delete)
 
 date1 <- "2015-08-07"
-date2 <- "2015-08-11"
+date2 <- "2015-08-16"
 
 mc <- substr(date1, 6, 7)
 ac <- substr(date1, 1,4)
@@ -250,7 +250,7 @@ load("rpu2015d05.Rda") # mois précédent
 load("rpu2015d06.Rda") # mois précédent
 load("rpu2015d07.Rda") # mois précédent
 
-dx <- rbind(d01, d02, d03, d04, d05, d06, d07)
+dx <- rbind(d01, d02, d03, d04, d05, d06, d07, d08)
 min(as.Date(dx$ENTREE))
 max(as.Date(dx$ENTREE))
 
@@ -259,18 +259,29 @@ save(d15, file="rpu2015d0112_provisoire.Rda")
 
 # Table des RPU par jour et par FINESS pour le mois en cours
 # n <- tapply(as.Date(dsi$ENTREE), list(as.Date(dsi$ENTREE), dsi$FINESS), length)
-rpu.par.jour(d07)
+rpu.par.jour(d08)
 ```
 
 #### Nombre de attendus pour l'année:
 ```{ rpu_extrapoles}
 n <- nrow(d15)
-td <- max(as.Date(d15$ENTREE)) - min(as.Date(dx$ENTREE))
+td <- max(as.Date(d15$ENTREE)) - min(as.Date(d15$ENTREE))
 n * 365 / as.numeric(td)
+```
+
+#### Nb actuel de RPU
+```{}
+t <- tapply(as.Date(dx$ENTREE), dx$FINESS, length)
+t
+
+# nb prévisionnel
+td <- max(as.Date(dx$ENTREE)) - min(as.Date(dx$ENTREE))
+round(t * 365 / as.numeric(td), 0)
 
 ```
 
-### bilan des RPU à la ate du 31/7/2015
+
+### bilan des RPU à la date du 31/7/2015
 ```{}
 rpu.jour <- rpu.par.jour(d15) # matrice des RPU depuis le début année
 write.csv(rpu.jour, file = "rpu.jour_31-07-2015.csv") # sauvegarde de la matrice
@@ -384,7 +395,7 @@ Objet: mesure de l'activité au jour le jour avant consolidation. En pratique re
 2. appeler la fonction __parse_rpu__ avec la date du jour, qui le transforme en dataframe
 ```{}
 
-d <- parse_rpu("2015-07-27")
+d <- parse_rpu("2015-08-16")
 
 min(as.Date(d$ENTREE))
 max(as.Date(d$ENTREE))
@@ -430,7 +441,7 @@ a <-tapply(as.Date(d15.p$ENTREE), as.Date(d15.p$ENTREE), length)
 xts.a <- xts(a, order.by = unique(as.Date(d15.p$ENTREE)))
 
 svg("activite SU alsace 2015.svg")
-plot(xts.a, major.ticks= "weeks", minor.ticks = FALSE, major.format = "%d %b", cex.axis = 0.8, las = 2, main = "Activité des SU d'Alsace", ylab = "nombre de RPU créés par jour", ylim = c(900,1700))
+plot(xts.a, major.ticks= "weeks", minor.ticks = FALSE, major.format = "%d %b", cex.axis = 0.8, las = 2, main = "Activité des SU d'Alsace en 2015", ylab = "nombre de RPU créés par jour", ylim = c(900,1700))
 mean2014 <- 1141.734
 sd2014 <- 154.7858
 abline(h = mean2014, col = "red") # nb moyende RPU en 2014
