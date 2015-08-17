@@ -1,3 +1,4 @@
+
 #   duree.passage
 #   aligne.sur.calendrier
 #   copyrigth
@@ -116,10 +117,13 @@ cusum.c2 <- function(v2, k=0.5, seuil = 2){
 # Duree de passage utiles
 #
 #===========================================================================
-# 
-duree.utile <- function(dx, h){
-    # on ne garde que les duréesde passage exploitables
-    dpas.heure <- dpas.heure[!is.na(dpas.heure$DPAS) & dpas.heure$DPAS > 0 & dpas.heure$DPAS <= 2*24*60, ]
+#' @param h durée maximale en heures (défaut 72 heures)
+#' @param dx un dataframe
+#' 
+duree.utile <- function(dx, h = 72){
+    # on ne garde que les durées de passage exploitables
+    dpas.heure <- dpas.heure[!is.na(dpas.heure$DPAS) & dpas.heure$DPAS > 0
+                             & dpas.heure$DPAS <= 72*60, ]
     dpas.heure$DATE <- substr(dpas.heure$ENTREE, 1, 10) # date entrée AAAA-MM-DD
     dpas.heure$HEURE.E <- hour(dpas.heure$ENTREE) # heure entrée (heures entières)
     return(dpas.heure)

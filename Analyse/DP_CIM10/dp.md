@@ -60,7 +60,7 @@ ex. avec Sélestat: on crée un objet de type liste formé d'autant de listes qu
 
 ```
    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-   0.00   57.00   62.00   61.14   68.00   92.00 
+   0.00   57.00   63.00   61.34   68.50   92.00 
 ```
 
 ![](dp_files/figure-html/diag_par_jour-1.png) 
@@ -81,7 +81,7 @@ round(n2 * 100 / n.bron, 2) # % de 2 ans et moins
 ```
 
 ```
-## [1] 97.1
+## [1] 97.01
 ```
 
 ```r
@@ -120,7 +120,7 @@ summary(bron$SEXE)
 
 ```
 ##    F    I    M      
-##  926    1 1489    0
+##  949    1 1527    0
 ```
 
 ```r
@@ -137,7 +137,7 @@ summary(ped2.age)
 
 ```
 ##     Min.  1st Qu.   Median     Mean  3rd Qu.     Max. 
-##  0.03333  4.76700 10.90000 11.08000 17.03000 24.07000
+##  0.03333  4.80000 10.93000 11.11000 17.10000 24.07000
 ```
 
 ```r
@@ -182,7 +182,7 @@ nombre de cas de grippes diagnostiqués aux urgences:
 
 - 2013: 626
 - 2014: 289
-- 2015: 1152
+- 2015: 1166
 
 Grippes en 2014 et 2015
 ------------------------
@@ -224,7 +224,7 @@ Gravité
 ```
 ## 
 ##    1    2    3    4    5    D    P      
-##  548 1357   85    3    1    1    0    0
+##  550 1369   85    3    1    1    0    0
 ```
 
 
@@ -253,4 +253,49 @@ copyright()
 ```
 
 ![](dp_files/figure-html/plot_allergie-1.png) 
+
+Pathologies liées à la chaleur
+==============================
+
+- deshydratation: E86
+- coup de caleur et insolation: T67.0
+- syncope due à la chaleur: T67.1
+- crampes dues à la chaleur`: T67.2
+- épuisement du à la chaleur avec perte d'eau: T67.3
+- épuisement du à la chaleur avec perte de sel: T67.4
+- épuisement du à la chaleur: T67.5
+- fatigue transitoire due à la chaleur: T67.6
+
+
+```r
+deshyd <-dpr[substr(dpr$DP,1,3)=="E86", ]
+chaleur <-dpr[substr(dpr$DP,1,3)=="T67", ]
+hist(as.Date(deshyd$ENTREE), start.on.monday = TRUE, breaks = "weeks", freq = TRUE, format = "", las = 2, border = "white", col = "cornflowerblue", main = "Déshydratation", cex = 0.6)
+```
+
+```
+## Warning in axis(2, ...): "border" n'est pas un paramètre graphique
+```
+
+```
+## Warning in axis(side, at = z, labels = labels, ...): "border" n'est pas un
+## paramètre graphique
+```
+
+![](dp_files/figure-html/unnamed-chunk-1-1.png) 
+
+```r
+hist(as.Date(chaleur$ENTREE), start.on.monday = TRUE, breaks = "weeks", freq = TRUE, format = "", las = 2, border = "white", col = "cornflowerblue", main = "Pathologies dues à la chaleur", cex = 0.6)
+```
+
+```
+## Warning in axis(2, ...): "border" n'est pas un paramètre graphique
+```
+
+```
+## Warning in axis(side, at = z, labels = labels, ...): "border" n'est pas un
+## paramètre graphique
+```
+
+![](dp_files/figure-html/unnamed-chunk-1-2.png) 
 

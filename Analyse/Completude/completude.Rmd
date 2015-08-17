@@ -45,13 +45,12 @@ if (host == "XPS"){
   path <- "../../"
   source("/home/jcb/Documents/Resural/FEDORU/Trame_Commune/Rapport/rapport_2014.R")
   load(paste0(path, "rpu2015d0112_provisoire.Rda")) # 2015
+} else {
+ # connexion MAC: "MacBook-Air-de-JCB.local"
+  path <- "../"
+  source(paste0(path, "../../../RESURAL/Trame_Commune/Rapport/rapport_2014.R"))
+  load(paste0(path, "../rpu2015d0112.Rda")) # 2015
 }
-# else {
-#  # connexion MAC:
-#   path <- "../"
-#   source(paste0(path, "../../RESURAL/Trame_Commune/rapport_2014.R"))
-#   load(paste0(path, "rpu2015d0112.Rda")) # 2015
-# }
 ```
 Système utilisé: `r host`
 
@@ -115,7 +114,7 @@ Completude par établissement
 #### Score de completude 
 score = somme des completude de chaque item divisé par le nombre d'items. Varie de 0 à 100. 
 
-TOdo: 
+Todo: 
 
 - calculer un sous score par chapitre selon découpage Fedoru
 - comparer le score en foction du logiciel utilisé et sa version.
@@ -123,6 +122,8 @@ TOdo:
 
 ```{r finess, echo=FALSE, comment="", fig.width=9, fig.height=7}
 library(lubridate)
+library(xtable)
+library(stargazer)
 
 for(i in 1:length(finess)){
   # données de l'établissement
@@ -156,6 +157,8 @@ for(i in 1:length(finess)){
   # b <- as.data.frame(matrix(unlist(a), ncol = length(a)))
   colnames(b) <- paste("2015 -", names(a))
   rownames(b) <- names(unlist(a[1][1]))
+  
+  stargazer(b)
   
   print('')
   print("=====================================================================")
