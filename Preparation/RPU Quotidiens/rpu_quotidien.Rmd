@@ -271,6 +271,7 @@ write.csv2(t, file = "rpu_par_mois.xls")
 
 
 #### Nombre de attendus pour l'année:
+
 ```{ rpu_extrapoles}
 n <- nrow(d15)
 td <- max(as.Date(d15$ENTREE)) - min(as.Date(d15$ENTREE))
@@ -278,6 +279,7 @@ n * 365 / as.numeric(td)
 ```
 
 #### Nb actuel de RPU
+
 ```{}
 t <- tapply(as.Date(dx$ENTREE), dx$FINESS, length)
 t
@@ -290,11 +292,19 @@ round(t * 365 / as.numeric(td), 0)
 
 
 ### bilan des RPU à la date du 31/7/2015
+
 ```{}
-rpu.jour <- rpu.par.jour(d15) # matrice des RPU depuis le début année
-write.csv(rpu.jour, file = "rpu.jour_31-07-2015.csv") # sauvegarde de la matrice
-rpu.manquant <- function(x){length(which(x == 0))} # fonction qui compte le nombre de rpu = 0 dans le vecteur x
-apply(rpu.jour, 2, rpu.manquant) # applique la fonction à la matrice rpu.jour
+# matrice des RPU depuis le début année
+rpu.jour <- rpu.par.jour(d15) 
+
+# sauvegarde de la matrice
+write.csv(rpu.jour, file = "rpu.jour_31-07-2015.csv") 
+
+# fonction qui compte le nombre de rpu = 0 dans le vecteur x
+rpu.manquant <- function(x){length(which(x == 0))}
+
+# applique la fonction à la matrice rpu.jour
+apply(rpu.jour, 2, rpu.manquant) 
 
 3Fr Alk Ane Col Dia Dts Geb Hag Hus Mul Odi Ros Sav Sel Wis HTP NHC 
   0   0  46   1   0   0   0   0  61   4   1   0   0  13   0 151 151 
@@ -317,18 +327,22 @@ s <- summary(a)
 sd <- sd(a)
 
 plot(xts$Sel, ylim = c(0, s["Max."]), las = 2, cex.axis = 0.6, main = "Nombre de RPU par jour en 2015", major.ticks= "weeks")
-# Two new arguments here are the major.ticks and minor.ticks settings. The major.ticks argument represents the periods in which we wish to chop up the horizontal axis; it is chosen from the set {"years", "months", "weeks", "days", "hours", "minutes", "seconds"}
+
+# Two new arguments here are the major.ticks and minor.ticks settings. 
+# The major.ticks argument represents the periods in which we wish to chop up the horizontal axis; it is chosen from the set {"years", "months", "weeks", "days", "hours", "minutes", "seconds"}
 
 abline(h = s["Mean"], col = "red")
 abline(h = s["Mean"]-sd, col = "red", lty = 2)
 abline(h = s["Mean"]-sd*2, col = "red", lty = 2)
 
 # Moyenne et sd corrigés: on recalcule les paramètres en ne tenant pas compte des jours aberrants (plus de 2sd).
-# On retire de a les ours où le nb de RPU est plus petit que le nombre moyen de RPU - 2 sd:
+# On retire de a les jours où le nb de RPU est plus petit que le nombre moyen de RPU - 2 sd:
 b <- a[a > s["Mean"]-sd*2]
+
 # on recalcule les paramètres de centralité et de dispersion:
 s.b <- summary(b)
 sd.b <- sd(b)
+
 # on dessine les nouvelles limites:
 abline(h = summary(b)["Mean"] - sd(b), col = "blue", lty = 2)
 abline(h = summary(b)["Mean"] - sd(b) * 2, col = "blue", lty = 2)
