@@ -204,7 +204,7 @@ file.to.delete <- "/home/jcb/Documents/Resural/Stat Resural/Archives_Sagec/dataQ
 file.remove(file.to.delete)
 
 date1 <- "2015-08-07"
-date2 <- "2015-08-16"
+date2 <- "2015-08-29"
 
 mc <- substr(date1, 6, 7)
 ac <- substr(date1, 1,4)
@@ -242,15 +242,20 @@ rm(dx)
 # save(d15, file="rpu2015d0112_provisoire.Rda")
 # save(d15, file="rpu2015d0112.Rda")
 
-load("rpu2015d01.Rda") # mois précédent
-load("rpu2015d02.Rda") # mois précédent
-load("rpu2015d03.Rda") # mois précédent
-load("rpu2015d04.Rda") # mois précédent
-load("rpu2015d05.Rda") # mois précédent
-load("rpu2015d06.Rda") # mois précédent
-load("rpu2015d07.Rda") # mois précédent
+# load("rpu2015d01.Rda") # mois précédent
+# load("rpu2015d02.Rda") # mois précédent
+# load("rpu2015d03.Rda") # mois précédent
+# load("rpu2015d04.Rda") # mois précédent
+# load("rpu2015d05.Rda") # mois précédent
+# load("rpu2015d06.Rda") # mois précédent
+# load("rpu2015d07.Rda") # mois précédent
 
-dx <- rbind(d01, d02, d03, d04, d05, d06, d07, d08)
+load("RPU_2014/rpu2015d0112_provisoire.Rda")
+d15[as.Date(d15$ENTREE) < "2015-09-01",]
+
+# dx <- rbind(d01, d02, d03, d04, d05, d06, d07, d08)
+dx <- rbind(d15, d08)
+
 min(as.Date(dx$ENTREE))
 max(as.Date(dx$ENTREE))
 
@@ -642,6 +647,40 @@ m <- apply(n, 2, mean, na.rm = TRUE)
 s <- apply(n, 2, sd, na.rm = TRUE)
 seuil <- m - 1.96 * s
 ```
+
+Correctif ste Anne
+==================
+
+Au mois d'août 2015, ste Anne fournit un correctif rattrapant tout les RPU depuis le 1/1/2015 au 22/8/2015 inclu. Les données sont fournies sous forme s'un fichier .sql et concertie en .csv selon la méthode habituelle. 
+
+```{}
+file <- "/home/jcb/Documents/Resural/Stat Resural/Archives_Sagec/dataQ/SteAnne2015/Ane_2015_01_01-2015_08_22.csv"
+ane2015 <- read.csv(file)
+min(as.Date(ane2015$ENTREE))
+max(as.Date(ane2015$ENTREE))
+# on supprime la 1ère colonne qui est exédentaire (numérotation)
+ane2015 <- ane2015[, -1]
+# la répartition des types de colonnes n'est pas la même que celle de d15 car les string ont été automatiquement converties en factor
+f <- function(x){as.character(x)}
+a <- lapply(ane2015, f)
+a <- as.data.frame(a, stringsAsFactors = FALSE)
+a$AGE <- as.numeric(a$AGE)
+
+```
+On récupère l'année 2015
+```{}
+load("~/Documents/Resural/Stat Resural/RPU_2014/rpu2015d0112_provisoire.Rda")
+```
+Enfin on replace les enregistrement correspondant à Ste Anne par les nouveaux
+```{}
+new2015 <- rbind(d15[d15$FINESS != "Ane",], a)
+
+d15 <- new2015
+save(d15, file="rpu2015d0112_provisoire.Rda")
+
+```
+
+
 
 
 
