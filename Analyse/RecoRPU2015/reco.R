@@ -5,9 +5,10 @@
 #     seuil
 #
 # ==============================
-#' @description
+#' @description calcule le seuil à partir duquel le nombre de RPU remonté est anormalement bas
 #' @param vx vecteur integer (nb de RPU par jour)
-#' @param sd nombre d'écart-type
+#' @param sd nombre d'écart-type souhaités, par défaut 3 (moyenne moins 3 sd)
+#' @return un nombre
 #' @usage seuil(rpu$Sel) # 50.80671 (source: rpu.jour_31-07-2015.csv)
 #' 
 
@@ -54,7 +55,34 @@ seuil.graphe <- function(xts, seuil = NULL, hop = NULL){
   if(!is.null(seuil)){
     abline(h = seuil, col = "blue", lty = 2)
   }
+}
 
+# ==============================
+#
+#     graphe.rpu.seuil
+#
+# ==============================
+#
+#' @description tracé de la courbe. Wraper pour la fonction seuil.graphe. Permet de tracer la courbe
+#'              de façon générique et de chooisir plus finement la date de début et de fin du tracé
+#' @details utilise seui.graphe de reco.R
+#' @param xts un dataframe de type xts
+#' @param colonne nom ou n° de la colonne de xts à tracer
+#' @param titre titre du graphique
+#' @param debut n° de la pemière ligne. Par défaut = 1. Permet de ne tracer que des portions de graphe
+#'              Le n° correspond au n° du jour de l'année
+#' @param fin n° du dernier jour à tracer
+#' @usage graphe.rpu.seuil(rpu.xts, "Sel", "CH Sélestat" )`
+#' @usage graphe.rpu.seuil(rpu.xts, 2, colnames(rpu.xts)[2] )
+#' @usage graphe.rpu.seuil(rpu.xts, "Sel", "CH Sélestat", debut = 1, fin = 59 )
+
+graphe.rpu.seuil <- function(xts, colonne, titre = "", debut = NULL, fin =NULL){
+    if(is.null(debut))
+        debut = 1
+    if(is.null(fin))
+        fin = length(xts[,colonne])
+    seuil.graphe(xts[debut:fin, colonne], seuil(xts[debut:fin, colonne]), titre)
+    legend("bottomleft", legend = "seuil d'alerte", col = "blue", lty = 2, bty = "n", cex = 0.8)
 }
 
 # ==============================
