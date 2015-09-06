@@ -204,7 +204,7 @@ file.to.delete <- "/home/jcb/Documents/Resural/Stat Resural/Archives_Sagec/dataQ
 file.remove(file.to.delete)
 
 date1 <- "2015-08-07"
-date2 <- "2015-08-11"
+date2 <- "2015-08-29"
 
 mc <- substr(date1, 6, 7)
 ac <- substr(date1, 1,4)
@@ -242,15 +242,20 @@ rm(dx)
 # save(d15, file="rpu2015d0112_provisoire.Rda")
 # save(d15, file="rpu2015d0112.Rda")
 
-load("rpu2015d01.Rda") # mois précédent
-load("rpu2015d02.Rda") # mois précédent
-load("rpu2015d03.Rda") # mois précédent
-load("rpu2015d04.Rda") # mois précédent
-load("rpu2015d05.Rda") # mois précédent
-load("rpu2015d06.Rda") # mois précédent
-load("rpu2015d07.Rda") # mois précédent
+# load("rpu2015d01.Rda") # mois précédent
+# load("rpu2015d02.Rda") # mois précédent
+# load("rpu2015d03.Rda") # mois précédent
+# load("rpu2015d04.Rda") # mois précédent
+# load("rpu2015d05.Rda") # mois précédent
+# load("rpu2015d06.Rda") # mois précédent
+# load("rpu2015d07.Rda") # mois précédent
 
-dx <- rbind(d01, d02, d03, d04, d05, d06, d07)
+load("RPU_2014/rpu2015d0112_provisoire.Rda")
+d15[as.Date(d15$ENTREE) < "2015-09-01",]
+
+# dx <- rbind(d01, d02, d03, d04, d05, d06, d07, d08)
+dx <- rbind(d15, d08)
+
 min(as.Date(dx$ENTREE))
 max(as.Date(dx$ENTREE))
 
@@ -259,7 +264,7 @@ save(d15, file="rpu2015d0112_provisoire.Rda")
 
 # Table des RPU par jour et par FINESS pour le mois en cours
 # n <- tapply(as.Date(dsi$ENTREE), list(as.Date(dsi$ENTREE), dsi$FINESS), length)
-rpu.par.jour(d07)
+rpu.par.jour(d08)
 ```
 
 Total RPU par mois et par FINESS
@@ -271,19 +276,40 @@ write.csv2(t, file = "rpu_par_mois.xls")
 
 
 #### Nombre de attendus pour l'année:
+
 ```{ rpu_extrapoles}
 n <- nrow(d15)
-td <- max(as.Date(d15$ENTREE)) - min(as.Date(dx$ENTREE))
+td <- max(as.Date(d15$ENTREE)) - min(as.Date(d15$ENTREE))
 n * 365 / as.numeric(td)
+```
+
+#### Nb actuel de RPU
+
+```{}
+t <- tapply(as.Date(dx$ENTREE), dx$FINESS, length)
+t
+
+# nb prévisionnel
+td <- max(as.Date(dx$ENTREE)) - min(as.Date(dx$ENTREE))
+round(t * 365 / as.numeric(td), 0)
 
 ```
 
-### bilan des RPU à la ate du 31/7/2015
+
+### bilan des RPU à la date du 31/7/2015
+
 ```{}
-rpu.jour <- rpu.par.jour(d15) # matrice des RPU depuis le début année
-write.csv(rpu.jour, file = "rpu.jour_31-07-2015.csv") # sauvegarde de la matrice
-rpu.manquant <- function(x){length(which(x == 0))} # fonction qui compte le nombre de rpu = 0 dans le vecteur x
-apply(rpu.jour, 2, rpu.manquant) # applique la fonction à la matrice rpu.jour
+# matrice des RPU depuis le début année
+rpu.jour <- rpu.par.jour(d15) 
+
+# sauvegarde de la matrice
+write.csv(rpu.jour, file = "rpu.jour_31-07-2015.csv") 
+
+# fonction qui compte le nombre de rpu = 0 dans le vecteur x
+rpu.manquant <- function(x){length(which(x == 0))}
+
+# applique la fonction à la matrice rpu.jour
+apply(rpu.jour, 2, rpu.manquant) 
 
 3Fr Alk Ane Col Dia Dts Geb Hag Hus Mul Odi Ros Sav Sel Wis HTP NHC 
   0   0  46   1   0   0   0   0  61   4   1   0   0  13   0 151 151 
@@ -306,18 +332,22 @@ s <- summary(a)
 sd <- sd(a)
 
 plot(xts$Sel, ylim = c(0, s["Max."]), las = 2, cex.axis = 0.6, main = "Nombre de RPU par jour en 2015", major.ticks= "weeks")
-# Two new arguments here are the major.ticks and minor.ticks settings. The major.ticks argument represents the periods in which we wish to chop up the horizontal axis; it is chosen from the set {"years", "months", "weeks", "days", "hours", "minutes", "seconds"}
+
+# Two new arguments here are the major.ticks and minor.ticks settings. 
+# The major.ticks argument represents the periods in which we wish to chop up the horizontal axis; it is chosen from the set {"years", "months", "weeks", "days", "hours", "minutes", "seconds"}
 
 abline(h = s["Mean"], col = "red")
 abline(h = s["Mean"]-sd, col = "red", lty = 2)
 abline(h = s["Mean"]-sd*2, col = "red", lty = 2)
 
 # Moyenne et sd corrigés: on recalcule les paramètres en ne tenant pas compte des jours aberrants (plus de 2sd).
-# On retire de a les ours où le nb de RPU est plus petit que le nombre moyen de RPU - 2 sd:
+# On retire de a les jours où le nb de RPU est plus petit que le nombre moyen de RPU - 2 sd:
 b <- a[a > s["Mean"]-sd*2]
+
 # on recalcule les paramètres de centralité et de dispersion:
 s.b <- summary(b)
 sd.b <- sd(b)
+
 # on dessine les nouvelles limites:
 abline(h = summary(b)["Mean"] - sd(b), col = "blue", lty = 2)
 abline(h = summary(b)["Mean"] - sd(b) * 2, col = "blue", lty = 2)
@@ -422,7 +452,7 @@ Objet: mesure de l'activité au jour le jour avant consolidation. En pratique re
 2. appeler la fonction __parse_rpu__ avec la date du jour, qui le transforme en dataframe
 ```{}
 
-d <- parse_rpu("2015-07-27")
+d <- parse_rpu("2015-08-16")
 
 min(as.Date(d$ENTREE))
 max(as.Date(d$ENTREE))
@@ -468,7 +498,7 @@ a <-tapply(as.Date(d15.p$ENTREE), as.Date(d15.p$ENTREE), length)
 xts.a <- xts(a, order.by = unique(as.Date(d15.p$ENTREE)))
 
 svg("activite SU alsace 2015.svg")
-plot(xts.a, major.ticks= "weeks", minor.ticks = FALSE, major.format = "%d %b", cex.axis = 0.8, las = 2, main = "Activité des SU d'Alsace", ylab = "nombre de RPU créés par jour", ylim = c(900,1700))
+plot(xts.a, major.ticks= "weeks", minor.ticks = FALSE, major.format = "%d %b", cex.axis = 0.8, las = 2, main = "Activité des SU d'Alsace en 2015", ylab = "nombre de RPU créés par jour", ylim = c(900,1700))
 mean2014 <- 1141.734
 sd2014 <- 154.7858
 abline(h = mean2014, col = "red") # nb moyende RPU en 2014
@@ -617,6 +647,40 @@ m <- apply(n, 2, mean, na.rm = TRUE)
 s <- apply(n, 2, sd, na.rm = TRUE)
 seuil <- m - 1.96 * s
 ```
+
+Correctif ste Anne
+==================
+
+Au mois d'août 2015, ste Anne fournit un correctif rattrapant tout les RPU depuis le 1/1/2015 au 22/8/2015 inclu. Les données sont fournies sous forme s'un fichier .sql et concertie en .csv selon la méthode habituelle. 
+
+```{}
+file <- "/home/jcb/Documents/Resural/Stat Resural/Archives_Sagec/dataQ/SteAnne2015/Ane_2015_01_01-2015_08_22.csv"
+ane2015 <- read.csv(file)
+min(as.Date(ane2015$ENTREE))
+max(as.Date(ane2015$ENTREE))
+# on supprime la 1ère colonne qui est exédentaire (numérotation)
+ane2015 <- ane2015[, -1]
+# la répartition des types de colonnes n'est pas la même que celle de d15 car les string ont été automatiquement converties en factor
+f <- function(x){as.character(x)}
+a <- lapply(ane2015, f)
+a <- as.data.frame(a, stringsAsFactors = FALSE)
+a$AGE <- as.numeric(a$AGE)
+
+```
+On récupère l'année 2015
+```{}
+load("~/Documents/Resural/Stat Resural/RPU_2014/rpu2015d0112_provisoire.Rda")
+```
+Enfin on replace les enregistrement correspondant à Ste Anne par les nouveaux
+```{}
+new2015 <- rbind(d15[d15$FINESS != "Ane",], a)
+
+d15 <- new2015
+save(d15, file="rpu2015d0112_provisoire.Rda")
+
+```
+
+
 
 
 

@@ -50,6 +50,30 @@ rpu_jour <- function(date.jour){
 
 #=======================================
 #
+# sql2df
+#
+#=======================================
+#' @author JCB 2015-08-28
+#' @description transforme un fichier RPU au format sql en un dataframe
+#' @param filename_sql nom du fichier sql. Doit se trouver dans le répertoire dataQ
+#' @param resural si TRUE, le DF est transcodé au format Resural (noms de facteurs explicites)
+#'        si FALSE, les données initiales ne sont pas modifiées
+#' @usage file <- "SteAnne2015/rpu_2015_670780212.dump.sql"
+#'        dx <- sql2df(file)
+#'        write.csv(dx, file = '../Archives_Sagec/dataQ/SteAnne2015/Ane_2015_01_01-2015_08_22.csv')
+#' 
+
+sql2df <- function(filename_sql, resural = TRUE){
+  d <- parse_rpu("", filename = filename_sql)
+  if(resural == TRUE)
+    d <- rpu2factor(d)
+  analyse_rpu_jour(d) # quelques commentaires
+
+  return(d)
+}
+
+#=======================================
+#
 # finess2hop
 #
 #=======================================
@@ -76,7 +100,8 @@ finess2hop <- function(a){
   a[a=="670783273"]<-"HTP" # HTP maj le 17/10/2014
   a[a=="680000197"]<-"3Fr"
   a[a=="680020096"]<-"3Fr" # maj le 30/5/2014 680020096
-  a[a=="680000627"]<-"Mul" # correspond au Hasenrain
+
+  a[a=="680000627"]<-"Mul" # correspond au Hasenrain 14/08/2015
   # a[a=="680000627"]<-"Har" # correspond au Hasenrain
   a[a=="670000157"]<-"Hag"
   a[a=="680000320"]<-"Dia" # DFO
@@ -107,14 +132,22 @@ finess2hop <- function(a){
 #'@title 2014-03-01
 #'@author JcB
 #'@param data date.jour nom du fichier. Pour une utilisation courante il s'agit de la date du jour au format ISO
+#'@param filename nom du fichier sql à parser. A utiliser si le fichier sql est différent de rpu_AAAA-MM-JJ_dump.sql
+#'        permet de parser des fichiers de rattrappage.
 #'@usage d <- parse_rpu("2015-01-08")
 #'       t <- tapply(as.Date(d$ENTREE), list(d$FINESS, as.Date(d$ENTREE)), length)
 #'       t(t)
+#'       
+#'       file <- "SteAnne2015/rpu_2015_670780212.dump.sql"
+#'       d <- parse_rpu("", file)
+
 #'@return dx une tidy dataframe
 #'
-parse_rpu <- function(date.jour){
+parse_rpu <- function(date.jour, filename = NULL){
   library("RMySQL")
-  file <- paste0("rpu_", date.jour, "_dump.sql")
+  if(!is.null(filename))
+    file <- filename
+  else file <- paste0("rpu_", date.jour, "_dump.sql")
   wd <- getwd()
   setwd("~/Documents/Resural/Stat Resural/Archives_Sagec/dataQ")
   if(!file.exists(file)){
