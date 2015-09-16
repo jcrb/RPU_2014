@@ -12,7 +12,8 @@
 #' - jour_consolide
 #' - lire_archive
 #' - assemble
-#' - normalise
+#' - normaliserpu.jour.2014 <- rpu.par.jour(d14)
+
 #' 
 #' - rpu2xts
 #' - plot.xts2

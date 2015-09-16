@@ -203,8 +203,8 @@ source("Preparation/RPU Quotidiens/quot_utils.R")
 file.to.delete <- "/home/jcb/Documents/Resural/Stat Resural/Archives_Sagec/dataQ/archivesCsv/rpu2014.data"
 file.remove(file.to.delete)
 
-date1 <- "2015-08-07"
-date2 <- "2015-08-29"
+date1 <- "2015-09-08"
+date2 <- "2015-09-08"
 
 mc <- substr(date1, 6, 7)
 ac <- substr(date1, 1,4)
@@ -225,12 +225,12 @@ num.mc <- 1 # numéro du mois courant
 mois.c <- paste("d", )
 
 ```{}
-d08 <- dx[as.Date(dx$ENTREE) >= "2015-08-01" & as.Date(dx$ENTREE) < "2015-09-01",]
-min(as.Date(d08$ENTREE))
-max(as.Date(d08$ENTREE))
+d09 <- dx[as.Date(dx$ENTREE) >= "2015-09-01" & as.Date(dx$ENTREE) < "2015-10-01",]
+min(as.Date(d09$ENTREE))
+max(as.Date(d09$ENTREE))
 
-d08 <- normalise(d08)
-save(d08, file="rpu2015d08_provisoire.Rda")
+d09 <- normalise(d09)
+save(d09, file="rpu2015d09_provisoire.Rda")
 rm(dx)
 
 # si le mois est complet:
@@ -249,9 +249,10 @@ rm(dx)
 # load("rpu2015d05.Rda") # mois précédent
 # load("rpu2015d06.Rda") # mois précédent
 # load("rpu2015d07.Rda") # mois précédent
+# load("rpu2015d08.Rda") # mois précédent
 
-load("RPU_2014/rpu2015d0112_provisoire.Rda")
-d15[as.Date(d15$ENTREE) < "2015-09-01",]
+load("RPU_2014/rpu2015d0112_provisoire.Rda") # load("RPU_2014/rpu2015d0112_provisoire.Rda") si console
+d15 <- d15[as.Date(d15$ENTREE) < "2015-09-01",]
 
 # dx <- rbind(d01, d02, d03, d04, d05, d06, d07, d08)
 dx <- rbind(d15, d08)
@@ -264,13 +265,13 @@ save(d15, file="rpu2015d0112_provisoire.Rda")
 
 # Table des RPU par jour et par FINESS pour le mois en cours
 # n <- tapply(as.Date(dsi$ENTREE), list(as.Date(dsi$ENTREE), dsi$FINESS), length)
-rpu.par.jour(d08)
+rpu.par.jour(d09)
 ```
 
 Total RPU par mois et par FINESS
 ```{}
 t <- tapply(as.Date(d15$ENTREE), list(d15$FINESS, months(as.Date(d15$ENTREE))), length)
-t <- t[, c("janvier","février","mars", "avril","mai","juin","juillet")]
+t <- t[, c("janvier","février","mars", "avril","mai","juin","juillet", "août")]
 write.csv2(t, file = "rpu_par_mois.xls")
 ```
 
@@ -303,7 +304,7 @@ round(t * 365 / as.numeric(td), 0)
 rpu.jour <- rpu.par.jour(d15) 
 
 # sauvegarde de la matrice
-write.csv(rpu.jour, file = "rpu.jour_31-07-2015.csv") 
+write.csv(rpu.jour, file = "rpu.jour_31-09-2015.csv") 
 
 # fonction qui compte le nombre de rpu = 0 dans le vecteur x
 rpu.manquant <- function(x){length(which(x == 0))}
@@ -324,7 +325,8 @@ rpu.manquant <- function(x){length(which(x < 20))}
 load("~/Documents/Stat Resural/RPU_2014/rpu2015d0112_provisoire.Rda")
 
 library(xts)
-rpu <- read.csv("rpu.jour_31-07-2015.csv")
+rpu <- read.csv("rpu.jour_31-09-2015.csv")
+names(rpu)[1] <- "date"
 
 xts <- xts(rpu, order.by = as.Date(rpu$date), frequency = TRUE)
 a <- as.integer(xts$Sel)
@@ -452,7 +454,7 @@ Objet: mesure de l'activité au jour le jour avant consolidation. En pratique re
 2. appeler la fonction __parse_rpu__ avec la date du jour, qui le transforme en dataframe
 ```{}
 
-d <- parse_rpu("2015-08-16")
+d <- parse_rpu("2015-09-08")
 
 min(as.Date(d$ENTREE))
 max(as.Date(d$ENTREE))
@@ -517,16 +519,16 @@ dev.off()
 Focus mains
 ============
 
-En 2014:
+En 2015:
 ```{}
-mains <- d14[d14$FINESS %in% c("Dts","Ros"),]
-nrow(mains)/nrow(d14)
-nrow(mains)*100/nrow(d14)
+mains <- d15[d15$FINESS %in% c("Dts","Ros"),]
+nrow(mains)/nrow(d15)
+nrow(mains)*100/nrow(d15)
 
-ros <- d14[d14$FINESS == "Ros",]
+ros <- d15[d15$FINESS == "Ros",]
 nrow(ros)
 
-dts <- d14[d14$FINESS == "Dts",]
+dts <- d15[d15$FINESS == "Dts",]
 nrow(dts)
 min(as.Date(dts$ENTREE))
 max(as.Date(dts$ENTREE))
@@ -541,16 +543,26 @@ Exemple avec 2015 (étude SI 2015). TODO: RETIRER LES DP OU 'ORIENTATION' NE PER
 ```{}
 # dataframe date, DP, FINESS
 dp <- d15[, c("ENTREE", "DP", "FINESS")]
+
 # on se limite au 3 premiers mois de l(année)
-dp <- dp[as.Date(dp$ENTREE) < as.Date("2015-04-01"),]
+# dp <- dp[as.Date(dp$ENTREE) < as.Date("2015-04-01"),]
 # nombre de RPU
 n <- nrow(dp)
+
 # diagnostic non codés par jour: renvoie un array de n listes. n est égal au nombre de jours couverts par le dataframe. Chaque liste est égale au nombre de RPU du jour. Chaque élément de la liste contient vrai ou faux selon que le DP est codé ou non.
 dp.non.code <- tapply(dp$DP, as.Date(dp$ENTREE), is.na)
+
 # en nombre: on calcule la somme de chaque liste, puis on déliste. On obtient pour chaque jour, le nombre de DP non codés.
 n.dp.non.code <- unlist(lapply(dp.non.code, sum))
+# nb moyen de DP non codés par jour
+mean(n.dp.non.code)
+sd(n.dp.non.code)
+
 # en pourcentages
 p.dp.non.code <- unlist(lapply(dp.non.code, mean))
+mean(p.dp.non.code)
+sd(p.dp.non.code)
+
 # nombre total de non codé
 n.dp.non.code <- sum(n.dp.non.code)
 
@@ -586,7 +598,9 @@ text(1:15, p.codage + 0.05, names(p.codage))
 abline(h = 0.8, lty = 2, col = "red")
 
 # pour être considéré comme acceptable, un rectangle doit se situer sous la ligne pointillé rouge. De plus, plus le rectangle est écrasé et plus la dispersion de codage d'un jour à l'autre est faible. Ces 2 éléments sont nécessaire pour l'InVS.
-boxplot(b, las = 2, outline = FALSE, ylab = "% de  DP non codés", main = "Complétude du diagnostic principal")
+# boxplot(b, las = 2, outline = FALSE, ylab = "% de  DP non codés", main = "Complétude du diagnostic principal")
+boxplot(b, las = 2, outline = FALSE, ylab = "% de  DP non codés", main = "Complétude du diagnostic principal", col = ifelse(1-p.codage < 0.21, "green", "yellow"))
+
 abline(h = 0.2, lty = 2, col = "red")
 
 
@@ -607,9 +621,9 @@ round(1 - n.non.code/n.rpu, 2)
 
 # graphe
 a <- sort(round(1 - n.non.code/n.rpu, 2))
-plot(a, ylim = c(0, 1.1))
-text(1:15, a + 0.1, names(a), cex = 0.8)
-
+plot(a, ylim = c(0, 1.1), ylab = "% de complétude du DP", xlab = "SU")
+text(1:18, a + 0.1, names(a), cex = 0.8)
+abline(h = 0.8, lty = 2, col = "red")
 ```
 
 Nombre de RPU CCMU1 aux horaires de PDS (qs posée par Ste Anne:
