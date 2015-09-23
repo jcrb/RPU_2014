@@ -1,0 +1,109 @@
+---
+title: "Analyse de la complétude"
+author: "RESURAL (JcB)"
+date: "22/09/2015"
+output:
+  pdf_document:
+    number_sections: yes
+---
+
+Analyse de l'évolution du taux de complétude des RPU du __CH de Saverne__ du 1/1/2015 au 31/8/2015.
+==================================================================================================
+
+```{r, echo=FALSE, message=FALSE}
+
+# fichier source: rpu2014/Analyse/Completude/Analyse_completude
+
+source('~/Documents/Resural/FEDORU/Trame_Commune/Rapport/rapport_2014.R', echo=FALSE)
+load("~/Documents/Resural/Stat Resural/RPU_2014/rpu2015d0112_provisoire.Rda")
+library(xts)
+library(lubridate)
+library(plyr)
+
+dx <- d15 # à changer selon l'année
+finess <- "Sav"
+
+# dataframe completude par jour pour FINESS
+t3 <- completude.time(dx, finess, "day")
+
+# calendrier pour l'objet xts (on suppose qu'il ne manque aucun jour)
+a <- seq(min(as.Date(dx$ENTREE)), length.out = nrow(t3), by = 1)
+x <- xts(t3, order.by = a)
+
+```
+
+```{r, echo=FALSE, comment=""}
+# dataframe par mois pour l'affichage
+t2 <- completude.time(dx, finess, "month")
+colnames(t2)[1] <- "Mois"
+
+```
+
+```{r, echo=FALSE, message=FALSE, results='asis'}
+library(xtable)
+# type <- "html"
+type <- "latex"
+
+print.xtable(xtable(t2[, 1:8], caption = "RPU - complétude"), type = type, comment = FALSE)
+
+print.xtable(xtable(t2[, c(1, 9:13)], caption = "RPU - complétude (suite)"), type = type, comment = FALSE)
+
+print.xtable(xtable(t2[, c(1, 14:18)], caption = "RPU - complétude (suite)"), type = type, comment = FALSE)
+
+print.xtable(xtable(t2[, c(1, 19:20)], caption = "RPU - complétude (suite et fin)"), type = type, comment = FALSE)
+```
+
+
+
+- Les données administratives (FINESS,  ID, EXTRACT, CODE POSTAL, COMMUNE, NAISSANCE, SEXE, DATE D'ENTREE, MODE D'ENTREE, DATE DE SORTIE, MODE DE SORTIE, DESTINATION, ORIENTATION) sont très bien ou parfaitement renseignées et ce de façon constante.
+
+- Les rubriques PROVENANCE TRANSPORT et PRISE EN CHARGE PENDANT LE TRANSPORT sont très mal, voire absolument pas remplies, pouvant faire évoquer un problème logiciel (?).
+
+- les rubriques "médicales" (MOTIF DE RECOURS,  CCMU,   DP) sont en nette amélioration depuis le mois de juin.
+
+Diagnostic principal (DP)
+-------------------------
+
+```{r, echo=FALSE}
+par(col = "cornflowerblue")
+plot(x[, "DP"], main = "CH Saverne - DIAGNOSTIC PRINCIPAL", ylab = "% de complétude", format = "%B %Y") # , col = "cornflowerblue"
+```
+
+Le DP s'est fortement amélioré à partir du mois de juin 2015, franchissant la barre des 50% fin août. Il faut encourager l'effort des codeurs ! L'objectif est d'arriver à franchir la barre des 80% car à partir de ce seuil, l'InVS fait entrer l'établissement dans le pool des établissement de référence de la région et incorpore les résultats dans son bulletin hebdomadaire. Un deuxième élément est à surveiller, c'est la variabilité du taux de codage du DP d'un jour à l'autre. Graphiquement, cette variabilité semble diminuer, mais pour que le service soit considéré comme un bon indicateur, il faut que cette variabilité se stabilise et soit la plus faible possible.
+
+Motif de recours
+-----------------
+
+```{r, echo=FALSE, comment=""}
+plot(x[, "MOTIF DE RECOURS"], main = "CH Saverne - MOTIF DE RECOURS", ylab = "% de complétude") # , col = "cornflowerblue"
+```
+
+Augmentation très importante depuis début juin. Un peu de relâchement au mois d'août ?
+CCMU
+----
+
+```{r, echo=FALSE, comment=""}
+plot(x[, "CCMU"], main = "CH Saverne - CCMU", ylab = "% de complétude") # , col = "cornflowerblue"
+```
+Augmentation plus discrète du remplissage.
+
+Radar
+-----
+
+```{r, echo=FALSE, message=FALSE, comment=""}
+sav01 <- dx[dx$FINESS == "Sav" & as.Date(dx$ENTREE) < "2015-02-01",] # janvier2015
+
+c01 <- completude(sav01)
+
+radar.completude(c01, "Saverne - Janvier 2015")
+
+```
+
+```{r, echo=FALSE}
+sav08 <- dx[dx$FINESS == "Sav" & as.Date(dx$ENTREE) >= "2015-08-01",] # aout
+c08 <- completude(sav08)
+
+radar.completude(c08, "Saverne - Août 2015")
+```
+
+

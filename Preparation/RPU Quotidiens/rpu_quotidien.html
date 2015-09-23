@@ -75,7 +75,9 @@ img {
 </ul></li>
 <li><a href="#en-pratique">En pratique</a><ul>
 <li><a href="#si-un-seul-fichier">si un seul fichier</a></li>
+<li><a href="#si-un-seul-fichier-de-rattrapage">Si un seul fichier de rattrapage</a></li>
 <li><a href="#si-on-a-une-collection-de-fichiers">Si on a une collection de fichiers:</a><ul>
+<li><a href="#bilan-des-rpu-a-la-date-du-3172015">bilan des RPU à la date du 31/7/2015</a></li>
 <li><a href="#recherche-de-doublons-code_postal-commune-entree-finess-naissance-sexe">Recherche de doublons: CODE_POSTAL, COMMUNE, ENTREE, FINESS, NAISSANCE, SEXE</a></li>
 </ul></li>
 <li><a href="#exhaustivite-des-donnees">exhaustivité des données</a></li>
@@ -88,6 +90,8 @@ img {
 <li><a href="#nombre-de-dp-par-jour">Nombre de DP par jour</a><ul>
 <li><a href="#tableau-de-codeurs">Tableau de codeurs</a></li>
 </ul></li>
+<li><a href="#correctif-ste-anne">Correctif ste Anne</a></li>
+<li><a href="#correctif-hus-1972015">Correctif HUS (19/7/2015)</a></li>
 </ul>
 </div>
 
@@ -249,11 +253,22 @@ r</code></pre>
 <pre><code>source(&quot;Preparation/RPU Quotidiens/quot_utils.R&quot;)</code></pre>
 <div id="si-un-seul-fichier" class="section level2">
 <h2>si un seul fichier</h2>
+<p>NB: le fichier doit se trouver dans la dossier <strong>dataQ</strong>.</p>
 <pre><code>rj &lt;- rpu_jour(&quot;2014-11-18&quot;)
 dj &lt;- assemble(comment = TRUE)
 
 # Exhaustivité des RPU du jour:
 table(as.Date(rj$ENTREE), rj$FINESS)</code></pre>
+</div>
+<div id="si-un-seul-fichier-de-rattrapage" class="section level2">
+<h2>Si un seul fichier de rattrapage</h2>
+<p>NB: le fichier doit se trouver dans la dossier <strong>dataQ</strong>.</p>
+<pre><code>wd &lt;- getwd()
+rj &lt;- parse_rpu(&quot;2015-0607&quot;)
+rpu.par.jour(rj)
+# les RPU sont bruts sauf le FINESS qui est transcodé. Pour les rendre compatibles, il faut appeler rpu2factor
+rj &lt;- rpu2factor(rj)
+setwd(wd)</code></pre>
 </div>
 <div id="si-on-a-une-collection-de-fichiers" class="section level2">
 <h2>Si on a une collection de fichiers:</h2>
@@ -264,8 +279,8 @@ table(as.Date(rj$ENTREE), rj$FINESS)</code></pre>
 file.to.delete &lt;- &quot;/home/jcb/Documents/Resural/Stat Resural/Archives_Sagec/dataQ/archivesCsv/rpu2014.data&quot;
 file.remove(file.to.delete)
 
-date1 &lt;- &quot;2015-06-08&quot;
-date2 &lt;- &quot;2015-06-21&quot;
+date1 &lt;- &quot;2015-01-08&quot;
+date2 &lt;- &quot;2015-06-08&quot;
 
 mc &lt;- substr(date1, 6, 7)
 ac &lt;- substr(date1, 1,4)
@@ -282,29 +297,38 @@ max(as.Date(dx$ENTREE))</code></pre>
 <div id="selectionner-une-periode-particuliere-ie.-mai-2014" class="section level4">
 <h4>Sélectionner une période particulière (ie. mai 2014)</h4>
 <p>num.mc &lt;- 1 # numéro du mois courant mois.c &lt;- paste(“d”, )</p>
-<pre><code>d06 &lt;- dx[as.Date(dx$ENTREE) &gt;= &quot;2015-06-01&quot; &amp; as.Date(dx$ENTREE) &lt; &quot;2015-07-01&quot;,]
-max(as.Date(d06$ENTREE))
-min(as.Date(d06$ENTREE))
-d06 &lt;- normalise(d06)
-save(d06, file=&quot;rpu2015d06_provisoire.Rda&quot;)
+<pre><code>d09 &lt;- dx[as.Date(dx$ENTREE) &gt;= &quot;2015-09-01&quot; &amp; as.Date(dx$ENTREE) &lt; &quot;2015-10-01&quot;,]
+min(as.Date(d09$ENTREE))
+max(as.Date(d09$ENTREE))
+
+d09 &lt;- normalise(d09)
+save(d09, file=&quot;rpu2015d09_provisoire.Rda&quot;)
 rm(dx)
 
 # si le mois est complet:
-# save(d05, file=&quot;rpu2015d05.Rda&quot;)
-# rm(rpu2015d05_provisoire.Rda)
+# save(d06, file=&quot;rpu2015d06.Rda&quot;)
+# rm(rpu2015d06_provisoire.Rda)
 
 # uniquement le premier mois
 # d15 &lt;- d01
 # save(d15, file=&quot;rpu2015d0112_provisoire.Rda&quot;)
 # save(d15, file=&quot;rpu2015d0112.Rda&quot;)
 
-load(&quot;rpu2015d01.Rda&quot;) # mois précédent
-load(&quot;rpu2015d02.Rda&quot;) # mois précédent
-load(&quot;rpu2015d03.Rda&quot;) # mois précédent
-load(&quot;rpu2015d04.Rda&quot;) # mois précédent
-load(&quot;rpu2015d05.Rda&quot;) # mois précédent
+# load(&quot;rpu2015d01.Rda&quot;) # mois précédent
+# load(&quot;rpu2015d02.Rda&quot;) # mois précédent
+# load(&quot;rpu2015d03.Rda&quot;) # mois précédent
+# load(&quot;rpu2015d04.Rda&quot;) # mois précédent
+# load(&quot;rpu2015d05.Rda&quot;) # mois précédent
+# load(&quot;rpu2015d06.Rda&quot;) # mois précédent
+# load(&quot;rpu2015d07.Rda&quot;) # mois précédent
+# load(&quot;rpu2015d08.Rda&quot;) # mois précédent
 
-dx &lt;- rbind(d01, d02, d03, d04, d05, d06)
+load(&quot;RPU_2014/rpu2015d0112_provisoire.Rda&quot;) # load(&quot;RPU_2014/rpu2015d0112_provisoire.Rda&quot;) si console
+d15 &lt;- d15[as.Date(d15$ENTREE) &lt; &quot;2015-09-01&quot;,]
+
+# dx &lt;- rbind(d01, d02, d03, d04, d05, d06, d07, d08)
+dx &lt;- rbind(d15, d08)
+
 min(as.Date(dx$ENTREE))
 max(as.Date(dx$ENTREE))
 
@@ -313,13 +337,83 @@ save(d15, file=&quot;rpu2015d0112_provisoire.Rda&quot;)
 
 # Table des RPU par jour et par FINESS pour le mois en cours
 # n &lt;- tapply(as.Date(dsi$ENTREE), list(as.Date(dsi$ENTREE), dsi$FINESS), length)
-
-rpu.par.jour(d06)</code></pre>
+rpu.par.jour(d09)</code></pre>
+<p>Total RPU par mois et par FINESS</p>
+<pre><code>t &lt;- tapply(as.Date(d15$ENTREE), list(d15$FINESS, months(as.Date(d15$ENTREE))), length)
+t &lt;- t[, c(&quot;janvier&quot;,&quot;février&quot;,&quot;mars&quot;, &quot;avril&quot;,&quot;mai&quot;,&quot;juin&quot;,&quot;juillet&quot;, &quot;août&quot;)]
+write.csv2(t, file = &quot;rpu_par_mois.xls&quot;)</code></pre>
 </div>
 <div id="nombre-de-attendus-pour-lannee" class="section level4">
 <h4>Nombre de attendus pour l’année:</h4>
-<p>```{ rpu_extrapoles} n &lt;- nrow(d15) td &lt;- max(as.Date(d15<span class="math">\(ENTREE)) - min(as.Date(dx\)</span>ENTREE)) n * 365 / as.numeric(td)</p>
-<p>```</p>
+<p><code>{ rpu_extrapoles} n &lt;- nrow(d15) td &lt;- max(as.Date(d15$ENTREE)) - min(as.Date(d15$ENTREE)) n * 365 / as.numeric(td)</code></p>
+</div>
+<div id="nb-actuel-de-rpu" class="section level4">
+<h4>Nb actuel de RPU</h4>
+<pre><code>t &lt;- tapply(as.Date(dx$ENTREE), dx$FINESS, length)
+t
+
+# nb prévisionnel
+td &lt;- max(as.Date(dx$ENTREE)) - min(as.Date(dx$ENTREE))
+round(t * 365 / as.numeric(td), 0)
+</code></pre>
+</div>
+<div id="bilan-des-rpu-a-la-date-du-3172015" class="section level3">
+<h3>bilan des RPU à la date du 31/7/2015</h3>
+<pre><code># matrice des RPU depuis le début année
+rpu.jour &lt;- rpu.par.jour(d15) 
+
+# sauvegarde de la matrice
+write.csv(rpu.jour, file = &quot;rpu.jour_31-09-2015.csv&quot;) 
+
+# fonction qui compte le nombre de rpu = 0 dans le vecteur x
+rpu.manquant &lt;- function(x){length(which(x == 0))}
+
+# applique la fonction à la matrice rpu.jour
+apply(rpu.jour, 2, rpu.manquant) 
+
+3Fr Alk Ane Col Dia Dts Geb Hag Hus Mul Odi Ros Sav Sel Wis HTP NHC 
+  0   0  46   1   0   0   0   0  61   4   1   0   0  13   0 151 151 
+
+moins de 20 rpu/jour
+rpu.manquant &lt;- function(x){length(which(x &lt; 20))}
+3Fr Alk Ane Col Dia Dts Geb Hag Hus Mul Odi Ros Sav Sel Wis HTP NHC 
+  0   0  46   1   0   7   0   0  61   5   5  80   0  26   2 151 151
+  
+# graphe
+
+load(&quot;~/Documents/Stat Resural/RPU_2014/rpu2015d0112_provisoire.Rda&quot;)
+
+library(xts)
+rpu &lt;- read.csv(&quot;rpu.jour_31-09-2015.csv&quot;)
+names(rpu)[1] &lt;- &quot;date&quot;
+
+xts &lt;- xts(rpu, order.by = as.Date(rpu$date), frequency = TRUE)
+a &lt;- as.integer(xts$Sel)
+s &lt;- summary(a)
+sd &lt;- sd(a)
+
+plot(xts$Sel, ylim = c(0, s[&quot;Max.&quot;]), las = 2, cex.axis = 0.6, main = &quot;Nombre de RPU par jour en 2015&quot;, major.ticks= &quot;weeks&quot;)
+
+# Two new arguments here are the major.ticks and minor.ticks settings. 
+# The major.ticks argument represents the periods in which we wish to chop up the horizontal axis; it is chosen from the set {&quot;years&quot;, &quot;months&quot;, &quot;weeks&quot;, &quot;days&quot;, &quot;hours&quot;, &quot;minutes&quot;, &quot;seconds&quot;}
+
+abline(h = s[&quot;Mean&quot;], col = &quot;red&quot;)
+abline(h = s[&quot;Mean&quot;]-sd, col = &quot;red&quot;, lty = 2)
+abline(h = s[&quot;Mean&quot;]-sd*2, col = &quot;red&quot;, lty = 2)
+
+# Moyenne et sd corrigés: on recalcule les paramètres en ne tenant pas compte des jours aberrants (plus de 2sd).
+# On retire de a les jours où le nb de RPU est plus petit que le nombre moyen de RPU - 2 sd:
+b &lt;- a[a &gt; s[&quot;Mean&quot;]-sd*2]
+
+# on recalcule les paramètres de centralité et de dispersion:
+s.b &lt;- summary(b)
+sd.b &lt;- sd(b)
+
+# on dessine les nouvelles limites:
+abline(h = summary(b)[&quot;Mean&quot;] - sd(b), col = &quot;blue&quot;, lty = 2)
+abline(h = summary(b)[&quot;Mean&quot;] - sd(b) * 2, col = &quot;blue&quot;, lty = 2)
+abline(h = summary(b)[&quot;Mean&quot;] - sd(b) * 3, col = &quot;blue&quot;, lty = 2)
+</code></pre>
 </div>
 <div id="recherche-de-doublons-code_postal-commune-entree-finess-naissance-sexe" class="section level3">
 <h3>Recherche de doublons: CODE_POSTAL, COMMUNE, ENTREE, FINESS, NAISSANCE, SEXE</h3>
@@ -347,6 +441,7 @@ write.csv(rpu, file=&quot;exaustivite_rpu.csv&quot;) # enregistre la table au fo
 <div id="preparation-des-fichiers-pour-dygraph" class="section level4">
 <h4>Préparation des fichiers pour Dygraph</h4>
 <p>-&gt; voir <em>Préparation des fichiers pour Dygraph.Rmd</em></p>
+<p>-&gt; explorer <a href="http://www.chartjs.org/">cart.js</a> qui fait des diagrammes interactifs en étoile.</p>
 </div>
 </div>
 </div>
@@ -367,9 +462,9 @@ write.csv(rpu, file=&quot;exaustivite_rpu.csv&quot;) # enregistre la table au fo
 </div>
 <div id="trace-de-la-courbe-des-rpu-avec-plot.zoo" class="section level1">
 <h1>Tracé de la courbe des RPU avec PLOT.ZOO</h1>
-<p>z &lt;- as.zoo(x) plot(z, col=“blue”, ylab=“nombre de RPU”, xlab=paste0(“Année”, year(Sys.Date())), main=“Activité des SU d’Alsace en nombre de RPU”) lines(rollmean(z, 7), col=“red”)</p>
+<p>z &lt;- as.zoo(x) plot(z, col=“cornflowerblue”, ylab=“nombre de RPU”, xlab=paste0(“Année”, year(Sys.Date())), main=“Activité des SU d’Alsace en nombre de RPU”) lines(rollmean(z, 7), col=“red”, lwd = 3)</p>
 <p>x &lt;- as.xts(a<span class="math">\(RPU, a\)</span>Date)</p>
-<p>z &lt;- as.zoo(x) plot(z, col=“blue”, ylab=“nombre de RPU”, xlab=paste0(“Année”, year(Sys.Date())), main=“Activité des SU d’Alsace en nombre de RPU”) lines(rollmean(z, 7), col=“red”) ``` Activité 2013-2014 ==================</p>
+<p>z &lt;- as.zoo(x) plot(z, col=“cornflowerblue”, ylab=“nombre de RPU”, xlab=paste0(“Année”, year(Sys.Date())), main=“Activité des SU d’Alsace en nombre de RPU”) lines(rollmean(z, 7), col=“red”) ``` Activité 2013-2014 ==================</p>
 <p>Voir <strong>Activités_2013-2014.Rmd</strong></p>
 </div>
 <div id="activites-quotidienne" class="section level1">
@@ -377,29 +472,12 @@ write.csv(rpu, file=&quot;exaustivite_rpu.csv&quot;) # enregistre la table au fo
 <p>Objet: mesure de l’activité au jour le jour avant consolidation. En pratique revient à analyser le fichier du jour. Ce dernier contient les RPU de la veille et ceux des 7 derniers jours.</p>
 <ol style="list-style-type: decimal">
 <li>récupérer le fichier source, le décompacter.</li>
-<li><p>appeler la fonction <strong>parse_rpu</strong> avec la date du jour, qui le transforme en dataframe</p>
-<pre><code>&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD
-d &lt;- parse_rpu(&quot;2015-05-31&quot;)
-=======
-d &lt;- parse_rpu(&quot;2015-06-15&quot;)
-&gt;&gt;&gt;&gt;&gt;&gt;&gt; f3563fb10689def9b28448fd2e8b594712ced1b5
-min(as.Date(d$ENTREE))
-max(as.Date(d$ENTREE))</code></pre></li>
-<li><p>puis la méthode <strong>analyse_rpu</strong>. Normalement on doit obtenir <strong>16 valeurs</strong>:</p>
-<pre><code>analyse_rpu_jour(d)</code></pre></li>
-<li><p>on peut obtenir une matrice établissement/nb rpu par date avec la formule suivante:</p>
-<pre><code>t &lt;- tapply(as.Date(d$ENTREE), list(d$FINESS, as.Date(d$ENTREE)), length)
-t(t)
-
-       3Fr Alk Col Dia Dts Geb Hag Hus Mul Odi Ros Sav Sel Wis
-2015-01-01  48  51 190  59  29  52 129 306 220  15   9  83  85  28
-2015-01-02  45  52 210 102  27  43 115 292 200  10  25  94  81  30
-2015-01-03  31  42 203  85  30  64 125 323  NA  NA  12 106 103  42
-2015-01-04  43  39 175  79  21  48 102 291 186   2  12  81  76  31
-2015-01-05  45  50 183  74  29  34 155 277 196  72   2  99  71  34
-2015-01-06  37  37 153  82  31  48 131 283 176  61  12  84  76  22
-2015-01-07  42  41  NA  66  35  39 125 296 156  64   8  69  84  39</code></pre></li>
+<li>appeler la fonction <strong>parse_rpu</strong> avec la date du jour, qui le transforme en dataframe ```{}</li>
 </ol>
+<p>d &lt;- parse_rpu(“2015-09-08”)</p>
+<p>min(as.Date(d<span class="math">\(ENTREE)) max(as.Date(d\)</span>ENTREE)) <code>3. puis la méthode __analyse_rpu__. Normalement on doit obtenir __16 valeurs__:</code> analyse_rpu_jour(d) <code>4. on peut obtenir une matrice établissement/nb rpu par date avec la formule suivante:</code> t &lt;- tapply(as.Date(d<span class="math">\(ENTREE), list(d\)</span>FINESS, as.Date(d$ENTREE)), length) t(t)</p>
+<pre><code>       3Fr Alk Col Dia Dts Geb Hag Hus Mul Odi Ros Sav Sel Wis</code></pre>
+<p>2015-01-01 48 51 190 59 29 52 129 306 220 15 9 83 85 28 2015-01-02 45 52 210 102 27 43 115 292 200 10 25 94 81 30 2015-01-03 31 42 203 85 30 64 125 323 NA NA 12 106 103 42 2015-01-04 43 39 175 79 21 48 102 291 186 2 12 81 76 31 2015-01-05 45 50 183 74 29 34 155 277 196 72 2 99 71 34 2015-01-06 37 37 153 82 31 48 131 283 176 61 12 84 76 22 2015-01-07 42 41 NA 66 35 39 125 296 156 64 8 69 84 39 ```</p>
 <p>On peut fabriquer un fichier provisoire constitué par la fusion des jours consolidés (d01) et des 7 dernier jours (d). Il faut supprimer dans le fichier d le premier jour qui correspond au dernier jour consolidé.</p>
 <pre><code>d &lt;- d[as.Date(d$ENTREE) &gt; max(as.Date(d15$ENTREE)),]
 d &lt;- rpu2factor(d) # transforme les chiffres en facteurs cohérent avec d01
@@ -416,7 +494,7 @@ a &lt;-tapply(as.Date(d15.p$ENTREE), as.Date(d15.p$ENTREE), length)
 xts.a &lt;- xts(a, order.by = unique(as.Date(d15.p$ENTREE)))
 
 svg(&quot;activite SU alsace 2015.svg&quot;)
-plot(xts.a, las = 2, main = &quot;Activité des SU d'Alsace&quot;, ylab = &quot;nombre de RPU créés par jour&quot;, ylim = c(800,1600))
+plot(xts.a, major.ticks= &quot;weeks&quot;, minor.ticks = FALSE, major.format = &quot;%d %b&quot;, cex.axis = 0.8, las = 2, main = &quot;Activité des SU d'Alsace en 2015&quot;, ylab = &quot;nombre de RPU créés par jour&quot;, ylim = c(900,1700))
 mean2014 &lt;- 1141.734
 sd2014 &lt;- 154.7858
 abline(h = mean2014, col = &quot;red&quot;) # nb moyende RPU en 2014
@@ -431,15 +509,15 @@ dev.off()
 </div>
 <div id="focus-mains" class="section level1">
 <h1>Focus mains</h1>
-<p>En 2014:</p>
-<pre><code>mains &lt;- d14[d14$FINESS %in% c(&quot;Dts&quot;,&quot;Ros&quot;),]
-nrow(mains)/nrow(d14)
-nrow(mains)*100/nrow(d14)
+<p>En 2015:</p>
+<pre><code>mains &lt;- d15[d15$FINESS %in% c(&quot;Dts&quot;,&quot;Ros&quot;),]
+nrow(mains)/nrow(d15)
+nrow(mains)*100/nrow(d15)
 
-ros &lt;- d14[d14$FINESS == &quot;Ros&quot;,]
+ros &lt;- d15[d15$FINESS == &quot;Ros&quot;,]
 nrow(ros)
 
-dts &lt;- d14[d14$FINESS == &quot;Dts&quot;,]
+dts &lt;- d15[d15$FINESS == &quot;Dts&quot;,]
 nrow(dts)
 min(as.Date(dts$ENTREE))
 max(as.Date(dts$ENTREE))
@@ -452,16 +530,26 @@ cbind(c)
 <p>Exemple avec 2015 (étude SI 2015). TODO: RETIRER LES DP OU ‘ORIENTATION’ NE PERMET PAS DE CODER LE DP (SCAM,PSA,FUGUE, ETC.)</p>
 <pre><code># dataframe date, DP, FINESS
 dp &lt;- d15[, c(&quot;ENTREE&quot;, &quot;DP&quot;, &quot;FINESS&quot;)]
+
 # on se limite au 3 premiers mois de l(année)
-dp &lt;- dp[as.Date(dp$ENTREE) &lt; as.Date(&quot;2015-04-01&quot;),]
+# dp &lt;- dp[as.Date(dp$ENTREE) &lt; as.Date(&quot;2015-04-01&quot;),]
 # nombre de RPU
 n &lt;- nrow(dp)
+
 # diagnostic non codés par jour: renvoie un array de n listes. n est égal au nombre de jours couverts par le dataframe. Chaque liste est égale au nombre de RPU du jour. Chaque élément de la liste contient vrai ou faux selon que le DP est codé ou non.
 dp.non.code &lt;- tapply(dp$DP, as.Date(dp$ENTREE), is.na)
+
 # en nombre: on calcule la somme de chaque liste, puis on déliste. On obtient pour chaque jour, le nombre de DP non codés.
 n.dp.non.code &lt;- unlist(lapply(dp.non.code, sum))
+# nb moyen de DP non codés par jour
+mean(n.dp.non.code)
+sd(n.dp.non.code)
+
 # en pourcentages
 p.dp.non.code &lt;- unlist(lapply(dp.non.code, mean))
+mean(p.dp.non.code)
+sd(p.dp.non.code)
+
 # nombre total de non codé
 n.dp.non.code &lt;- sum(n.dp.non.code)
 </code></pre>
@@ -492,7 +580,9 @@ text(1:15, p.codage + 0.05, names(p.codage))
 abline(h = 0.8, lty = 2, col = &quot;red&quot;)
 
 # pour être considéré comme acceptable, un rectangle doit se situer sous la ligne pointillé rouge. De plus, plus le rectangle est écrasé et plus la dispersion de codage d'un jour à l'autre est faible. Ces 2 éléments sont nécessaire pour l'InVS.
-boxplot(b, las = 2, outline = FALSE, ylab = &quot;% de  DP non codés&quot;, main = &quot;Complétude du diagnostic principal&quot;)
+# boxplot(b, las = 2, outline = FALSE, ylab = &quot;% de  DP non codés&quot;, main = &quot;Complétude du diagnostic principal&quot;)
+boxplot(b, las = 2, outline = FALSE, ylab = &quot;% de  DP non codés&quot;, main = &quot;Complétude du diagnostic principal&quot;, col = ifelse(1-p.codage &lt; 0.21, &quot;green&quot;, &quot;yellow&quot;))
+
 abline(h = 0.2, lty = 2, col = &quot;red&quot;)
 
 
@@ -513,9 +603,9 @@ round(1 - n.non.code/n.rpu, 2)
 
 # graphe
 a &lt;- sort(round(1 - n.non.code/n.rpu, 2))
-plot(a, ylim = c(0, 1.1))
-text(1:15, a + 0.1, names(a), cex = 0.8)
-</code></pre>
+plot(a, ylim = c(0, 1.1), ylab = &quot;% de complétude du DP&quot;, xlab = &quot;SU&quot;)
+text(1:18, a + 0.1, names(a), cex = 0.8)
+abline(h = 0.8, lty = 2, col = &quot;red&quot;)</code></pre>
 <p>Nombre de RPU CCMU1 aux horaires de PDS (qs posée par Ste Anne: - nécessite lubridate - on forme un dataframe à 2 colonnes: ENTREE et CCMU = 1 - on ajoute une colonne JOUR pour le type de jour (dimanche = 1) - on ajoute une colonne HEURE (heure entière) - on fabrique un vecteur pour découper en tranches horaires - on calcule le nb de RPU dans chaque classe</p>
 <pre><code>library(lubridate)
 ane &lt;- ane2104[ane2104$GRAVITE == 1 &amp; !is.na(ane2104$GRAVITE), c(&quot;GRAVITE&quot;,&quot;ENTREE&quot;)]
@@ -540,6 +630,114 @@ m &lt;- apply(n, 2, mean, na.rm = TRUE)
 s &lt;- apply(n, 2, sd, na.rm = TRUE)
 seuil &lt;- m - 1.96 * s</code></pre>
 </div>
+</div>
+<div id="correctif-ste-anne" class="section level1">
+<h1>Correctif ste Anne</h1>
+<p>Au mois d’août 2015, ste Anne fournit un correctif rattrapant tout les RPU depuis le 1/1/2015 au 22/8/2015 inclu. Les données sont fournies sous forme s’un fichier .sql et concertie en .csv selon la méthode habituelle.</p>
+<pre><code>file &lt;- &quot;/home/jcb/Documents/Resural/Stat Resural/Archives_Sagec/dataQ/SteAnne2015/Ane_2015_01_01-2015_08_22.csv&quot;
+ane2015 &lt;- read.csv(file)
+min(as.Date(ane2015$ENTREE))
+max(as.Date(ane2015$ENTREE))
+# on supprime la 1ère colonne qui est exédentaire (numérotation)
+ane2015 &lt;- ane2015[, -1]
+# la répartition des types de colonnes n'est pas la même que celle de d15 car les string ont été automatiquement converties en factor
+f &lt;- function(x){as.character(x)}
+a &lt;- lapply(ane2015, f)
+a &lt;- as.data.frame(a, stringsAsFactors = FALSE)
+a$AGE &lt;- as.numeric(a$AGE)
+</code></pre>
+<p>On récupère l’année 2015</p>
+<pre><code>load(&quot;~/Documents/Resural/Stat Resural/RPU_2014/rpu2015d0112_provisoire.Rda&quot;)</code></pre>
+<p>Enfin on replace les enregistrement correspondant à Ste Anne par les nouveaux</p>
+<pre><code>new2015 &lt;- rbind(d15[d15$FINESS != &quot;Ane&quot;,], a)
+
+d15 &lt;- new2015
+save(d15, file=&quot;rpu2015d0112_provisoire.Rda&quot;)
+</code></pre>
+</div>
+<div id="correctif-hus-1972015" class="section level1">
+<h1>Correctif HUS (19/7/2015)</h1>
+<p>L’objectif est de remplacer les RPU intitulé Hus par les RPU HTP et NHC entre le <strong>1er janvier 2015</strong> et le <strong>31/5/2015</strong> inclus dans le fichier <strong>rpu2015d0112_provisoire.Rda</strong>.</p>
+<ol style="list-style-type: decimal">
+<li><p>transfert dans le dossier dataQ d’une copie des fichier .sql du 8/8/2015 au 8/06/2015.</p></li>
+<li><p>traitement des fichiers sql</p></li>
+</ol>
+<pre><code>source(&quot;Preparation/RPU Quotidiens/quot_utils.R&quot;)
+file.to.delete &lt;- &quot;/home/jcb/Documents/Resural/Stat Resural/Archives_Sagec/dataQ/archivesCsv/rpu2014.data&quot;
+file.remove(file.to.delete)
+
+date1 &lt;- &quot;2015-01-08&quot;
+date2 &lt;- &quot;2015-06-08&quot;
+
+p &lt;- seq(as.Date(date1), as.Date(date2), 1)
+  for(i in 1:length(p)){
+  dx &lt;- rpu_jour(p[i])
+}
+dx &lt;- assemble(comment = TRUE)
+
+min(as.Date(dx$ENTREE))
+max(as.Date(dx$ENTREE))</code></pre>
+<pre><code>
+dx &lt;- dx[as.Date(dx$ENTREE) &gt;= &quot;2015-01-01&quot; &amp; as.Date(dx$ENTREE) &lt; &quot;2015-06-01&quot;,]
+
+min(as.Date(dx$ENTREE))
+max(as.Date(dx$ENTREE))
+
+rpu.jour &lt;- rpu.par.jour(dx)
+head(rpu.jour)
+</code></pre>
+<p>Il y a u trou dans les données, fin avril-début mai (du 30/4 inclus au 5/5/2015 inclus). il faut compléter les données avec <strong>rpu_2015-04-30au5_dump.sql</strong> qui se trouve dans <strong>dataQ/Fichiers_correction</strong>. On suppose que l’on est dans le directory: /home/jcb/Documents/Resural/Stat Resural/RPU_2014</p>
+<p>Il faut récupérer le fichier dans: /home/jcb/Documents/Resural/Archives_Sagec/dataQ/Fichiers_correction/</p>
+<p>puis l’utiliser avec la méthode <em>parse_rpu</em> de <em>quot_utils.R</em> ne garder les données que du 30/4 au 5/5 inclus.</p>
+<pre><code>file &lt;- &quot;../../Archives_Sagec/dataQ/Fichiers_correction/rpu_2015-04-30au5_dump.sql&quot;
+manquant &lt;- parse_rpu(&quot;&quot;, file)
+min(as.Date(manquant$ENTREE))
+max(as.Date(manquant$ENTREE))
+manquant &lt;- manquant[as.Date(manquant$ENTREE) &lt; &quot;2015-05-06&quot;,]
+
+dx &lt;- rbind(dx, manquant)
+</code></pre>
+<p>Sauvegarde</p>
+<pre><code>d15.hus &lt;- dx
+save(d15.hus, file = &quot;d15.hus.Rda&quot;)</code></pre>
+<ol start="3" style="list-style-type: decimal">
+<li><p>on extrait les dataframe <strong>htp</strong> et <strong>nhc</strong> contenant tous les enregidytrements pour HTP et NHC</p>
+<pre><code>htp &lt;- dx[dx$FINESS == &quot;HTP&quot;,]
+nhc &lt;- dx[dx$FINESS == &quot;NHC&quot;,]
+nrow(htp) + nrow(nhc)</code></pre></li>
+<li><p>préparation de d15</p></li>
+</ol>
+<p>A partir du fichier d15:</p>
+<ul>
+<li>on isole les RPU allant du 1er janvier au 31 mai 2015, où HTP et NHC sont confondus sous le vocable Hus: d15.prov</li>
+<li>on isole les RPU allant du 1er juin à la date de point où HTP et NHC sont différenciés: d15.prov2</li>
+<li>on supprime de d15.prov tous les RPU correspondant aux HUS: d15.prov1</li>
+</ul>
+<pre><code>load(&quot;~/Documents/Resural/Stat Resural/RPU_2014/rpu2015d0112_provisoire.Rda&quot;)
+d15.prov &lt;- d15[as.Date(d15$ENTREE) &lt; &quot;2015-06-01&quot;,]
+d15.prov2 &lt;- d15[as.Date(d15$ENTREE) &gt; &quot;2015-05-31&quot;,]
+d15.prov1 &lt;- d15.prov[d15.prov$FINESS != &quot;Hus&quot;,]</code></pre>
+<p>Dans d15.prov, on isole les RPU correspondant aux HUS et on vérifie que leur nombre est bien égal à la somme NHC + HTP calculée à patir de dx (cf. supra)</p>
+<pre><code>hus &lt;- d15.prov[d15.prov$FINESS == &quot;Hus&quot;,]
+nrow(hus)</code></pre>
+<ol start="5" style="list-style-type: decimal">
+<li>réunification des données</li>
+</ol>
+<p>dans d15.prov1 on ajoute __ htp__ et <strong>nhc</strong> qui vont remplacer les RPU hus.</p>
+<pre><code>d15.prov3 &lt;- rbind(d15.prov1, htp, nhc)</code></pre>
+<p><strong>d15.prov3</strong> a bien le même nombre de lignes que <strong>d15.prov</strong>, le fichier de départ.</p>
+<p>La dernière étape consiste à fusionner <strong>d15.prov3</strong> avec <strong>d15.prov2</strong> pour reconstituer le fichier d15 courant:</p>
+<pre><code>d15.prov4 &lt;- rbind(d15.prov3, d15.prov2)</code></pre>
+<p>d15.prov4 et d15 ont bien le même nombre de lignes</p>
+<pre><code>tapply(as.Date(d15.prov4$ENTREE), d15.prov4$FINESS, length)
+min(as.Date(d15.prov4$ENTREE))
+max(as.Date(d15.prov4$ENTREE))
+</code></pre>
+<ol start="6" style="list-style-type: decimal">
+<li>Sauvegarde finale</li>
+</ol>
+<pre><code>d15 &lt;- d15.prov4
+save(d15, file=&quot;rpu2015d0112_provisoire.Rda&quot;)</code></pre>
 </div>
 
 

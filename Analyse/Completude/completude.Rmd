@@ -120,7 +120,7 @@ Todo:
 - comparer le score en foction du logiciel utilisé et sa version.
 
 
-```{r finess, echo=FALSE, comment="", fig.width=9, fig.height=7}
+```{r finess, echo=FALSE, comment="", fig.width=9, fig.height=7, results='asis'}
 library(lubridate)
 library(xtable)
 library(stargazer)

@@ -3,10 +3,10 @@ title: "RPU Quotidiens"
 author: "JcB"
 date: "10/01/2014"
 output:
+  html_document:
+    toc: yes
   pdf_document:
     number_sections: yes
-    toc: yes
-  html_document:
     toc: yes
 ---
 
@@ -203,8 +203,8 @@ source("Preparation/RPU Quotidiens/quot_utils.R")
 file.to.delete <- "/home/jcb/Documents/Resural/Stat Resural/Archives_Sagec/dataQ/archivesCsv/rpu2014.data"
 file.remove(file.to.delete)
 
-date1 <- "2015-09-08"
-date2 <- "2015-09-08"
+date1 <- "2015-01-08"
+date2 <- "2015-06-08"
 
 mc <- substr(date1, 6, 7)
 ac <- substr(date1, 1,4)
@@ -695,9 +695,137 @@ save(d15, file="rpu2015d0112_provisoire.Rda")
 ```
 
 
+Correctif HUS (19/7/2015)
+=============
+
+L'objectif est de remplacer les RPU intitulé Hus par les RPU HTP et NHC entre le __1er janvier 2015__ et le __31/5/2015__ inclus dans le fichier __rpu2015d0112_provisoire.Rda__.
+
+1. transfert dans le dossier dataQ d'une copie des fichier .sql du 8/8/2015 au 8/06/2015.
+
+2. traitement des fichiers sql
+
+```{}
+source("Preparation/RPU Quotidiens/quot_utils.R")
+file.to.delete <- "/home/jcb/Documents/Resural/Stat Resural/Archives_Sagec/dataQ/archivesCsv/rpu2014.data"
+file.remove(file.to.delete)
+
+date1 <- "2015-01-08"
+date2 <- "2015-06-08"
+
+p <- seq(as.Date(date1), as.Date(date2), 1)
+  for(i in 1:length(p)){
+  dx <- rpu_jour(p[i])
+}
+dx <- assemble(comment = TRUE)
+
+min(as.Date(dx$ENTREE))
+max(as.Date(dx$ENTREE))
+```
+
+```{}
+
+dx <- dx[as.Date(dx$ENTREE) >= "2015-01-01" & as.Date(dx$ENTREE) < "2015-06-01",]
+
+min(as.Date(dx$ENTREE))
+max(as.Date(dx$ENTREE))
+
+rpu.jour <- rpu.par.jour(dx)
+head(rpu.jour)
+
+```
+
+Il y a u trou dans les données, fin avril-début mai (du 30/4 inclus au 5/5/2015 inclus). il faut compléter les données avec __rpu_2015-04-30au5_dump.sql__ qui se trouve dans __dataQ/Fichiers_correction__.
+On suppose que l'on est dans le directory: /home/jcb/Documents/Resural/Stat Resural/RPU_2014
+
+Il faut récupérer le fichier dans:         /home/jcb/Documents/Resural/Archives_Sagec/dataQ/Fichiers_correction/
+
+puis l'utiliser avec la méthode _parse_rpu_ de _quot_utils.R_ ne garder les données que du 30/4 au 5/5 inclus.
+
+```{}
+file <- "../../Archives_Sagec/dataQ/Fichiers_correction/rpu_2015-04-30au5_dump.sql"
+manquant <- parse_rpu("", file)
+min(as.Date(manquant$ENTREE))
+max(as.Date(manquant$ENTREE))
+manquant <- manquant[as.Date(manquant$ENTREE) < "2015-05-06",]
+
+dx <- rbind(dx, manquant)
+
+```
+
+Sauvegarde
+```{}
+d15.hus <- dx
+save(d15.hus, file = "d15.hus.Rda")
+```
 
 
+3. on extrait les dataframe __htp__ et __nhc__ contenant tous les enregidytrements pour HTP et NHC
+```{}
+htp <- dx[dx$FINESS == "HTP",]
+nhc <- dx[dx$FINESS == "NHC",]
+nrow(htp) + nrow(nhc)
+```
 
+4. préparation de d15
 
+A partir du fichier d15:
+
+- on isole les RPU allant du 1er janvier au 31 mai 2015, où HTP et NHC sont confondus sous le vocable Hus: d15.prov
+- on isole les RPU allant du 1er juin à la date de point où HTP et NHC sont différenciés: d15.prov2
+- on supprime de d15.prov tous les RPU correspondant aux HUS: d15.prov1
+
+```{}
+load("~/Documents/Resural/Stat Resural/RPU_2014/rpu2015d0112_provisoire.Rda")
+d15.prov <- d15[as.Date(d15$ENTREE) < "2015-06-01",]
+d15.prov2 <- d15[as.Date(d15$ENTREE) > "2015-05-31",]
+d15.prov1 <- d15.prov[d15.prov$FINESS != "Hus",]
+```
+
+Dans d15.prov, on isole les RPU correspondant aux HUS et on vérifie que leur nombre est bien égal à la somme NHC + HTP calculée à patir de dx (cf. supra)
+```{}
+hus <- d15.prov[d15.prov$FINESS == "Hus",]
+nrow(hus)
+```
+
+5. réunification des données
+
+dans d15.prov1 on ajoute __ htp__ et __nhc__ qui vont remplacer les RPU hus.
+```{}
+d15.prov3 <- rbind(d15.prov1, htp, nhc)
+```
+
+__d15.prov3__ a bien le même nombre de lignes que __d15.prov__, le fichier de départ.
+
+La dernière étape consiste à fusionner __d15.prov3__ avec __d15.prov2__ pour reconstituer le fichier d15 courant:
+```{}
+d15.prov4 <- rbind(d15.prov3, d15.prov2)
+```
+
+d15.prov4 et d15 ont bien le même nombre de lignes
+
+```{}
+tapply(as.Date(d15.prov4$ENTREE), d15.prov4$FINESS, length)
+min(as.Date(d15.prov4$ENTREE))
+max(as.Date(d15.prov4$ENTREE))
+
+```
+
+6. Sauvegarde finale
+
+```{}
+d15 <- d15.prov4
+save(d15, file="rpu2015d0112_provisoire.Rda")
+```
+
+Nombre de RPU par mois
+======================
+
+Objet: alimenter le site RESURAL
+
+```{}
+library(lubridate)
+tapply(as.Date(dx$ENTREE), month(as.Date(dx$ENTREE)), length)
+
+```
 
 
