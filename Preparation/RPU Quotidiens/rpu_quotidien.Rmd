@@ -202,9 +202,10 @@ Il faut également, à mois échu, créer un dossier pour le mois dans le dossie
 source("Preparation/RPU Quotidiens/quot_utils.R")
 file.to.delete <- "/home/jcb/Documents/Resural/Stat Resural/Archives_Sagec/dataQ/archivesCsv/rpu2014.data"
 file.remove(file.to.delete)
+rm(list=ls())
 
-date1 <- "2015-01-08"
-date2 <- "2015-06-08"
+date1 <- "2015-09-08"
+date2 <- "2015-09-28"
 
 mc <- substr(date1, 6, 7)
 ac <- substr(date1, 1,4)
@@ -213,7 +214,7 @@ p <- seq(as.Date(date1), as.Date(date2), 1)
 for(i in 1:length(p)){
   dx <- rpu_jour(p[i])
 }
-dx <- assemble(comment = TRUE)
+dx <- assemble(comment = TRUE) # assemble utilise les fichiers .csv présentas dans archivesCSV
 
 min(as.Date(dx$ENTREE))
 max(as.Date(dx$ENTREE))
@@ -251,11 +252,11 @@ rm(dx)
 # load("rpu2015d07.Rda") # mois précédent
 # load("rpu2015d08.Rda") # mois précédent
 
-load("RPU_2014/rpu2015d0112_provisoire.Rda") # load("RPU_2014/rpu2015d0112_provisoire.Rda") si console
+load("RPU_2014/rpu2015d0112_provisoire.Rda") # load("rpu2015d0112_provisoire.Rda") # si console
 d15 <- d15[as.Date(d15$ENTREE) < "2015-09-01",]
 
 # dx <- rbind(d01, d02, d03, d04, d05, d06, d07, d08)
-dx <- rbind(d15, d08)
+dx <- rbind(d15, d09)
 
 min(as.Date(dx$ENTREE))
 max(as.Date(dx$ENTREE))
@@ -284,13 +285,13 @@ td <- max(as.Date(d15$ENTREE)) - min(as.Date(d15$ENTREE))
 n * 365 / as.numeric(td)
 ```
 
-#### Nb actuel de RPU
+#### Nb actuel de RPU par FINESS
 
 ```{}
 t <- tapply(as.Date(dx$ENTREE), dx$FINESS, length)
 t
 
-# nb prévisionnel
+# nb prévisionnel par FINESS
 td <- max(as.Date(dx$ENTREE)) - min(as.Date(dx$ENTREE))
 round(t * 365 / as.numeric(td), 0)
 
@@ -300,8 +301,11 @@ round(t * 365 / as.numeric(td), 0)
 ### bilan des RPU à la date du 31/7/2015
 
 ```{}
-# matrice des RPU depuis le début année
-rpu.jour <- rpu.par.jour(d15) 
+# table des RPU depuis le début année transformé en dataframe
+# la colonne HUS est vide depuis le 1/1/2015 (à supprimer) remplacée par NHC et HTP
+# la colonne MUL est vide à partir du 1/9/2015 et remplacée par EMR (11/8/2015) et HSR (1/9/2015)
+rpu.jour <- as.data.frame.matrix(rpu.par.jour(d15))
+
 
 # sauvegarde de la matrice
 write.csv(rpu.jour, file = "rpu.jour_31-09-2015.csv") 
@@ -309,11 +313,12 @@ write.csv(rpu.jour, file = "rpu.jour_31-09-2015.csv")
 # fonction qui compte le nombre de rpu = 0 dans le vecteur x
 rpu.manquant <- function(x){length(which(x == 0))}
 
-# applique la fonction à la matrice rpu.jour
+# Nombre de jours manquants: applique la fonction à la matrice rpu.jour
+# ne plus tenir comte de Hus. Pour Mul, Hsr et Emr tenir compte de la remarque précédente.
 apply(rpu.jour, 2, rpu.manquant) 
 
-3Fr Alk Ane Col Dia Dts Geb Hag Hus Mul Odi Ros Sav Sel Wis HTP NHC 
-  0   0  46   1   0   0   0   0  61   4   1   0   0  13   0 151 151 
+3Fr Alk Ane Col Dia Dts Geb Hag Hus Mul Odi Ros Sav Sel Wis HTP NHC Emr Hsr 
+  0   0   1   1   0   0   0   0 264  25   1   0   0  13   0   0   0 222 243
 
 moins de 20 rpu/jour
 rpu.manquant <- function(x){length(which(x < 20))}
@@ -327,8 +332,11 @@ load("~/Documents/Stat Resural/RPU_2014/rpu2015d0112_provisoire.Rda")
 library(xts)
 rpu <- read.csv("rpu.jour_31-09-2015.csv")
 names(rpu)[1] <- "date"
+names(rpu)[2] <- "3Fr"
 
 xts <- xts(rpu, order.by = as.Date(rpu$date), frequency = TRUE)
+
+# exemple de Sélestat:
 a <- as.integer(xts$Sel)
 s <- summary(a)
 sd <- sd(a)
@@ -454,7 +462,7 @@ Objet: mesure de l'activité au jour le jour avant consolidation. En pratique re
 2. appeler la fonction __parse_rpu__ avec la date du jour, qui le transforme en dataframe
 ```{}
 
-d <- parse_rpu("2015-09-08")
+d <- parse_rpu("2015-09-28")
 
 min(as.Date(d$ENTREE))
 max(as.Date(d$ENTREE))

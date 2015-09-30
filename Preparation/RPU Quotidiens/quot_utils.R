@@ -102,7 +102,7 @@ finess2hop <- function(a){
   a[a=="680000197"]<-"3Fr"
   a[a=="680020096"]<-"3Fr" # maj le 30/5/2014 680020096
 
-  a[a=="680000627"]<-"Mul" # correspond au Hasenrain 14/08/2015
+  a[a=="680000627"]<-"Hsr" # correspond au Hasenrain 14/08/2015. Avant cette date = Mul
   # a[a=="680000627"]<-"Har" # correspond au Hasenrain
   a[a=="670000157"]<-"Hag"
   a[a=="680000320"]<-"Dia" # DFO

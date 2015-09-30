@@ -92,6 +92,7 @@ img {
 </ul></li>
 <li><a href="#correctif-ste-anne">Correctif ste Anne</a></li>
 <li><a href="#correctif-hus-1972015">Correctif HUS (19/7/2015)</a></li>
+<li><a href="#nombre-de-rpu-par-mois">Nombre de RPU par mois</a></li>
 </ul>
 </div>
 
@@ -278,9 +279,10 @@ setwd(wd)</code></pre>
 <pre><code>source(&quot;Preparation/RPU Quotidiens/quot_utils.R&quot;)
 file.to.delete &lt;- &quot;/home/jcb/Documents/Resural/Stat Resural/Archives_Sagec/dataQ/archivesCsv/rpu2014.data&quot;
 file.remove(file.to.delete)
+rm(list=ls())
 
-date1 &lt;- &quot;2015-01-08&quot;
-date2 &lt;- &quot;2015-06-08&quot;
+date1 &lt;- &quot;2015-09-08&quot;
+date2 &lt;- &quot;2015-09-28&quot;
 
 mc &lt;- substr(date1, 6, 7)
 ac &lt;- substr(date1, 1,4)
@@ -289,7 +291,7 @@ p &lt;- seq(as.Date(date1), as.Date(date2), 1)
 for(i in 1:length(p)){
   dx &lt;- rpu_jour(p[i])
 }
-dx &lt;- assemble(comment = TRUE)
+dx &lt;- assemble(comment = TRUE) # assemble utilise les fichiers .csv présentas dans archivesCSV
 
 min(as.Date(dx$ENTREE))
 max(as.Date(dx$ENTREE))</code></pre>
@@ -323,11 +325,11 @@ rm(dx)
 # load(&quot;rpu2015d07.Rda&quot;) # mois précédent
 # load(&quot;rpu2015d08.Rda&quot;) # mois précédent
 
-load(&quot;RPU_2014/rpu2015d0112_provisoire.Rda&quot;) # load(&quot;RPU_2014/rpu2015d0112_provisoire.Rda&quot;) si console
+load(&quot;RPU_2014/rpu2015d0112_provisoire.Rda&quot;) # load(&quot;rpu2015d0112_provisoire.Rda&quot;) # si console
 d15 &lt;- d15[as.Date(d15$ENTREE) &lt; &quot;2015-09-01&quot;,]
 
 # dx &lt;- rbind(d01, d02, d03, d04, d05, d06, d07, d08)
-dx &lt;- rbind(d15, d08)
+dx &lt;- rbind(d15, d09)
 
 min(as.Date(dx$ENTREE))
 max(as.Date(dx$ENTREE))
@@ -347,20 +349,23 @@ write.csv2(t, file = &quot;rpu_par_mois.xls&quot;)</code></pre>
 <h4>Nombre de attendus pour l’année:</h4>
 <p><code>{ rpu_extrapoles} n &lt;- nrow(d15) td &lt;- max(as.Date(d15$ENTREE)) - min(as.Date(d15$ENTREE)) n * 365 / as.numeric(td)</code></p>
 </div>
-<div id="nb-actuel-de-rpu" class="section level4">
-<h4>Nb actuel de RPU</h4>
+<div id="nb-actuel-de-rpu-par-finess" class="section level4">
+<h4>Nb actuel de RPU par FINESS</h4>
 <pre><code>t &lt;- tapply(as.Date(dx$ENTREE), dx$FINESS, length)
 t
 
-# nb prévisionnel
+# nb prévisionnel par FINESS
 td &lt;- max(as.Date(dx$ENTREE)) - min(as.Date(dx$ENTREE))
 round(t * 365 / as.numeric(td), 0)
 </code></pre>
 </div>
 <div id="bilan-des-rpu-a-la-date-du-3172015" class="section level3">
 <h3>bilan des RPU à la date du 31/7/2015</h3>
-<pre><code># matrice des RPU depuis le début année
-rpu.jour &lt;- rpu.par.jour(d15) 
+<pre><code># table des RPU depuis le début année transformé en dataframe
+# la colonne HUS est vide depuis le 1/1/2015 (à supprimer) remplacée par NHC et HTP
+# la colonne MUL est vide à partir du 1/9/2015 et remplacée par EMR (11/8/2015) et HSR (1/9/2015)
+rpu.jour &lt;- as.data.frame.matrix(rpu.par.jour(d15))
+
 
 # sauvegarde de la matrice
 write.csv(rpu.jour, file = &quot;rpu.jour_31-09-2015.csv&quot;) 
@@ -368,11 +373,12 @@ write.csv(rpu.jour, file = &quot;rpu.jour_31-09-2015.csv&quot;)
 # fonction qui compte le nombre de rpu = 0 dans le vecteur x
 rpu.manquant &lt;- function(x){length(which(x == 0))}
 
-# applique la fonction à la matrice rpu.jour
+# Nombre de jours manquants: applique la fonction à la matrice rpu.jour
+# ne plus tenir comte de Hus. Pour Mul, Hsr et Emr tenir compte de la remarque précédente.
 apply(rpu.jour, 2, rpu.manquant) 
 
-3Fr Alk Ane Col Dia Dts Geb Hag Hus Mul Odi Ros Sav Sel Wis HTP NHC 
-  0   0  46   1   0   0   0   0  61   4   1   0   0  13   0 151 151 
+3Fr Alk Ane Col Dia Dts Geb Hag Hus Mul Odi Ros Sav Sel Wis HTP NHC Emr Hsr 
+  0   0   1   1   0   0   0   0 264  25   1   0   0  13   0   0   0 222 243
 
 moins de 20 rpu/jour
 rpu.manquant &lt;- function(x){length(which(x &lt; 20))}
@@ -386,8 +392,11 @@ load(&quot;~/Documents/Stat Resural/RPU_2014/rpu2015d0112_provisoire.Rda&quot;)
 library(xts)
 rpu &lt;- read.csv(&quot;rpu.jour_31-09-2015.csv&quot;)
 names(rpu)[1] &lt;- &quot;date&quot;
+names(rpu)[2] &lt;- &quot;3Fr&quot;
 
 xts &lt;- xts(rpu, order.by = as.Date(rpu$date), frequency = TRUE)
+
+# exemple de Sélestat:
 a &lt;- as.integer(xts$Sel)
 s &lt;- summary(a)
 sd &lt;- sd(a)
@@ -474,7 +483,7 @@ write.csv(rpu, file=&quot;exaustivite_rpu.csv&quot;) # enregistre la table au fo
 <li>récupérer le fichier source, le décompacter.</li>
 <li>appeler la fonction <strong>parse_rpu</strong> avec la date du jour, qui le transforme en dataframe ```{}</li>
 </ol>
-<p>d &lt;- parse_rpu(“2015-09-08”)</p>
+<p>d &lt;- parse_rpu(“2015-09-28”)</p>
 <p>min(as.Date(d<span class="math">\(ENTREE)) max(as.Date(d\)</span>ENTREE)) <code>3. puis la méthode __analyse_rpu__. Normalement on doit obtenir __16 valeurs__:</code> analyse_rpu_jour(d) <code>4. on peut obtenir une matrice établissement/nb rpu par date avec la formule suivante:</code> t &lt;- tapply(as.Date(d<span class="math">\(ENTREE), list(d\)</span>FINESS, as.Date(d$ENTREE)), length) t(t)</p>
 <pre><code>       3Fr Alk Col Dia Dts Geb Hag Hus Mul Odi Ros Sav Sel Wis</code></pre>
 <p>2015-01-01 48 51 190 59 29 52 129 306 220 15 9 83 85 28 2015-01-02 45 52 210 102 27 43 115 292 200 10 25 94 81 30 2015-01-03 31 42 203 85 30 64 125 323 NA NA 12 106 103 42 2015-01-04 43 39 175 79 21 48 102 291 186 2 12 81 76 31 2015-01-05 45 50 183 74 29 34 155 277 196 72 2 99 71 34 2015-01-06 37 37 153 82 31 48 131 283 176 61 12 84 76 22 2015-01-07 42 41 NA 66 35 39 125 296 156 64 8 69 84 39 ```</p>
@@ -738,6 +747,13 @@ max(as.Date(d15.prov4$ENTREE))
 </ol>
 <pre><code>d15 &lt;- d15.prov4
 save(d15, file=&quot;rpu2015d0112_provisoire.Rda&quot;)</code></pre>
+</div>
+<div id="nombre-de-rpu-par-mois" class="section level1">
+<h1>Nombre de RPU par mois</h1>
+<p>Objet: alimenter le site RESURAL</p>
+<pre><code>library(lubridate)
+tapply(as.Date(dx$ENTREE), month(as.Date(dx$ENTREE)), length)
+</code></pre>
 </div>
 
 

@@ -3,12 +3,25 @@ title: "Analyse de la complétude"
 author: "RESURAL (JcB)"
 date: "22/09/2015"
 output:
+  html_document: default
   pdf_document:
     number_sections: yes
 ---
 
+Ce document répond à une question du CH Saverne mais il est applicable à tous les ES. Il crée:
+
+- un tableau __mensuel__ du % de complétude de chaque item. Il utilise pour ce faire la fonction __completude.time()__ qui permet également de produire le même tableau par _semaine_ ou par _jour_.
+- le graphe de la complétude quotidienne pour le __DP__, le __MOTIF__ et la __CCMU__.
+- le diagramme __Radar__. TODO: diagramme en radar du mois + le _contour_ du mois précédent en sur impression.
+
+__ATTENTION__: _ligne 53, modifier le type selon que l'on crée un document html ou latex_.
+
+__SOURCE:__ Analyse/Completude/analyse_completude.rmd
+
+
 Analyse de l'évolution du taux de complétude des RPU du __CH de Saverne__ du 1/1/2015 au 31/8/2015.
 ==================================================================================================
+
 
 ```{r, echo=FALSE, message=FALSE}
 
@@ -41,8 +54,8 @@ colnames(t2)[1] <- "Mois"
 
 ```{r, echo=FALSE, message=FALSE, results='asis'}
 library(xtable)
-# type <- "html"
-type <- "latex"
+type <- "html"
+#type <- "latex"
 
 print.xtable(xtable(t2[, 1:8], caption = "RPU - complétude"), type = type, comment = FALSE)
 
@@ -66,7 +79,7 @@ Diagnostic principal (DP)
 
 ```{r, echo=FALSE}
 par(col = "cornflowerblue")
-plot(x[, "DP"], main = "CH Saverne - DIAGNOSTIC PRINCIPAL", ylab = "% de complétude", format = "%B %Y") # , col = "cornflowerblue"
+plot(x[, "DP"], main = "CH Saverne - DIAGNOSTIC PRINCIPAL", ylab = "% de complétude") # , col = "cornflowerblue"
 ```
 
 Le DP s'est fortement amélioré à partir du mois de juin 2015, franchissant la barre des 50% fin août. Il faut encourager l'effort des codeurs ! L'objectif est d'arriver à franchir la barre des 80% car à partir de ce seuil, l'InVS fait entrer l'établissement dans le pool des établissement de référence de la région et incorpore les résultats dans son bulletin hebdomadaire. Un deuxième élément est à surveiller, c'est la variabilité du taux de codage du DP d'un jour à l'autre. Graphiquement, cette variabilité semble diminuer, mais pour que le service soit considéré comme un bon indicateur, il faut que cette variabilité se stabilise et soit la plus faible possible.
