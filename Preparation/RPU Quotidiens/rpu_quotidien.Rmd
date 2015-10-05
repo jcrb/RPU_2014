@@ -272,7 +272,7 @@ rpu.par.jour(d09)
 Total RPU par mois et par FINESS
 ```{}
 t <- tapply(as.Date(d15$ENTREE), list(d15$FINESS, months(as.Date(d15$ENTREE))), length)
-t <- t[, c("janvier","février","mars", "avril","mai","juin","juillet", "août")]
+t <- t[, c("janvier","février","mars", "avril","mai","juin","juillet", "août", "septembre")]
 write.csv2(t, file = "rpu_par_mois.xls")
 ```
 
@@ -432,7 +432,7 @@ plot(a$Date, a$RPU, type="l", ylab="nombre de RPU", xlab=paste0("Année ", year(
 
 # Tracé de la courbe des RPU avec PLOT.XTS
 x <- as.xts(a$RPU, a$Date) 
-plot(x , major.ticks= "weeks", las = 2, minor.ticks = FALSE, major.format = "%d %b", cex.axis = 0.8, main = "RPU 2015", ylab = "Nombre de RPU par jour", col = "brown")
+plot(x , major.ticks= "weeks", las = 2, minor.ticks = FALSE, major.format = "%d %b", cex.axis = 0.8, main = "RPU 2015", ylab = "Nombre de RPU par jour", col = "cornflowerblue")
  # {"years", "months", "weeks", "days", "hours", "minutes", "seconds"}
 lines(rollmean(x, 7), col="red", lwd = 3)
 
@@ -575,6 +575,8 @@ sd(p.dp.non.code)
 n.dp.non.code <- sum(n.dp.non.code)
 
 ```
+En moyenne 38% des RPU du jour n'ont pas de DP codés
+
 Pour chaque établisement
 ```{}
 # nombre de RPU sur la période par établissement:
@@ -588,8 +590,13 @@ b <- tapply(dp$DP, list(as.Date(dp$ENTREE), dp$FINESS), x)
 # on transforme la matrice des % de DP non codés en dataframe
 c <- data.frame(unlist(b))
 
-plot(b[,"Wis"], type = "l")
-mean(b[,"Wis"], type = "l")
+#nb moyen de RPU non codés
+mean(b[,"Wis"])
+m <- round(mean(b[,"Wis"])*100, 2)
+plot(b[,"Wis"], type = "l", ylab = "% de RPU sans DP", xlab = "Jours", main = "Exemple d'un bon codeur")
+text(x = 160, y = 0.6, labels = paste0("Taux de codage moyen = ", 100-m, " %"))
+
+
 plot(b[,"Mul"], type = "l")
 mean(b[,"Mul"], na.rm = TRUE)
 
@@ -600,14 +607,14 @@ Tableau de codeurs
 ```{}
 p.codage <- 1 - apply(b, 2, mean, na.rm = TRUE)
 
-plot(p.codage, pch = 16, col= ifelse(p.codage > 0.8,"blue","green"), ylim = c(0,1.1), ylab = "% de DP codés", main = "Pourcentages de RPU dont le DP est renseigné", xlab = "CH Alsace - 2015 (1er trimestre)")
+plot(p.codage, pch = 16, col= ifelse(p.codage > 0.8,"blue","green"), ylim = c(0,1.1), xlim = c(0,20), ylab = "% de DP codés", main = "Pourcentages de RPU dont le DP est renseigné", xlab = "CH Alsace - 2015 (janvier-septembre)")
 
-text(1:15, p.codage + 0.05, names(p.codage))
+text(1:length(p.codage), p.codage + 0.05, names(p.codage))
 abline(h = 0.8, lty = 2, col = "red")
 
 # pour être considéré comme acceptable, un rectangle doit se situer sous la ligne pointillé rouge. De plus, plus le rectangle est écrasé et plus la dispersion de codage d'un jour à l'autre est faible. Ces 2 éléments sont nécessaire pour l'InVS.
 # boxplot(b, las = 2, outline = FALSE, ylab = "% de  DP non codés", main = "Complétude du diagnostic principal")
-boxplot(b, las = 2, outline = FALSE, ylab = "% de  DP non codés", main = "Complétude du diagnostic principal", col = ifelse(1-p.codage < 0.21, "green", "yellow"))
+boxplot(b, las = 2, outline = FALSE, ylab = "% de  DP non codés", main = "Complétude et variabilité du diagnostic principal", col = ifelse(1-p.codage < 0.21, "green", "yellow"))
 
 abline(h = 0.2, lty = 2, col = "red")
 
@@ -616,7 +623,7 @@ abline(h = 0.2, lty = 2, col = "red")
 x <- function(x){sum(is.na(x))}
 b2 <- tapply(dp$DP, list(as.Date(dp$ENTREE), dp$FINESS), x)
 c2 <- data.frame(unlist(b2))
-boxplot(b2, las = 2, outline = FALSE, ylab = "nombre de  DP non codés", main = "Complétude du diagnostic principal")
+boxplot(b2, las = 2, outline = FALSE, ylab = "nombre de  DP non codés", main = "Complétude et variabilité du diagnostic principal")
 
 # somme des DP non codés par établissement
 n.non.code <- apply(c2, 2, sum, na.rm = TRUE)

@@ -342,7 +342,7 @@ save(d15, file=&quot;rpu2015d0112_provisoire.Rda&quot;)
 rpu.par.jour(d09)</code></pre>
 <p>Total RPU par mois et par FINESS</p>
 <pre><code>t &lt;- tapply(as.Date(d15$ENTREE), list(d15$FINESS, months(as.Date(d15$ENTREE))), length)
-t &lt;- t[, c(&quot;janvier&quot;,&quot;février&quot;,&quot;mars&quot;, &quot;avril&quot;,&quot;mai&quot;,&quot;juin&quot;,&quot;juillet&quot;, &quot;août&quot;)]
+t &lt;- t[, c(&quot;janvier&quot;,&quot;février&quot;,&quot;mars&quot;, &quot;avril&quot;,&quot;mai&quot;,&quot;juin&quot;,&quot;juillet&quot;, &quot;août&quot;, &quot;septembre&quot;)]
 write.csv2(t, file = &quot;rpu_par_mois.xls&quot;)</code></pre>
 </div>
 <div id="nombre-de-attendus-pour-lannee" class="section level4">
@@ -467,7 +467,7 @@ write.csv(rpu, file=&quot;exaustivite_rpu.csv&quot;) # enregistre la table au fo
 </div>
 <div id="trace-de-la-courbe-des-rpu-avec-plot.xts" class="section level1">
 <h1>Tracé de la courbe des RPU avec PLOT.XTS</h1>
-<p>x &lt;- as.xts(a<span class="math">\(RPU, a\)</span>Date) plot(x , major.ticks= “weeks”, las = 2, minor.ticks = FALSE, major.format = “%d %b”, cex.axis = 0.8, main = “RPU 2015”, ylab = “Nombre de RPU par jour”, col = “brown”) # {“years”, “months”, “weeks”, “days”, “hours”, “minutes”, “seconds”} lines(rollmean(x, 7), col=“red”, lwd = 3)</p>
+<p>x &lt;- as.xts(a<span class="math">\(RPU, a\)</span>Date) plot(x , major.ticks= “weeks”, las = 2, minor.ticks = FALSE, major.format = “%d %b”, cex.axis = 0.8, main = “RPU 2015”, ylab = “Nombre de RPU par jour”, col = “cornflowerblue”) # {“years”, “months”, “weeks”, “days”, “hours”, “minutes”, “seconds”} lines(rollmean(x, 7), col=“red”, lwd = 3)</p>
 </div>
 <div id="trace-de-la-courbe-des-rpu-avec-plot.zoo" class="section level1">
 <h1>Tracé de la courbe des RPU avec PLOT.ZOO</h1>
@@ -562,6 +562,7 @@ sd(p.dp.non.code)
 # nombre total de non codé
 n.dp.non.code &lt;- sum(n.dp.non.code)
 </code></pre>
+<p>En moyenne 38% des RPU du jour n’ont pas de DP codés</p>
 <p>Pour chaque établisement</p>
 <pre><code># nombre de RPU sur la période par établissement:
 n.rpu &lt;- tapply(as.Date(dp$ENTREE), dp$FINESS, length)
@@ -574,8 +575,13 @@ b &lt;- tapply(dp$DP, list(as.Date(dp$ENTREE), dp$FINESS), x)
 # on transforme la matrice des % de DP non codés en dataframe
 c &lt;- data.frame(unlist(b))
 
-plot(b[,&quot;Wis&quot;], type = &quot;l&quot;)
-mean(b[,&quot;Wis&quot;], type = &quot;l&quot;)
+#nb moyen de RPU non codés
+mean(b[,&quot;Wis&quot;])
+m &lt;- round(mean(b[,&quot;Wis&quot;])*100, 2)
+plot(b[,&quot;Wis&quot;], type = &quot;l&quot;, ylab = &quot;% de RPU sans DP&quot;, xlab = &quot;Jours&quot;, main = &quot;Exemple d'un bon codeur&quot;)
+text(x = 160, y = 0.6, labels = paste0(&quot;Taux de codage moyen = &quot;, 100-m, &quot; %&quot;))
+
+
 plot(b[,&quot;Mul&quot;], type = &quot;l&quot;)
 mean(b[,&quot;Mul&quot;], na.rm = TRUE)
 </code></pre>
@@ -583,14 +589,14 @@ mean(b[,&quot;Mul&quot;], na.rm = TRUE)
 <h2>Tableau de codeurs</h2>
 <pre><code>p.codage &lt;- 1 - apply(b, 2, mean, na.rm = TRUE)
 
-plot(p.codage, pch = 16, col= ifelse(p.codage &gt; 0.8,&quot;blue&quot;,&quot;green&quot;), ylim = c(0,1.1), ylab = &quot;% de DP codés&quot;, main = &quot;Pourcentages de RPU dont le DP est renseigné&quot;, xlab = &quot;CH Alsace - 2015 (1er trimestre)&quot;)
+plot(p.codage, pch = 16, col= ifelse(p.codage &gt; 0.8,&quot;blue&quot;,&quot;green&quot;), ylim = c(0,1.1), xlim = c(0,20), ylab = &quot;% de DP codés&quot;, main = &quot;Pourcentages de RPU dont le DP est renseigné&quot;, xlab = &quot;CH Alsace - 2015 (janvier-septembre)&quot;)
 
-text(1:15, p.codage + 0.05, names(p.codage))
+text(1:length(p.codage), p.codage + 0.05, names(p.codage))
 abline(h = 0.8, lty = 2, col = &quot;red&quot;)
 
 # pour être considéré comme acceptable, un rectangle doit se situer sous la ligne pointillé rouge. De plus, plus le rectangle est écrasé et plus la dispersion de codage d'un jour à l'autre est faible. Ces 2 éléments sont nécessaire pour l'InVS.
 # boxplot(b, las = 2, outline = FALSE, ylab = &quot;% de  DP non codés&quot;, main = &quot;Complétude du diagnostic principal&quot;)
-boxplot(b, las = 2, outline = FALSE, ylab = &quot;% de  DP non codés&quot;, main = &quot;Complétude du diagnostic principal&quot;, col = ifelse(1-p.codage &lt; 0.21, &quot;green&quot;, &quot;yellow&quot;))
+boxplot(b, las = 2, outline = FALSE, ylab = &quot;% de  DP non codés&quot;, main = &quot;Complétude et variabilité du diagnostic principal&quot;, col = ifelse(1-p.codage &lt; 0.21, &quot;green&quot;, &quot;yellow&quot;))
 
 abline(h = 0.2, lty = 2, col = &quot;red&quot;)
 
@@ -599,7 +605,7 @@ abline(h = 0.2, lty = 2, col = &quot;red&quot;)
 x &lt;- function(x){sum(is.na(x))}
 b2 &lt;- tapply(dp$DP, list(as.Date(dp$ENTREE), dp$FINESS), x)
 c2 &lt;- data.frame(unlist(b2))
-boxplot(b2, las = 2, outline = FALSE, ylab = &quot;nombre de  DP non codés&quot;, main = &quot;Complétude du diagnostic principal&quot;)
+boxplot(b2, las = 2, outline = FALSE, ylab = &quot;nombre de  DP non codés&quot;, main = &quot;Complétude et variabilité du diagnostic principal&quot;)
 
 # somme des DP non codés par établissement
 n.non.code &lt;- apply(c2, 2, sum, na.rm = TRUE)
