@@ -76,10 +76,11 @@ img {
 <li><a href="#en-pratique">En pratique</a><ul>
 <li><a href="#si-un-seul-fichier">si un seul fichier</a></li>
 <li><a href="#si-un-seul-fichier-de-rattrapage">Si un seul fichier de rattrapage</a></li>
-<li><a href="#si-on-a-une-collection-de-fichiers">Si on a une collection de fichiers:</a><ul>
+<li><a href="#si-on-a-une-collection-de-fichiers">Si on a une collection de fichiers:</a></li>
+</ul></li>
+<li><a href="#nb-de-rpu-a-mois-constant-de-30-jours">nb de RPU à mois constant de 30 jours</a><ul>
 <li><a href="#bilan-des-rpu-a-la-date-du-3172015">bilan des RPU à la date du 31/7/2015</a></li>
 <li><a href="#recherche-de-doublons-code_postal-commune-entree-finess-naissance-sexe">Recherche de doublons: CODE_POSTAL, COMMUNE, ENTREE, FINESS, NAISSANCE, SEXE</a></li>
-</ul></li>
 <li><a href="#exhaustivite-des-donnees">exhaustivité des données</a></li>
 </ul></li>
 <li><a href="#resume-activite">Résumé activité</a></li>
@@ -276,13 +277,13 @@ setwd(wd)</code></pre>
 <div id="nb-supprimer-le-fichier-homejcbdocumentsresuralstat-resuralarchives_sagecdataqarchivescsvrpu2014.data" class="section level4">
 <h4>NB: SUPPRIMER LE FICHIER /home/jcb/Documents/Resural/Stat Resural/Archives_Sagec/dataQ/archivesCsv/rpu2014.data</h4>
 <p>Il faut également, à mois échu, créer un dossier pour le mois dans le dossier <strong>archivesCSV</strong> et y ranger les fichiers <em>.csv</em> du mois échu (sinon ils sont repris dans les calcule).</p>
-<pre><code>source(&quot;Preparation/RPU Quotidiens/quot_utils.R&quot;)
+<pre><code>rm(list=ls())
+source(&quot;Preparation/RPU Quotidiens/quot_utils.R&quot;)
 file.to.delete &lt;- &quot;/home/jcb/Documents/Resural/Stat Resural/Archives_Sagec/dataQ/archivesCsv/rpu2014.data&quot;
 file.remove(file.to.delete)
-rm(list=ls())
 
-date1 &lt;- &quot;2015-09-08&quot;
-date2 &lt;- &quot;2015-09-28&quot;
+date1 &lt;- &quot;2015-10-08&quot;
+date2 &lt;- &quot;2015-10-08&quot;
 
 mc &lt;- substr(date1, 6, 7)
 ac &lt;- substr(date1, 1,4)
@@ -299,17 +300,17 @@ max(as.Date(dx$ENTREE))</code></pre>
 <div id="selectionner-une-periode-particuliere-ie.-mai-2014" class="section level4">
 <h4>Sélectionner une période particulière (ie. mai 2014)</h4>
 <p>num.mc &lt;- 1 # numéro du mois courant mois.c &lt;- paste(“d”, )</p>
-<pre><code>d09 &lt;- dx[as.Date(dx$ENTREE) &gt;= &quot;2015-09-01&quot; &amp; as.Date(dx$ENTREE) &lt; &quot;2015-10-01&quot;,]
+<pre><code>d10 &lt;- dx[as.Date(dx$ENTREE) &gt;= &quot;2015-10-01&quot; &amp; as.Date(dx$ENTREE) &lt; &quot;2015-11-01&quot;,]
 min(as.Date(d09$ENTREE))
 max(as.Date(d09$ENTREE))
 
-d09 &lt;- normalise(d09)
-save(d09, file=&quot;rpu2015d09_provisoire.Rda&quot;)
+d09 &lt;- normalise(d10)
+save(d10, file=&quot;rpu2015d10_provisoire.Rda&quot;)
 rm(dx)
 
 # si le mois est complet:
-# save(d06, file=&quot;rpu2015d06.Rda&quot;)
-# rm(rpu2015d06_provisoire.Rda)
+# save(d10, file=&quot;rpu2015d10.Rda&quot;)
+# rm(rpu2015d10_provisoire.Rda)
 
 # uniquement le premier mois
 # d15 &lt;- d01
@@ -326,10 +327,10 @@ rm(dx)
 # load(&quot;rpu2015d08.Rda&quot;) # mois précédent
 
 load(&quot;RPU_2014/rpu2015d0112_provisoire.Rda&quot;) # load(&quot;rpu2015d0112_provisoire.Rda&quot;) # si console
-d15 &lt;- d15[as.Date(d15$ENTREE) &lt; &quot;2015-09-01&quot;,]
+d15 &lt;- d15[as.Date(d15$ENTREE) &lt; &quot;2015-10-01&quot;,]
 
 # dx &lt;- rbind(d01, d02, d03, d04, d05, d06, d07, d08)
-dx &lt;- rbind(d15, d09)
+dx &lt;- rbind(d15, d10)
 
 min(as.Date(dx$ENTREE))
 max(as.Date(dx$ENTREE))
@@ -345,8 +346,28 @@ rpu.par.jour(d09)</code></pre>
 t &lt;- t[, c(&quot;janvier&quot;,&quot;février&quot;,&quot;mars&quot;, &quot;avril&quot;,&quot;mai&quot;,&quot;juin&quot;,&quot;juillet&quot;, &quot;août&quot;, &quot;septembre&quot;)]
 write.csv2(t, file = &quot;rpu_par_mois.xls&quot;)</code></pre>
 </div>
-<div id="nombre-de-attendus-pour-lannee" class="section level4">
-<h4>Nombre de attendus pour l’année:</h4>
+</div>
+</div>
+<div id="nb-de-rpu-a-mois-constant-de-30-jours" class="section level1">
+<h1>nb de RPU à mois constant de 30 jours</h1>
+<p>n.jours &lt;- as.numeric(max(as.Date(d10<span class="math">\(ENTREE))-min(as.Date(d10\)</span>ENTREE)) + 1) n.rpu.mois.constant &lt;- nrow(d10) * 30 / n.jours</p>
+<p>Total par mois et par mois constants</p>
+<pre><code>t &lt;- tapply(as.Date(d15$ENTREE), months(as.Date(d15$ENTREE)), length)
+t &lt;- t[, c(&quot;janvier&quot;,&quot;février&quot;,&quot;mars&quot;, &quot;avril&quot;,&quot;mai&quot;,&quot;juin&quot;,&quot;juillet&quot;, &quot;août&quot;, &quot;septembre&quot;)]
+t
+# nb de jours dans le mois (la séquence doit inclure le mois suivant. SOURCE: https://stat.ethz.ch/pipermail/r-help/2007-August/138116.html)
+n.j &lt;- as.integer(diff(seq(as.Date(&quot;2015-01-01&quot;), as.Date(&quot;2015-10-01&quot;), by = &quot;month&quot;)))
+# nb de RPU par mois constant de 30 jours
+t * 30 / n.j
+barplot(tc, main = &quot;Nombre de RPU par mois standards de 30 jours&quot;, col = &quot;cornflowerblue&quot;)
+</code></pre>
+<p>Nombre de jour en 2015</p>
+<pre><code>anc &lt;- &quot;2015&quot;
+d1 &lt;- as.Date(paste0(anc, &quot;-01-01&quot;))
+d2 &lt;- as.Date(paste0(as.integer(anc) + 1, &quot;-01-01&quot;))
+n.days &lt;- as.integer(d2-d1)</code></pre>
+<div id="nombre-de-jours-attendus-pour-lannee" class="section level4">
+<h4>Nombre de jours attendus pour l’année:</h4>
 <p><code>{ rpu_extrapoles} n &lt;- nrow(d15) td &lt;- max(as.Date(d15$ENTREE)) - min(as.Date(d15$ENTREE)) n * 365 / as.numeric(td)</code></p>
 </div>
 <div id="nb-actuel-de-rpu-par-finess" class="section level4">
@@ -438,7 +459,6 @@ abline(h = summary(b)[&quot;Mean&quot;] - sd(b) * 3, col = &quot;blue&quot;, lty
 <pre><code>#a &lt;- rbind(d1,dx)
 #save(a, file=&quot;rpu2014d0103_provisoire.Rda&quot;)</code></pre>
 <p>Pour fabriquer les courbes interactives d’activité, voir le projet <strong>dygraph</strong>.</p>
-</div>
 </div>
 </div>
 <div id="exhaustivite-des-donnees" class="section level2">

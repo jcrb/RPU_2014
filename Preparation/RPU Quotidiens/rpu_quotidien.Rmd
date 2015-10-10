@@ -199,13 +199,13 @@ Si on a une collection de fichiers:
 Il faut également, à mois échu, créer un dossier pour le mois dans le dossier __archivesCSV__ et y ranger les fichiers _.csv_ du mois échu (sinon ils sont repris dans les calcule).
 
 ```{}
+rm(list=ls())
 source("Preparation/RPU Quotidiens/quot_utils.R")
 file.to.delete <- "/home/jcb/Documents/Resural/Stat Resural/Archives_Sagec/dataQ/archivesCsv/rpu2014.data"
 file.remove(file.to.delete)
-rm(list=ls())
 
-date1 <- "2015-09-08"
-date2 <- "2015-09-28"
+date1 <- "2015-10-08"
+date2 <- "2015-10-08"
 
 mc <- substr(date1, 6, 7)
 ac <- substr(date1, 1,4)
@@ -226,17 +226,17 @@ num.mc <- 1 # numéro du mois courant
 mois.c <- paste("d", )
 
 ```{}
-d09 <- dx[as.Date(dx$ENTREE) >= "2015-09-01" & as.Date(dx$ENTREE) < "2015-10-01",]
+d10 <- dx[as.Date(dx$ENTREE) >= "2015-10-01" & as.Date(dx$ENTREE) < "2015-11-01",]
 min(as.Date(d09$ENTREE))
 max(as.Date(d09$ENTREE))
 
-d09 <- normalise(d09)
-save(d09, file="rpu2015d09_provisoire.Rda")
+d09 <- normalise(d10)
+save(d10, file="rpu2015d10_provisoire.Rda")
 rm(dx)
 
 # si le mois est complet:
-# save(d06, file="rpu2015d06.Rda")
-# rm(rpu2015d06_provisoire.Rda)
+# save(d10, file="rpu2015d10.Rda")
+# rm(rpu2015d10_provisoire.Rda)
 
 # uniquement le premier mois
 # d15 <- d01
@@ -253,10 +253,10 @@ rm(dx)
 # load("rpu2015d08.Rda") # mois précédent
 
 load("RPU_2014/rpu2015d0112_provisoire.Rda") # load("rpu2015d0112_provisoire.Rda") # si console
-d15 <- d15[as.Date(d15$ENTREE) < "2015-09-01",]
+d15 <- d15[as.Date(d15$ENTREE) < "2015-10-01",]
 
 # dx <- rbind(d01, d02, d03, d04, d05, d06, d07, d08)
-dx <- rbind(d15, d09)
+dx <- rbind(d15, d10)
 
 min(as.Date(dx$ENTREE))
 max(as.Date(dx$ENTREE))
@@ -276,8 +276,33 @@ t <- t[, c("janvier","février","mars", "avril","mai","juin","juillet", "août",
 write.csv2(t, file = "rpu_par_mois.xls")
 ```
 
+# nb de RPU à mois constant de 30 jours
+n.jours <- as.numeric(max(as.Date(d10$ENTREE))-min(as.Date(d10$ENTREE)) + 1)
+n.rpu.mois.constant <- nrow(d10) * 30 / n.jours
 
-#### Nombre de attendus pour l'année:
+Total par mois et par mois constants
+```{}
+t <- tapply(as.Date(d15$ENTREE), months(as.Date(d15$ENTREE)), length)
+t <- t[, c("janvier","février","mars", "avril","mai","juin","juillet", "août", "septembre")]
+t
+# nb de jours dans le mois (la séquence doit inclure le mois suivant. SOURCE: https://stat.ethz.ch/pipermail/r-help/2007-August/138116.html)
+n.j <- as.integer(diff(seq(as.Date("2015-01-01"), as.Date("2015-10-01"), by = "month")))
+# nb de RPU par mois constant de 30 jours
+t * 30 / n.j
+barplot(tc, main = "Nombre de RPU par mois standards de 30 jours", col = "cornflowerblue")
+
+```
+
+Nombre de jour en 2015
+```{}
+anc <- "2015"
+d1 <- as.Date(paste0(anc, "-01-01"))
+d2 <- as.Date(paste0(as.integer(anc) + 1, "-01-01"))
+n.days <- as.integer(d2-d1)
+```
+
+
+#### Nombre de jours attendus pour l'année:
 
 ```{ rpu_extrapoles}
 n <- nrow(d15)
