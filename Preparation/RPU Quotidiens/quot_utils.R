@@ -641,3 +641,43 @@ copyright <- function(an ="2013-2015",side=4,line=-1,cex=0.8, titre = "Resural")
   titre<-paste("©", an, titre, sep=" ")
   mtext(titre,side=side,line=line,cex=cex)
 }
+
+#===========================================================================
+#
+# Nombre de RPU par mois
+#
+#===========================================================================
+#'@title Nombre de RPU par mois
+#' @description Calcule le nombre de RPU par mois entre deux dates sous forme brute
+#' ou corrigée en mois constants de 30 jours.
+#' @param dx dataframe (au minimum la colonne ENTREE)
+#' @param standard (boolean) si true retourne par mois corrigés de 30j sinon le nombre brut de RPU
+#' @return un vecteur nommé: nom du mois, nb de RPU
+#' @examples tc1 <- rpu.par.mois(d15, FALSE)
+#' tc2 <- rpu.par.mois(d15, TRUE)
+#' a <- rbind(tc1, tc2)
+#' par(mar=c(5.1, 4.1, 8.1, 2), xpd=TRUE)
+#' barplot(a, beside = TRUE, cex.names = 0.8)
+#' legend("topleft", inset = c(0, -0.1), legend = c("Brut","Standardisé"), bty = "n", col = c("black","gray80"), pch = 15)
+#' @export
+#' 
+rpu.par.mois <- function(dx, standard = FALSE){
+  t <- tapply(as.Date(dx$ENTREE), months(as.Date(dx$ENTREE)), length)
+  # remet les mois par ordre chronologique
+  t <- t[c("janvier","février","mars", "avril","mai","juin","juillet", "août", "septembre", "octobre", "novembre", "décembre")]
+  if(standard == TRUE){
+    # nb de jours dans le mois (la séquence doit inclure le mois suivant. 
+    # SOURCE: https://stat.ethz.ch/pipermail/r-help/2007-August/138116.html)
+    min <- year(min(as.Date(dx$ENTREE)))
+    max <- min + 1
+    d1 <- paste0(min, "-01-01")
+    d2 <- paste0(max, "-01-01")
+    n.j <- as.integer(diff(seq(as.Date(d1), as.Date(d2), by = "month")))
+    # nb de RPU par mois constant de 30 jours
+    t <- t * 30 / n.j
+  }
+  return(t)
+}
+
+barplot(tc, main = "Nombre de RPU par mois standards de 30 jours", col = "cornflowerblue")
+
