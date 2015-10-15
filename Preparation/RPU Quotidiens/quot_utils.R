@@ -112,8 +112,9 @@ finess2hop <- function(a){
   a[a=="670780162"]<-"Dts" # DST
   a[a=="670780212"]<-"Ane"
   a[a=="680000601"]<-"Tan" # THA
-  a[a=="670009109"]<-"Ccm" # CCOM Ilkirch 2015-04-23
+  a[a=="670009109"]<-"Ccm" # CCOM Ilkirch 2015-10-12
   a[a=="680004546"]<-"Emr" # Emile muller  2015-04-23
+
   return(a)
 }
 
@@ -328,13 +329,16 @@ normalise <- function(dx){
 # rpu2xts
 #
 #=======================================
-#'A partir du fichier habituel des RPU retourne un objet xts ayant autant de
+#' @title Transforme RPU eb XTS
+#' @description A partir du fichier habituel des RPU retourne un objet xts ayant autant de
 #'colonnes qu'il y a de SU dans d plus 2 colonnes supplémentaires:
 #'- date de type 'Date' qui sert d'index à xts
 #'- total nombre total de RPU par jour
-#'
-#'@param d données RPU
-#'@usage ts <- rpu2xts(d0106p); plot(ts$total);lines(rollapply(ts$total, 7, mean), col="red")
+#' @usage rpu2xts(dx)
+#' @param dx un datafrale de type RPU comportant au moins une colonne ENTREE
+#' @return un dataframe avec une colonne 'total'
+#' @example ts <- rpu2xts(d0106p); plot(ts$total);lines(rollapply(ts$total, 7, mean), col="red")
+#' @export
 #'
 rpu2xts <- function(d){
   library(xts)
@@ -354,9 +358,13 @@ rpu2xts <- function(d){
 # plot.xts2
 #
 #=======================================
-# La méthode plot.xts comprte un bug qui empêche l'affichage de courbes en couleur. Cette version corrige le bug.
-#'@author Roman Luštrik (http://stackoverflow.com/users/322912/roman-lu%c5%a1trik)
-#'@source http://stackoverflow.com/questions/9017070/set-the-color-in-plot-xts
+#' @title plot.xts en couleur
+#' @description La méthode plot.xts comprte un bug qui empêche l'affichage de courbes en couleur. Cette version corrige le bug.
+#' @usage plot.xts2(x, y = NULL, type = "l", auto.grid = TRUE, major.ticks = "auto", minor.ticks = TRUE, major.format = TRUE, 
+#' bar.col = "grey", candle.col = "white", ann = TRUE, axes = TRUE, col = "black", ...) 
+#' @author Roman Luštrik (http://stackoverflow.com/users/322912/roman-lu%c5%a1trik)
+#' @source http://stackoverflow.com/questions/9017070/set-the-color-in-plot-xts
+#' @export
 #'
 plot.xts2 <- function (x, y = NULL, type = "l", auto.grid = TRUE, major.ticks = "auto", 
                        minor.ticks = TRUE, major.format = TRUE, bar.col = "grey", 
@@ -551,13 +559,14 @@ create.col.territoire <- function(dx){
 # rpu.par.jour
 #
 #=======================================
-#' A partir d'un vecteur de dates, calcule le nombre de RPU par jour
+#' @title A partir d'un vecteur de dates, calcule le nombre de RPU par jour
+#' @usage rpu.par.jour(d, roll = 7)
 #' @param d vecteur de dates compatible avec le format Date
 #' @param roll: nb de jours pour la moyenne lissée. Défaut = 7
 #' @include xts, lubridate
-#' @return un dataframe de 4 colonnes: date calendaire, nb de RPU du joir, le n° du jour de l'année (1 à 365), la moyennne lissée
+#' @return un dataframe de 4 colonnes: date calendaire, nb de RPU du jour, le n° du jour de l'année (1 à 365), la moyennne lissée
 #' @todo RAJOUTER LES SOMMES   CUMuLEES
-#' @usage p2013 <- rpu.par.jour(j2013$ENTREE)
+#' @examples p2013 <- rpu.par.jour(j2013$ENTREE)
 #'        plot(p2013$V2, type="l") # les RPU
 #'        lines(p2013$V3, p2013$V4) # moyenne mobile
 
@@ -578,9 +587,12 @@ rpu.par.jour <- function(d, roll = 7){
 # add.territoire
 #
 #=======================================
-#'@description Ajoute une colonne TERRITOIRE à un dataframe qui contient une colonne FINESS
-#'@param dx un dataframe ayant une colonne FINESS renseignée
-#'@return un dataframe 
+#' @title Crée une colonne TERRITOIRE
+#' @description Ajoute une colonne TERRITOIRE à un dataframe qui contient une colonne FINESS
+#' @usage add.territoire(dx)
+#' @param dx un dataframe ayant une colonne FINESS renseignée
+#' @return un dataframe 
+#' @export
 #'
 add.territoire <- function(dx){
   dx$TERRITOIRE[dx$FINESS %in% c("Wis","Sav","Hag")] <- "T1"
@@ -595,8 +607,10 @@ add.territoire <- function(dx){
 # finess2territoires
 #
 #=======================================
-# réorganiser les FINESS par territoires de santé
-#'@example dx$FINESS <- finess2territoires(dx)
+#' @title réorganiser les FINESS par territoires de santé
+#' @usage finess2territoires(finess)
+#' @examples dx$FINESS <- finess2territoires(dx)
+#' @export
 #'
 finess2territoires <- function(finess){
   finess <- factor(finess, levels = c('Wis','Hag','Sav','Hus','Ane','Odi','Dts','Sel','Col','Geb','Mul', 'Alk','Dia','Ros','3Fr'))
@@ -608,9 +622,12 @@ finess2territoires <- function(finess){
 # rpu.par.jour
 #
 #=======================================
-# retourne une table contenant le nombre de RPU par jour et par FINESS
-#'@param dx un dataframe de type rpu ayant un minimum 2 colonnes ENTREE et FINESS
-#'@usage rpu.par.jour(d04)
+#' @title Nombre de RPU par jour et par FINESS
+#' @description retourne une table contenant le nombre de RPU par jour et par FINESS
+#' @usage rpu.par.jour(dx)
+#' @param dx un dataframe de type rpu ayant un minimum 2 colonnes ENTREE et FINESS
+#' @examples rpu.par.jour(d04)
+#' @export
 #'
 #           3Fr Alk Ane Col Dia Dts Geb Hag Hus Mul Odi Ros Sav Sel Wis
 # 2015-01-01  48  51   0 190  59  29  52 129 306 220  15   9  83  85  28
@@ -629,13 +646,14 @@ rpu.par.jour <- function(dx){
 #'@author JcB
 #'@description Place un copyright Resural sur un graphique. 
 #'Par défaut la phrase est inscrite verticalement sur le bord droit de l'image
+#'@usage copyright(an ="2013-2015",side=4,line=-1,cex=0.8, titre = "Resural")
 #'@param an (str) année du copyright (par défaut 2013)
 #'@param side coté de l'écriture (défaut = 4)
 #'@param line distance par rapport au bord. Défaut=-1, immédiatement à l'intérieur du cadre
 #'@param titre
 #'@param cex taille du texte (défaut 0.8)
 #'@return "© 2012 Resural"
-#'@usage copyright()
+#'@export
 #'
 copyright <- function(an ="2013-2015",side=4,line=-1,cex=0.8, titre = "Resural"){
   titre<-paste("©", an, titre, sep=" ")
@@ -647,9 +665,10 @@ copyright <- function(an ="2013-2015",side=4,line=-1,cex=0.8, titre = "Resural")
 # Nombre de RPU par mois
 #
 #===========================================================================
-#'@title Nombre de RPU par mois
+#' @title Nombre de RPU par mois
 #' @description Calcule le nombre de RPU par mois entre deux dates sous forme brute
 #' ou corrigée en mois constants de 30 jours.
+#' @usage rpu.par.mois(dx, standard = FALSE)
 #' @param dx dataframe (au minimum la colonne ENTREE)
 #' @param standard (boolean) si true retourne par mois corrigés de 30j sinon le nombre brut de RPU
 #' @return un vecteur nommé: nom du mois, nb de RPU

@@ -205,7 +205,7 @@ file.to.delete <- "/home/jcb/Documents/Resural/Stat Resural/Archives_Sagec/dataQ
 file.remove(file.to.delete)
 
 date1 <- "2015-10-08"
-date2 <- "2015-10-08"
+date2 <- "2015-10-14"
 
 mc <- substr(date1, 6, 7)
 ac <- substr(date1, 1,4)
@@ -227,10 +227,10 @@ mois.c <- paste("d", )
 
 ```{}
 d10 <- dx[as.Date(dx$ENTREE) >= "2015-10-01" & as.Date(dx$ENTREE) < "2015-11-01",]
-min(as.Date(d09$ENTREE))
-max(as.Date(d09$ENTREE))
+min(as.Date(d10$ENTREE))
+max(as.Date(d10$ENTREE))
 
-d09 <- normalise(d10)
+d10 <- normalise(d10)
 save(d10, file="rpu2015d10_provisoire.Rda")
 rm(dx)
 
@@ -266,13 +266,13 @@ save(d15, file="rpu2015d0112_provisoire.Rda")
 
 # Table des RPU par jour et par FINESS pour le mois en cours
 # n <- tapply(as.Date(dsi$ENTREE), list(as.Date(dsi$ENTREE), dsi$FINESS), length)
-rpu.par.jour(d09)
+rpu.par.jour(d10)
 ```
 
 Total RPU par mois et par FINESS
 ```{}
 t <- tapply(as.Date(d15$ENTREE), list(d15$FINESS, months(as.Date(d15$ENTREE))), length)
-t <- t[, c("janvier","février","mars", "avril","mai","juin","juillet", "août", "septembre")]
+t <- t[, c("janvier","février","mars", "avril","mai","juin","juillet", "août", "septembre", "octobre")]
 write.csv2(t, file = "rpu_par_mois.xls")
 ```
 
@@ -333,7 +333,7 @@ rpu.jour <- as.data.frame.matrix(rpu.par.jour(d15))
 
 
 # sauvegarde de la matrice
-write.csv(rpu.jour, file = "rpu.jour_31-09-2015.csv") 
+write.csv(rpu.jour, file = "rpu.jour_31-10-2015.csv") 
 
 # fonction qui compte le nombre de rpu = 0 dans le vecteur x
 rpu.manquant <- function(x){length(which(x == 0))}
@@ -487,7 +487,7 @@ Objet: mesure de l'activité au jour le jour avant consolidation. En pratique re
 2. appeler la fonction __parse_rpu__ avec la date du jour, qui le transforme en dataframe
 ```{}
 
-d <- parse_rpu("2015-09-28")
+d <- parse_rpu("2015-10-15")
 
 min(as.Date(d$ENTREE))
 max(as.Date(d$ENTREE))
