@@ -678,6 +678,9 @@ copyright <- function(an ="2013-2015",side=4,line=-1,cex=0.8, titre = "Resural")
 #' par(mar=c(5.1, 4.1, 8.1, 2), xpd=TRUE)
 #' barplot(a, beside = TRUE, cex.names = 0.8)
 #' legend("topleft", inset = c(0, -0.1), legend = c("Brut","Standardisé"), bty = "n", col = c("black","gray80"), pch = 15)
+#' 
+#' barplot(tc, main = "Nombre de RPU par mois standards de 30 jours", col = "cornflowerblue")
+#' 
 #' @export
 #' 
 rpu.par.mois <- function(dx, standard = FALSE){
@@ -698,5 +701,100 @@ rpu.par.mois <- function(dx, standard = FALSE){
   return(t)
 }
 
-barplot(tc, main = "Nombre de RPU par mois standards de 30 jours", col = "cornflowerblue")
 
+
+#===========================================================================
+#
+# Nombre de RPU par semaine 
+#
+#===========================================================================
+#' @title Calcule le nombre de RPU par mois
+#' @description Calcule le nombre de RPU par mois de tous les ES présents dans le dataframe
+#' @usage week.rpu(dx)
+#' @param dx un dataframe de type RPU. Doit comporter au moins une colonne ENTREE
+#' @details Nécessite Lubridate. dx peut regroupper tous les ES ou ne converner qu'un ES Particulier.
+#' @return un vecteur du nombre de RPU par mois
+#' @examples 
+#' s <- week.rpu(dx)
+#' tot <- sum(s) # nombre total de RPU
+#' p = s/tot # % de RPU par semaine
+#' summary(p)
+#' 
+#' @export
+#' 
+week.rpu <- function(dx){
+  s <- tapply(as.Date(dx$ENTREE), week(as.Date(dx$ENTREE)), length)
+  return(s)
+}
+
+#===========================================================================
+#
+# Variation du nombre de RPU par semaines
+#
+#===========================================================================
+#' @title Variation du nombre de RPU par semaine
+#' @description 
+#' @usage week.variations(vx, last = FALSE)
+#' @param vx vecteur du nombre de RPU pr semaine (voir week.rpu)
+#' @param last boolean Si TRUE, on élimine la dernière semaine qui est souvent incomplète. FALSE par défaut.
+#' @details 
+#' @return un vecteur d'entiers positifs ou négatifs
+#' @examples d3 <- week.rpu(dx[dx$FINESS == "3Fr",])
+#' v <- week.variations(d3)
+#' @export
+#' 
+week.variations <- function(vx, last = FALSE){
+  # calcul de la différence d'une semaine à 'autre
+  x <- diff(vx)
+  # x compte une unité de moins que vx. Le 1er chiffre de d3 correspond à la semaine 2
+  # ajout de 0 en tête du vecteur pour remplacer la première semaine
+  x <- c(0, x)
+  # pour supprimer la denière semaine qui est souvent incomplète (option)
+  if(last == TRUE)
+    x <-x[-length(x)]
+  return(x)
+}
+
+#===========================================================================
+#
+# Représentation graphique des variations hebdomadaires
+#
+#===========================================================================
+#' @title Variation du nombre de RPU par semaine
+#' @description 
+#' @usage barplot.week.variations()
+#' @param x vecteur du nombre de RPU pr semaine (voir week.rpu)
+#' @param coltitre bool, si TRUE la valeur de la barre est inscrite au dessus ou en dessous
+#' @param colmoins couleur des barres négatives. Red par défaut
+#' @param colplus couleur des barres positives. Blue par défaut
+#' @param xlab nom pour l'axe des X. 'Semaines' par défaut
+#' @param cex.names échelle pour le titre des barres (n° de la semaine). 0.8 par défaut
+#' @param cex.col échelle pour les valeurs des colonnes. Utile que si coltitre = TRUE. Défaut 0.8
+#' @param dx écart entre le sommet de la barre et l'affichage de sa valeur. Utile que si coltitre = TRUE. Défaut 3.
+#' @param ... autres paramètres pour boxplot
+#' @details 
+#' @return le vecteur des abcisses des colonnes
+#' @examples v <- week.variations(dx[dx$FINESS == "3Fr",])
+#' barplot.week.variations(v[-length(v)], las = 2, main = "test", ylim = c(min(v[-length(v)])-10, max(v[-length(v)])+10), 
+#' ylab = "Variations hebdomadaires")
+#' 
+#' ###
+#' v <- week.variations(week.rpu(dx[dx$FINESS == "Col",]))
+#' barplot.week.variations(v[-length(v)], las = 2, main = "CH Colmar - 2015", 
+#' ylim = c(min(v[-length(v)])-10, max(v[-length(v)])+10), ylab = "Variations hebdomadaires", dx = 5)
+#' 
+#' @export
+barplot.week.variations <- function(x, coltitre = TRUE, colmoins = "red", colplus = "blue", xlab = "Semaines", 
+                                    cex.names = 0.8, cex.col =  0.8, dx = 3, ...){
+  # barplot sauf la dernière semaine qui est souvent incomplète
+  b <- barplot(x, col = ifelse(x > 0, colplus, colmoins), names.arg = 1:length(x), cex.names = cex.names,  xlab = xlab, ...)
+  if(coltitre == TRUE)
+    text(b, ifelse(x > 0, x + dx,  x - dx), x, cex = cex.col)
+}
+
+
+#  en pourcentages: diff(x)/x
+a <- x[-1] # on enlève le 0 initial
+b <- d3[1:(length(d3)-2)] # ou -1 si on a pas supprimé la dernière semaine pour x
+p <- round(a*100/b, 2)
+p

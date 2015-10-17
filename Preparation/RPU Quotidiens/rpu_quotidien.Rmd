@@ -868,4 +868,56 @@ tapply(as.Date(dx$ENTREE), month(as.Date(dx$ENTREE)), length)
 
 ```
 
+Analyse par semaine
+===================
+
+Nombre de RPU par semaine
+-------------------------
+
+```{}
+s <- tapply(as.Date(d15$ENTREE), week(as.Date(d15$ENTREE)), length)
+s
+tot <- sum(s) # nombre total de RPU
+p = s/tot # % de RPU par semaine
+summary(p)
+
+```
+s est un vecteur d'entier égal au nomdre de semaines écoulées de puis le début de l'année. Chaque élément correspond au nombre de RPU de la semaine.
+
+Nombre de RPU par semaine et par Finess
+---------------------------------------
+
+__s2__ est une matrice (transformable en dataframe) contenant le nombre de RPU par semaine pour chaque ES. Par soustractions successives on établit la variation du nombre de RPU par semaines, et sa représentation graphique.
+
+```{}
+s2 <- tapply(as.Date(d15$ENTREE), list(week(as.Date(d15$ENTREE)), d15$FINESS), length)
+class(s2)
+colnames(s2)
+rownames(s2)
+s3 <- as.data.frame(s2)
+barplot(s3[,"3Fr"], xlab = "semaines")
+
+# calcul de la variation du nb de RPU d'une semaine à l'autre pour un ES
+d3 <- s3[,"3Fr"]
+
+# x compte une unité de moins que d3. Le 1er chiffre de d3 correspond à la semaine 2
+x <- diff(d3)
+
+# ajout de 0 en tête du vecteur pour remplacer la première semaine
+x <- c(0, x)
+
+# pour supprimer la denière semaine qui est souvent incomplète (option)
+x <-x[-length(x)]
+
+# barplot sauf la dernière semaine qui est souvent incomplète
+b <- barplot(x, col = ifelse(x > 0, "blue", "red"), names.arg = 1:length(x), cex.names = 0.8, las = 2, main = "Cliniques des 3 Frontières - variations hebdomadaires du nombre de RPU", ylim = c(-70, 100), xlab = "semaines")
+text(b, ifelse(x > 0, x + 2,  x - 2), x, cex = 0.8)
+
+#  en pourcentages: diff(x)/x
+a <- x[-1] # on enlève le 0 initial
+b <- d3[1:(length(d3)-2)] # ou -1 si on a pas supprimé la dernière semaine pour x
+p <- round(a*100/b, 2)
+p
+```
+
 

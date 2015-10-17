@@ -94,6 +94,10 @@ img {
 <li><a href="#correctif-ste-anne">Correctif ste Anne</a></li>
 <li><a href="#correctif-hus-1972015">Correctif HUS (19/7/2015)</a></li>
 <li><a href="#nombre-de-rpu-par-mois">Nombre de RPU par mois</a></li>
+<li><a href="#analyse-par-semaine">Analyse par semaine</a><ul>
+<li><a href="#nombre-de-rpu-par-semaine">Nombre de RPU par semaine</a></li>
+<li><a href="#nombre-de-rpu-par-semaine-et-par-finess">Nombre de RPU par semaine et par Finess</a></li>
+</ul></li>
 </ul>
 </div>
 
@@ -780,6 +784,51 @@ save(d15, file=&quot;rpu2015d0112_provisoire.Rda&quot;)</code></pre>
 <pre><code>library(lubridate)
 tapply(as.Date(dx$ENTREE), month(as.Date(dx$ENTREE)), length)
 </code></pre>
+</div>
+<div id="analyse-par-semaine" class="section level1">
+<h1>Analyse par semaine</h1>
+<div id="nombre-de-rpu-par-semaine" class="section level2">
+<h2>Nombre de RPU par semaine</h2>
+<pre><code>s &lt;- tapply(as.Date(d15$ENTREE), week(as.Date(d15$ENTREE)), length)
+s
+tot &lt;- sum(s) # nombre total de RPU
+p = s/tot # % de RPU par semaine
+summary(p)
+</code></pre>
+<p>s est un vecteur d’entier égal au nomdre de semaines écoulées de puis le début de l’année. Chaque élément correspond au nombre de RPU de la semaine.</p>
+</div>
+<div id="nombre-de-rpu-par-semaine-et-par-finess" class="section level2">
+<h2>Nombre de RPU par semaine et par Finess</h2>
+<p><strong>s2</strong> est une matrice (transformable en dataframe) contenant le nombre de RPU par semaine pour chaque ES. Par soustractions successives on établit la variation du nombre de RPU par semaines, et sa représentation graphique.</p>
+<pre><code>s2 &lt;- tapply(as.Date(d15$ENTREE), list(week(as.Date(d15$ENTREE)), d15$FINESS), length)
+class(s2)
+colnames(s2)
+rownames(s2)
+s3 &lt;- as.data.frame(s2)
+barplot(s3[,&quot;3Fr&quot;], xlab = &quot;semaines&quot;)
+
+# calcul de la variation du nb de RPU d'une semaine à l'autre pour un ES
+d3 &lt;- s3[,&quot;3Fr&quot;]
+
+# x compte une unité de moins que d3. Le 1er chiffre de d3 correspond à la semaine 2
+x &lt;- diff(d3)
+
+# ajout de 0 en tête du vecteur pour remplacer la première semaine
+x &lt;- c(0, x)
+
+# pour supprimer la denière semaine qui est souvent incomplète (option)
+x &lt;-x[-length(x)]
+
+# barplot sauf la dernière semaine qui est souvent incomplète
+b &lt;- barplot(x, col = ifelse(x &gt; 0, &quot;blue&quot;, &quot;red&quot;), names.arg = 1:length(x), cex.names = 0.8, las = 2, main = &quot;Cliniques des 3 Frontières - variations hebdomadaires du nombre de RPU&quot;, ylim = c(-70, 100), xlab = &quot;semaines&quot;)
+text(b, ifelse(x &gt; 0, x + 2,  x - 2), x, cex = 0.8)
+
+#  en pourcentages: diff(x)/x
+a &lt;- x[-1] # on enlève le 0 initial
+b &lt;- d3[1:(length(d3)-2)] # ou -1 si on a pas supprimé la dernière semaine pour x
+p &lt;- round(a*100/b, 2)
+p</code></pre>
+</div>
 </div>
 
 
