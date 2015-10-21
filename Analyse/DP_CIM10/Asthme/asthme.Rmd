@@ -1,0 +1,135 @@
+---
+title: "Asthme"
+author: "JcB"
+date: "20/10/2015"
+output:
+  pdf_document:
+    number_sections: yes
+  html_document:
+    number_sections: yes
+---
+
+Introduction
+============
+
+Dans le cadre d'un travail mené au sein de l'ARS, le Docteur Sylvie Fontanel (pôle Observation et analyse des données de santé), en copie ci-joint, souhaiterait savoir si le nombre de passages aux urgences en région Alsace en 2014 pour les enfants de 0 à 17 ans inclus, pour motif d'asthme, sont accessibles au sein des RPU ? et si oui, connaitre le nombre d'hospitalisation en aval et le nombre de retours à domicile.
+ 
+Un regroupement de codes motif au niveau du thésaurus SFMU existe-t-il afin d'explorer les motifs de passage pour asthme? si oui, quels sont-ils? 
+ 
+Le cas échéant, voici le tableau ci-joint synthétisant la demande, et prévoyant une comparaison les passages tout motif versus les passages pour motif d'asthme, ainsi qu'une colonne tout passage (que le motif soit codé ou non). 
+
+demande du 20/10/2015. Réponse:
+
+Le thésaurus des motifs n'est pas forcément exhaustif pour retrouver les cas d'asthme (par ex. détresse respiratoire, dyspnée...). Par ailleurs un établissement n'utilise pas le thésaurus (Colmar). Par contre on peut utiliser la rubrique Diagnostic principal (DP) qui est plus précise.
+
+Codes de regroupement utilisés pour l'asthme:
+
+- J45  asthme
+- J450 asthme à prédominance allergique
+- J451 Asthme non allergique
+- J458 Asthme associé
+- J459 Asthme, sans précision
+- J46  asthme aigu grave (état de mal)
+
+C'est ce que j'ai utilisé pour compléter le tableau. J'ai rajouté une ligne 'nombre de passages dont le mode de sortie (hospitalisation ou domicile) est renseigné' pour affiner la réponse par rapport au nombre de passages. Globalement les chiffres 2014 sont sous estimés à la fois parce que le nombre de passages n'est pas exhaustif (cf. SAE) et que le DP n'est renseigné que des dans 60% des cas. Néanmoins l'expérience montre qu'en proportions, les données sot assez fiables.
+
+
+```{r, echo=FALSE}
+library(stringr)
+library(Rpu2)
+
+options(scipen = 6, digits = 2)
+anc <- 2014
+
+path <- "../../../" # si console:  path <- "" 
+
+file <- "rpu2014d0112_c2.Rda"
+# file <- "rpu2015d0112_provisoire.Rda"
+load(paste0(path, file))
+dx <- d14
+rm(d14)
+
+# correction des caractères bloquants
+dx$DP<-gsub("\xe8","è",as.character(dx$DP),fixed=FALSE)
+# suppression du point dans DP
+dx$DP<-gsub(".","",as.character(dx$DP),fixed=TRUE)
+
+dpr<-dx[!is.na(dx$DP),c("DP","CODE_POSTAL","ENTREE","FINESS","GRAVITE","ORIENTATION","MODE_SORTIE","AGE","SEXE","TRANSPORT","DESTINATION", "NAISSANCE")]
+
+# analyse du DP
+s.dp <- resume.dp(dx$DP)
+
+```
+
+Codes de regroupement utilisés pour l'asthme:
+
+- J45  asthme
+- J450 asthme à prédominance allergique
+- J451 Asthme non allergique
+- J458 Asthme associé
+- J459 Asthme, sans précision
+- J46  asthme aigu grave (état de mal)
+
+Pédiatrie
+----------
+```{r}
+# tous les passages
+ped <- dx[dx$AGE < 18,]
+n.passages <- nrow(ped)
+s<- resume.mode.sortie(ped$MODE_SORTIE)
+s
+```
+
+```{r}
+# nombre de DP renseignés
+ped.dp.rens <- ped[!is.na(ped$DP),]
+n.ped.dp.rens <- nrow(ped.dp.rens)
+s.ped.dp.rens <- resume.mode.sortie(ped.dp.rens$MODE_SORTIE)
+```
+La recherche des codes CIM10 utilse la fonction __str_detect__ de _stringr_. Cette fonction utilise deux arguments, un vecteur où se trouvent les caractères à chercher et un _pattern_ qui peut ^etre une expression régulière. C'est ce qui est utilisé ici: on veut identifier tous les enregistrements commençant par 'J' suivi du chiffre '4' puis des chiffres '5' ou '6'.
+
+pattern <- "[J][4][56]"
+
+```{r}
+# uniquement asthme 
+# commence par J suivi de '4' puis de '5' ou '6'
+pattern <- "[J][4][56]"
+pattern2 <- "[J][4][456]" # inclu les maladies pulmonaires obstructives
+
+ped.dp <- ped$DP[!is.na(ped$DP)]
+ped.dp.asthme <- ped.dp[str_detect(ped.dp, pattern) == TRUE]
+summary(as.factor(ped.dp.asthme)) # détails du DP asthme
+
+dx.asthme <- dx$DP[!is.na(dx$DP) & str_detect(dx$DP, pattern) == TRUE]
+```
+
+```{r}
+# devenir asthme
+dpr<-ped[!is.na(ped$DP),c("DP","CODE_POSTAL","ENTREE","FINESS","GRAVITE","ORIENTATION","MODE_SORTIE","AGE","SEXE","TRANSPORT","DESTINATION", "NAISSANCE")]
+
+asthme <- dpr[str_detect(dpr$DP, pattern) == TRUE,]
+
+s.asthme <- resume.mode.sortie(asthme$MODE_SORTIE)
+s.asthme
+
+table(asthme$MODE_SORTIE, asthme$DP)
+```
+
+Conclusions
+-----------
+
+- nombre total de passages en `r anc`: `r nrow(dx)`
+- nombre de passages pédiatriques en 2014: `r n.passages`
+- nombre de passages dont le mode de sortie est renseigné: `r s['n.rens']`
+- nombre d'hospitalisation: `r s['n.hosp']`
+- nombre de retour à domicile: `r s['n.dom']`
+
+- nombre de passages où le diagnostic principal est renseigné: `r s.dp['n.rens']`
+- nombre de passages pédiatriques où le DP est renseigné: `r n.ped.dp.rens`
+- nombre d'hospitalisation: `r s.ped.dp.rens['n.hosp']`
+- nombre de retour à domicile: `r s.ped.dp.rens['n.dom']`
+
+- nombre de diagnostics d'asthme total: `r length(dx.asthme)`
+- nombre de diagnostics d'asthme pédiatriques: `r length(ped.dp.asthme)` 
+- nombre d'hospitalisation: `r s.asthme['n.hosp']`
+- nombre de retour à domicile: `r s.asthme['n.dom']`
