@@ -205,7 +205,7 @@ file.to.delete <- "/home/jcb/Documents/Resural/Stat Resural/Archives_Sagec/dataQ
 file.remove(file.to.delete)
 
 date1 <- "2015-10-08"
-date2 <- "2015-10-14"
+date2 <- "2015-10-19"
 
 mc <- substr(date1, 6, 7)
 ac <- substr(date1, 1,4)
@@ -487,7 +487,7 @@ Objet: mesure de l'activité au jour le jour avant consolidation. En pratique re
 2. appeler la fonction __parse_rpu__ avec la date du jour, qui le transforme en dataframe
 ```{}
 
-d <- parse_rpu("2015-10-15")
+d <- parse_rpu("2015-10-19")
 
 min(as.Date(d$ENTREE))
 max(as.Date(d$ENTREE))
@@ -554,7 +554,7 @@ Focus mains
 
 En 2015:
 ```{}
-mains <- d15[d15$FINESS %in% c("Dts","Ros"),]
+mains <- d15[d15$FINESS %in% c("Dts","Ros","Ccm"),]
 nrow(mains)/nrow(d15)
 nrow(mains)*100/nrow(d15)
 
@@ -563,8 +563,13 @@ nrow(ros)
 
 dts <- d15[d15$FINESS == "Dts",]
 nrow(dts)
+
+ccm <- d15[d15$FINESS == "Ccm",]
+nrow(ccm)
+
 min(as.Date(dts$ENTREE))
 max(as.Date(dts$ENTREE))
+
 c <- tapply(as.Date(dts$ENTREE), as.Date(dts$ENTREE), length)
 cbind(c)
 
