@@ -1,0 +1,62 @@
+---
+title: "Mode de sortie"
+author: "JcB"
+date: "22/10/2015"
+output: html_document
+---
+
+Le RPU connait quatre modes de sortie:
+
+- mutation (hospitalisation dans le même établissement)
+- transfert (hospitalisation dans un autre établissement)
+- domicile (retour au domicile ou ce qui en tient lieu: EHPAD...)
+- décès
+
+```{r, echo=FALSE}
+load("~/Documents/Resural/Stat Resural/RPU_2014/rpu2015d0112_provisoire.Rda")
+dx <- d15
+rm(d15)
+
+# library
+library(xts)
+library(lubridate)
+library(knitr)
+
+# pour mesurer le pourcentage de non réponses
+p.isna <- function(x){return(mean(is.na(x)))}
+n.isna <- function(x){return(sum(is.na(x)))}
+
+```
+
+Le mode de sortie est une information administrative qui devrait être présente dans tous les cas. Pourcentage de RPU où cette information est manquante, par établissement:
+
+```{r, echo=FALSE}
+# pourcentage total de non réponse
+p.na.tot <- round(p.isna(dx$MODE_SORTIE) * 100, 2)
+
+# pourcentage par établissement
+p.na.es <- round(tapply(dx$MODE_SORTIE, dx$FINESS, p.isna) * 100, 2)
+a <- sort(p.na.es)
+kable(t(a))
+
+```
+
+Pourcentage de non réponse par jour et par FINESS
+-------------------------------------------------
+
+```{r}
+p.na.es.day <- tapply(dx$MODE_SORTIE, list(yday(as.Date(dx$ENTREE)), dx$FINESS), p.isna)
+
+# transformation en time serie avec xts
+x <- xts(p.na.es.day, order.by = unique(as.Date(dx$ENTREE)))
+x <- x[, -9] # supprime la colonne Hus qui est vide
+for(i in 1:ncol(x)){
+  plot(x[,i], main = names(x)[i])
+}
+
+for(i in 1:ncol(x)){
+  s <- apply(x[,i], MARGIN = 2, summary)
+  print(s)
+}
+```
+
