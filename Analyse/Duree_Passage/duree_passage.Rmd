@@ -107,6 +107,12 @@ plot(xts.my.day, ylab = "durée moyenne de passage (mn)", main = "Durée moyenne
 ```
 
 ### moyenne du temps de passage si age > 74 ans
+
+On compare sur le même graphique, la durée qotidienne moyenne de passage et le nombre total de passages par jour.
+
+- pas3.75 est le dataframe des plus de 74 ans
+- my.day est la durée moyenne quotidienne de passage.
+
 ```{r, fig.height=8, fig.width=10}
 pas3.75 <- pas3[pas3$AGE > 74,]
 pas3.75 <- pas3.75[!is.na(as.Date(pas3.75$ENTREE)),]
@@ -134,7 +140,14 @@ axis(4,                  # axe vertical à droite
      col.ticks = "blue", # couleur des marques de graduation
      col.axis = "blue" ) # couleur de la légende des graduations
 mtext("Nombre de passages > 74 ans/jour", side=4, line=3, col = "blue") # nom, position, couleur de lalégende de l'axe
+# légende
+legend("bottomleft", legend = c("durée de passage", "nombre de passages"), col = c("red", "blue"), lty = 1, lwd = 3, bty = "n")
+
 par(par.original)
+
+# essai de corrélation
+cor(my.day, nb.pas.jour)
+
 
 ```
 
