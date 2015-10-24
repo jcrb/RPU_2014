@@ -2,7 +2,9 @@
 title: "Mode de sortie"
 author: "JcB"
 date: "22/10/2015"
-output: html_document
+output:
+  html_document:
+    keep_md: yes
 ---
 
 Le RPU connait quatre modes de sortie:
@@ -13,6 +15,7 @@ Le RPU connait quatre modes de sortie:
 - décès
 
 ```{r, echo=FALSE}
+anc <- 2015
 load("~/Documents/Resural/Stat Resural/RPU_2014/rpu2015d0112_provisoire.Rda")
 dx <- d15
 rm(d15)
@@ -51,12 +54,10 @@ p.na.es.day <- tapply(dx$MODE_SORTIE, list(yday(as.Date(dx$ENTREE)), dx$FINESS),
 x <- xts(p.na.es.day, order.by = unique(as.Date(dx$ENTREE)))
 x <- x[, -9] # supprime la colonne Hus qui est vide
 for(i in 1:ncol(x)){
-  plot(x[,i], main = names(x)[i])
-}
-
-for(i in 1:ncol(x)){
+  plot(x[,i], main = names(x)[i], ylab = "% de non réponse")
   s <- apply(x[,i], MARGIN = 2, summary)
   print(s)
 }
+
 ```
 

@@ -1,0 +1,199 @@
+---
+title: "Durées de passage"
+author: "JcB"
+date: "22/10/2015"
+output:
+  html_document:
+    keep_md: yes
+---
+
+La durée de passage est définie comme la différence entre l'heure d'entrée et de sortie du patient de la structure d'urgence.
+
+- l'exhaustivité de l'heure d'entrée est de 100% pour tous les ED.
+- l'exhaustivité de l'heure de sortie est variable. L'heure de sortie n'est pas calculable lors d'une sortie atypique: ORIENTATION = fugue, PSA, SCAM.
+- Pour calculer une durée de passage il faut disposer pour un même RPU de la date d'entée et de sortie
+- les durées de passage négatives ou supérieures à 72 heures sont rejetées.
+- Le dataframe minimal doit comporter les colonnes ENTREE et SORTIE. Il peut être compléter par d'autres colonnes en fonction des besoins (notamment MODE_SORTIE)
+
+```{r init, echo=FALSE}
+load("~/Documents/Resural/Stat Resural/RPU_2014/rpu2015d0112_provisoire.Rda")
+dx <- d15
+rm(d15)
+
+# library
+library(xts)
+library(lubridate)
+library(knitr)
+library(Rpu2)
+
+# pour mesurer le pourcentage de non réponses
+p.isna <- function(x){return(mean(is.na(x)))}
+n.isna <- function(x){return(sum(is.na(x)))}
+```
+
+Fonctions utiles:
+
+- horaire: extrait le groupe horaire d'une date
+
+
+Temps de passage
+------------------------
+
+```{r}
+pas <- dx[, c("ENTREE", "SORTIE", "MODE_SORTIE", "ORIENTATION", "AGE")]
+
+# on ne conserve que les couples complets
+pas2 <- pas[complete.cases(pas[, c("ENTREE", "SORTIE")]),]
+e <- ymd_hms(pas2$ENTREE)
+s <- ymd_hms(pas2$SORTIE)
+pas2$duree <- as.numeric(difftime(s, e, units = "mins"))
+
+# on ne garde que les passages dont la durées > 0 et < ou = 72 heures
+pas3 <- pas2[pas2$duree > 0 & pas2$duree < 3 * 24 * 60 + 1,]
+pas3$MODE_SORTIE[pas3$MODE_SORTIE == 6] <- "Mutation"
+pas3$MODE_SORTIE[pas3$MODE_SORTIE == 7] <- "Transfert"
+pas3$MODE_SORTIE[pas3$MODE_SORTIE == 8] <- "Domicile"
+
+# mode de sortie
+n.sortie.rens <- sum(!is.na(pas3$MODE_SORTIE))
+ms <- summary(as.factor(pas3$MODE_SORTIE))
+
+n.hosp <- ms["Mutation"] + ms["Transfert"]
+n.dom <- ms["Domicile"]
+```
+
+- nombre de RPU: `r nrow(pas)`
+- nombre de PRU où la durée de passage est calculable: `r nrow(pas2)`
+- nombre de PRU où la durée de passage est conforme: `r nrow(pas3)`
+
+- durée de passage moyenne: `r mean(pas3$duree)`
+- durée de passage médiane: `r median(pas3$duree)`
+
+- nombre de sorties conformes renseignées: `r n.sortie.rens`
+- nombre de retour à domicile: `r n.dom`
+- nombre d'hospitalisation: `r n.hosp`
+- taux d'hospitalisation: `r n.hosp / n.sortie.rens`
+
+Temps de passage de moins de 4 heures
+----------------------------------------
+
+```{r}
+pas4 <- pas3[pas3$duree < 4 * 60 + 1,]
+ms4 <- summary(as.factor(pas4$MODE_SORTIE))
+
+n.sortie4.rens <- sum(!is.na(pas4$MODE_SORTIE))
+
+n.hosp4 <- ms4["Mutation"] + ms4["Transfert"]
+n.dom4 <- ms4["Domicile"]
+```
+
+- nombre de sorties en moins de 4 heures renseignées: `r n.sortie4.rens`
+- nombre de retour à domicile en moins de 4 h: `r n.dom4`
+- nombre d'hospitalisation en moins de 4 h: `r n.hosp4`
+- taux d'hospitalisation en moins de 4 h: `r n.hosp4 / n.sortie4.rens`
+
+Temps de passage par jour
+--------------------------
+
+### moyenne du temps de passage par jour
+```{r, fig.height=8}
+my.day <- tapply(pas3$duree, yday(as.Date(pas3$ENTREE)), mean)
+xts.my.day <- xts(my.day, order.by = unique(as.Date(pas3$ENTREE)))
+
+summary(xts.my.day)
+
+plot(xts.my.day, ylab = "durée moyenne de passage (mn)", main = "Durée moyenne de passage par jour")
+
+```
+
+### moyenne du temps de passage si age > 74 ans
+```{r, fig.height=8, fig.width=10}
+pas3.75 <- pas3[pas3$AGE > 74,]
+pas3.75 <- pas3.75[!is.na(as.Date(pas3.75$ENTREE)),]
+my.day <- tapply(pas3.75$duree, yday(as.Date(pas3.75$ENTREE)), mean)
+xts.my.day <- xts(my.day, order.by = unique(as.Date(pas3.75$ENTREE)))
+
+summary(xts.my.day)
+
+par(mar = c(2, 4, 4, 5))
+plot(xts.my.day, ylab = "durée moyenne de passage (mn)", main = "Durée moyenne de passage par jour\n pour les patients de 75 ans et plus", lty = 3)
+# moyenne mobile
+lines(rollmean(x = xts.my.day, k = 7), col = "red", lwd = 2)
+
+# second graphique
+par.original <- par(no.readonly=TRUE)
+par(new = TRUE)
+nb.pas.jour <- tapply(as.Date(pas3.75$ENTREE), yday(as.Date(pas3.75$ENTREE)), length)
+min <- min(nb.pas.jour)
+max <- max(nb.pas.jour)
+xts.my.pas.day <- xts(nb.pas.jour, order.by = unique(as.Date(pas3.75$ENTREE)))
+plot(rollmean(x = xts.my.pas.day, k = 7), axes = F, ylim = c(min, max),  col = "blue", main="", lwd = 2, auto.grid = FALSE)
+axis(4,                  # axe vertical à droite
+     ylim = c(min, max), # limites de l'axe
+     col = "blue",       # couleur de l'axe
+     col.ticks = "blue", # couleur des marques de graduation
+     col.axis = "blue" ) # couleur de la légende des graduations
+mtext("Nombre de passages > 74 ans/jour", side=4, line=3, col = "blue") # nom, position, couleur de lalégende de l'axe
+par(par.original)
+
+```
+
+
+### médiane du temps de passage par jour
+```{r}
+md.day <- tapply(pas3$duree, yday(as.Date(pas3$ENTREE)), median)
+xts.md.day <- xts(md.day, order.by = unique(as.Date(pas3$ENTREE)))
+plot(xts.md.day, ylab = "durée médiane de passage (mn)", main = "Durée médiane de passage par jour")
+```
+
+### nombre de passages en moins de 4h par jour
+
+On forme le rapport nb de passages de moins de 4 heures sur le nb total de passages. En peériode de tension, ce rapport diminue.
+```{r}
+n.pas4.day <- tapply(as.Date(pas4$ENTREE), yday(as.Date(pas4$ENTREE)), length)
+n.pas.day <- tapply(as.Date(pas3$ENTREE), yday(as.Date(pas3$ENTREE)), length)
+p.pas <- n.pas4.day / n.pas.day
+xts.pas4.day <- xts(p.pas, order.by = unique(as.Date(pas3$ENTREE)))
+plot(xts.pas4.day, ylab = "nombre de passages", main = "Nombre de passages de moins de 4h par jour")
+
+```
+
+### temps de passage si hospitalisation, par jour
+```{r}
+pas5 <- pas3[pas$MODE_SORTIE %in% c("Mutation", "Transfert"),]
+pas5 <- pas5[!is.na(as.Date(pas5$ENTREE)),]
+summary(pas5$duree)
+my5.day <- tapply(pas5$duree, yday(as.Date(pas5$ENTREE)), mean)
+
+xts.my5.day <- xts(my5.day, order.by = unique(as.Date(pas5$ENTREE)))
+plot(xts.my5.day, main = "Durée moyenne de passage aux urgences avant hosptalisation")
+```
+
+
+Heures de sorties non renseignées par ES
+----------------------------------------
+
+```{r}
+p.na.es <- round(tapply(dx$SORTIE, dx$FINESS, p.isna) * 100, 2)
+a <- sort(p.na.es)
+kable(t(a))
+```
+
+Pourcentage de non réponse par jour et par FINESS
+-------------------------------------------------
+
+```{r}
+p.na.es.day <- tapply(dx$SORTIE, list(yday(as.Date(dx$ENTREE)), dx$FINESS), p.isna)
+
+# transformation en time serie avec xts
+x <- xts(p.na.es.day, order.by = unique(as.Date(dx$ENTREE)))
+x <- x[, -9] # supprime la colonne Hus qui est vide
+for(i in 1:ncol(x)){
+  plot(x[,i], main = names(x)[i], ylab = "% de non réponses")
+}
+
+for(i in 1:ncol(x)){
+  s <- apply(x[,i], MARGIN = 2, summary)
+  print(s)
+}
+```
