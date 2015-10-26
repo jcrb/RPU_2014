@@ -53,6 +53,65 @@ pas2$duree <- as.numeric(difftime(s, e, units = "mins"))
 
 # on ne garde que les passages dont la durées > 0 et < ou = 72 heures
 pas3 <- pas2[pas2$duree > 0 & pas2$duree < 3 * 24 * 60 + 1,]
+
+pas3$he <- horaire(pas3$ENTREE)
+pas3$hs <- horaire(pas3$SORTIE)
+
+# présent à 15 heures
+limite <- hms("15:00:00") # pour incrémenter d'une heure: hms("15:00:00") + as.period(dhours(1))
+pas3$P15 <- pas3$he < limite & pas3$hs > limite
+head(pas3)
+```
+
+```
+##                ENTREE              SORTIE MODE_SORTIE ORIENTATION AGE
+## 3 2015-01-01 00:03:00 2015-01-01 01:20:00    Domicile        <NA>  23
+## 4 2015-01-01 00:16:00 2015-01-01 02:26:00    Domicile        <NA>  61
+## 5 2015-01-01 00:34:00 2015-01-01 02:44:00    Mutation        CHIR  19
+## 6 2015-01-01 00:53:00 2015-01-01 01:40:00    Domicile        <NA>  14
+## 8 2015-01-01 01:04:00 2015-01-01 02:00:00    Domicile        <NA>   8
+## 9 2015-01-01 01:06:00 2015-01-01 01:41:00    Domicile        <NA>  16
+##   duree       he        hs   P15
+## 3    77    3M 0S 1H 20M 0S FALSE
+## 4   130   16M 0S 2H 26M 0S FALSE
+## 5   130   34M 0S 2H 44M 0S FALSE
+## 6    47   53M 0S 1H 40M 0S FALSE
+## 8    56 1H 4M 0S  2H 0M 0S FALSE
+## 9    35 1H 6M 0S 1H 41M 0S FALSE
+```
+
+```r
+summary(pas3$P15)
+```
+
+```
+##    Mode   FALSE    TRUE    NA's 
+## logical  281374   66414       0
+```
+
+```r
+# nombre moyen de présents à 15h tous les jours
+n.p15 <- tapply(pas3$P15, yday(as.Date(pas3$ENTREE)), sum)
+summary(n.p15)
+```
+
+```
+##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+##     158     211     231     233     252     322
+```
+
+```r
+sd(n.p15)
+```
+
+```
+## [1] 30.96083
+```
+
+```r
+m.p15 <- sum(n.p15) / length(n.p15)
+
+# petite correction (origine ?)
 pas3$MODE_SORTIE[pas3$MODE_SORTIE == 6] <- "Mutation"
 pas3$MODE_SORTIE[pas3$MODE_SORTIE == 7] <- "Transfert"
 pas3$MODE_SORTIE[pas3$MODE_SORTIE == 8] <- "Domicile"
@@ -64,6 +123,7 @@ ms <- summary(as.factor(pas3$MODE_SORTIE))
 n.hosp <- ms["Mutation"] + ms["Transfert"]
 n.dom <- ms["Domicile"]
 ```
+__Année 2015__ (date de point: 2015-10-12):
 
 - nombre de RPU: 395387
 - nombre de PRU où la durée de passage est calculable: 352495
@@ -76,6 +136,8 @@ n.dom <- ms["Domicile"]
 - nombre de retour à domicile: 205721
 - nombre d'hospitalisation: 62239
 - taux d'hospitalisation: 0.2322689
+
+- nombre de patients présents à 15 heures: 233.0315789
 
 Temps de passage de moins de 4 heures
 ----------------------------------------
@@ -99,6 +161,17 @@ n.dom4 <- ms4["Domicile"]
 Temps de passage par jour
 --------------------------
 
+### nombre de patients à 15 heures
+
+```r
+xts.p15 <- xts(n.p15, order.by = unique(as.Date(pas3$ENTREE)))
+plot(xts.p15, ylab = "Nombre de patients à 15h", main = "Nombre de patients à 15 heures")
+lines(rollmean(x = xts.p15, k = 7), col = "red", lwd = 2)
+```
+
+![](duree_passage_files/figure-html/unnamed-chunk-3-1.png) 
+
+
 ### moyenne du temps de passage par jour
 
 ```r
@@ -120,11 +193,18 @@ summary(xts.my.day)
 
 ```r
 plot(xts.my.day, ylab = "durée moyenne de passage (mn)", main = "Durée moyenne de passage par jour")
+text(as.Date("2015-07-02"), 200, "Canicule")
 ```
 
-![](duree_passage_files/figure-html/unnamed-chunk-3-1.png) 
+![](duree_passage_files/figure-html/unnamed-chunk-4-1.png) 
 
 ### moyenne du temps de passage si age > 74 ans
+
+On compare sur le même graphique, la durée qotidienne moyenne de passage et le nombre total de passages par jour.
+
+- pas3.75 est le dataframe des plus de 74 ans
+- my.day est la durée moyenne quotidienne de passage.
+
 
 ```r
 pas3.75 <- pas3[pas3$AGE > 74,]
@@ -165,12 +245,21 @@ axis(4,                  # axe vertical à droite
      col.ticks = "blue", # couleur des marques de graduation
      col.axis = "blue" ) # couleur de la légende des graduations
 mtext("Nombre de passages > 74 ans/jour", side=4, line=3, col = "blue") # nom, position, couleur de lalégende de l'axe
+# légende
+legend("bottomleft", legend = c("durée de passage", "nombre de passages"), col = c("red", "blue"), lty = 1, lwd = 3, bty = "n")
 ```
 
-![](duree_passage_files/figure-html/unnamed-chunk-4-1.png) 
+![](duree_passage_files/figure-html/unnamed-chunk-5-1.png) 
 
 ```r
 par(par.original)
+
+# essai de corrélation
+cor(my.day, nb.pas.jour)
+```
+
+```
+## [1] 0.3642023
 ```
 
 
@@ -182,7 +271,7 @@ xts.md.day <- xts(md.day, order.by = unique(as.Date(pas3$ENTREE)))
 plot(xts.md.day, ylab = "durée médiane de passage (mn)", main = "Durée médiane de passage par jour")
 ```
 
-![](duree_passage_files/figure-html/unnamed-chunk-5-1.png) 
+![](duree_passage_files/figure-html/unnamed-chunk-6-1.png) 
 
 ### nombre de passages en moins de 4h par jour
 
@@ -196,7 +285,7 @@ xts.pas4.day <- xts(p.pas, order.by = unique(as.Date(pas3$ENTREE)))
 plot(xts.pas4.day, ylab = "nombre de passages", main = "Nombre de passages de moins de 4h par jour")
 ```
 
-![](duree_passage_files/figure-html/unnamed-chunk-6-1.png) 
+![](duree_passage_files/figure-html/unnamed-chunk-7-1.png) 
 
 ### temps de passage si hospitalisation, par jour
 
@@ -218,7 +307,7 @@ xts.my5.day <- xts(my5.day, order.by = unique(as.Date(pas5$ENTREE)))
 plot(xts.my5.day, main = "Durée moyenne de passage aux urgences avant hosptalisation")
 ```
 
-![](duree_passage_files/figure-html/unnamed-chunk-7-1.png) 
+![](duree_passage_files/figure-html/unnamed-chunk-8-1.png) 
 
 
 Heures de sorties non renseignées par ES
@@ -252,7 +341,7 @@ for(i in 1:ncol(x)){
 }
 ```
 
-![](duree_passage_files/figure-html/unnamed-chunk-9-1.png) ![](duree_passage_files/figure-html/unnamed-chunk-9-2.png) ![](duree_passage_files/figure-html/unnamed-chunk-9-3.png) ![](duree_passage_files/figure-html/unnamed-chunk-9-4.png) ![](duree_passage_files/figure-html/unnamed-chunk-9-5.png) ![](duree_passage_files/figure-html/unnamed-chunk-9-6.png) ![](duree_passage_files/figure-html/unnamed-chunk-9-7.png) ![](duree_passage_files/figure-html/unnamed-chunk-9-8.png) ![](duree_passage_files/figure-html/unnamed-chunk-9-9.png) ![](duree_passage_files/figure-html/unnamed-chunk-9-10.png) ![](duree_passage_files/figure-html/unnamed-chunk-9-11.png) ![](duree_passage_files/figure-html/unnamed-chunk-9-12.png) ![](duree_passage_files/figure-html/unnamed-chunk-9-13.png) ![](duree_passage_files/figure-html/unnamed-chunk-9-14.png) ![](duree_passage_files/figure-html/unnamed-chunk-9-15.png) ![](duree_passage_files/figure-html/unnamed-chunk-9-16.png) ![](duree_passage_files/figure-html/unnamed-chunk-9-17.png) ![](duree_passage_files/figure-html/unnamed-chunk-9-18.png) ![](duree_passage_files/figure-html/unnamed-chunk-9-19.png) 
+![](duree_passage_files/figure-html/unnamed-chunk-10-1.png) ![](duree_passage_files/figure-html/unnamed-chunk-10-2.png) ![](duree_passage_files/figure-html/unnamed-chunk-10-3.png) ![](duree_passage_files/figure-html/unnamed-chunk-10-4.png) ![](duree_passage_files/figure-html/unnamed-chunk-10-5.png) ![](duree_passage_files/figure-html/unnamed-chunk-10-6.png) ![](duree_passage_files/figure-html/unnamed-chunk-10-7.png) ![](duree_passage_files/figure-html/unnamed-chunk-10-8.png) ![](duree_passage_files/figure-html/unnamed-chunk-10-9.png) ![](duree_passage_files/figure-html/unnamed-chunk-10-10.png) ![](duree_passage_files/figure-html/unnamed-chunk-10-11.png) ![](duree_passage_files/figure-html/unnamed-chunk-10-12.png) ![](duree_passage_files/figure-html/unnamed-chunk-10-13.png) ![](duree_passage_files/figure-html/unnamed-chunk-10-14.png) ![](duree_passage_files/figure-html/unnamed-chunk-10-15.png) ![](duree_passage_files/figure-html/unnamed-chunk-10-16.png) ![](duree_passage_files/figure-html/unnamed-chunk-10-17.png) ![](duree_passage_files/figure-html/unnamed-chunk-10-18.png) ![](duree_passage_files/figure-html/unnamed-chunk-10-19.png) 
 
 ```r
 for(i in 1:ncol(x)){

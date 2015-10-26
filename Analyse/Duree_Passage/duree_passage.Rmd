@@ -16,6 +16,8 @@ La durée de passage est définie comme la différence entre l'heure d'entrée e
 - Le dataframe minimal doit comporter les colonnes ENTREE et SORTIE. Il peut être compléter par d'autres colonnes en fonction des besoins (notamment MODE_SORTIE)
 
 ```{r init, echo=FALSE}
+
+anc <- 2015
 load("~/Documents/Resural/Stat Resural/RPU_2014/rpu2015d0112_provisoire.Rda")
 dx <- d15
 rm(d15)
@@ -50,6 +52,24 @@ pas2$duree <- as.numeric(difftime(s, e, units = "mins"))
 
 # on ne garde que les passages dont la durées > 0 et < ou = 72 heures
 pas3 <- pas2[pas2$duree > 0 & pas2$duree < 3 * 24 * 60 + 1,]
+
+# mémorise les heures d'entrée et de sortie
+pas3$he <- horaire(pas3$ENTREE)
+pas3$hs <- horaire(pas3$SORTIE)
+
+# présent à 15 heures
+limite <- hms("15:00:00") # pour incrémenter d'une heure: hms("15:00:00") + as.period(dhours(1))
+pas3$P15 <- pas3$he < limite & pas3$hs > limite
+head(pas3)
+summary(pas3$P15)
+
+# nombre moyen de présents à 15h tous les jours
+n.p15 <- tapply(pas3$P15, yday(as.Date(pas3$ENTREE)), sum)
+summary(n.p15)
+sd(n.p15)
+m.p15 <- sum(n.p15) / length(n.p15)
+
+# petite correction (origine ?)
 pas3$MODE_SORTIE[pas3$MODE_SORTIE == 6] <- "Mutation"
 pas3$MODE_SORTIE[pas3$MODE_SORTIE == 7] <- "Transfert"
 pas3$MODE_SORTIE[pas3$MODE_SORTIE == 8] <- "Domicile"
@@ -61,6 +81,7 @@ ms <- summary(as.factor(pas3$MODE_SORTIE))
 n.hosp <- ms["Mutation"] + ms["Transfert"]
 n.dom <- ms["Domicile"]
 ```
+__Année `r anc`__ (date de point: `r max(as.Date(dx$ENTREE))`):
 
 - nombre de RPU: `r nrow(pas)`
 - nombre de PRU où la durée de passage est calculable: `r nrow(pas2)`
@@ -73,6 +94,8 @@ n.dom <- ms["Domicile"]
 - nombre de retour à domicile: `r n.dom`
 - nombre d'hospitalisation: `r n.hosp`
 - taux d'hospitalisation: `r n.hosp / n.sortie.rens`
+
+- nombre de patients présents à 15 heures: `r m.p15`
 
 Temps de passage de moins de 4 heures
 ----------------------------------------
@@ -95,6 +118,14 @@ n.dom4 <- ms4["Domicile"]
 Temps de passage par jour
 --------------------------
 
+### nombre de patients à 15 heures
+```{r, fig.height=8, fig.width=10}
+xts.p15 <- xts(n.p15, order.by = unique(as.Date(pas3$ENTREE)))
+plot(xts.p15, ylab = "Nombre de patients à 15h", main = "Nombre de patients à 15 heures")
+lines(rollmean(x = xts.p15, k = 7), col = "red", lwd = 2)
+```
+
+
 ### moyenne du temps de passage par jour
 ```{r, fig.height=8}
 my.day <- tapply(pas3$duree, yday(as.Date(pas3$ENTREE)), mean)
@@ -103,6 +134,7 @@ xts.my.day <- xts(my.day, order.by = unique(as.Date(pas3$ENTREE)))
 summary(xts.my.day)
 
 plot(xts.my.day, ylab = "durée moyenne de passage (mn)", main = "Durée moyenne de passage par jour")
+text(as.Date("2015-07-02"), 200, "Canicule")
 
 ```
 
@@ -210,3 +242,6 @@ for(i in 1:ncol(x)){
   print(s)
 }
 ```
+
+Utilisation des routines duree_passage.R
+===========================================================================================================
