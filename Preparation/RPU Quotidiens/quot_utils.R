@@ -173,6 +173,53 @@ parse_rpu <- function(date.jour, filename = NULL){
   return(dx)
 }
 
+
+#=======================================
+#
+# parse_da
+#
+#=======================================
+#
+#' @title parse un fichier diag_associe.sql
+#' @description parse un fichier diag_associe.sql et retoune un dataframe à 2 colonnes: identifiant dossier
+#' et code CIM10. Il peut y avoir plusieurs codes pour un même identifiant.
+#' @param date.jour date du jour au format Date (AAAA-MM-JJ)
+#' @param file optionel. Nom du fichier s'il est différent de rpu_diag_asso_AAAA-MM-JJ_dump.sql
+#' @usage parse_da(date.jour, filename = NULL)
+#' @details le fichier à parser doit obligatoirement se trouver dans le dossier ~/Documents/Resural/Stat Resural/Archives_Sagec/dataDA
+#' Une base de données MySql du nom de 'archives' doit exister de même q'un fichier de connexion '.my.cnf' dans le dossier personnel.
+#' 
+#' @return un dataframe
+#' @examples parse_da("2015-05-07")
+
+parse_da <- function(date.jour, filename = NULL){
+  library("RMySQL")
+  if(!is.null(filename))
+    file <- filename
+  else file <- paste0("rpu_diag_asso_", date.jour, "_dump.sql")
+  wd <- getwd()
+  setwd("~/Documents/Resural/Stat Resural/Archives_Sagec/dataDA")
+  
+  if(!file.exists(file)){
+    x <- paste("Le fichier",file,"n'existe pas dans le répertoire",getwd(), sep=" ")
+    stop(x)
+  }
+  # charge le fichier dans la base de  données "archives". Si la table existe, elle est automatiquement effacée.
+  # si la table n'existe pas, elle est créée automatiquement
+  system(paste0("mysql -u root -pmarion archives < ", file))
+  
+  # Transfert de la table vers un dataframe
+  con<-dbConnect(MySQL(),group = "archives") # connexion à la base "archives"
+  rs<-dbSendQuery(con,paste("SELECT * FROM RPU_DIAG_ASSO__ ",sep=""))
+  dx<-fetch(rs,n=-1,encoding = "UTF-8") # dataframe
+  # fermeture de la connexion
+  dbDisconnect(con)
+  con <- NULL
+  # restauration et retour
+  setwd(wd)
+  return(dx)
+}
+
 #=======================================
 #
 # rpu2factor
@@ -794,7 +841,7 @@ barplot.week.variations <- function(x, coltitre = TRUE, colmoins = "red", colplu
 
 
 #  en pourcentages: diff(x)/x
-a <- x[-1] # on enlève le 0 initial
-b <- d3[1:(length(d3)-2)] # ou -1 si on a pas supprimé la dernière semaine pour x
-p <- round(a*100/b, 2)
-p
+# a <- x[-1] # on enlève le 0 initial
+# b <- d3[1:(length(d3)-2)] # ou -1 si on a pas supprimé la dernière semaine pour x
+# p <- round(a*100/b, 2)
+# p
