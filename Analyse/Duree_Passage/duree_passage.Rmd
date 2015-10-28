@@ -7,7 +7,8 @@ output:
     keep_md: yes
 ---
 
-La durée de passage est définie comme la différence entre l'heure d'entrée et de sortie du patient de la structure d'urgence.
+La durée de passage est définie comme la différence entre l'heure d'entrée et de sortie du patient de la structure d'urgence. C'est un indicateur composite résultant de trois composantes: le flux d'entrée, l'efficience de la prise en charge et de la fluidité de l'aval. A efficience égale c'est un indicateur de l'état de tension des urgences. Toute augmentation du temps moyen de passage, traduit une augmentation du nombre de passages et/ou une saturation des capacités d'hospitalisation. La durée de passage peut se mesurer sur l'ensemble des passages d'une journée ou ponctuellement à une heure donnée, ce qui permet d'en dériver le nombre de patients présents simultannément à une heure précise (ex. canicule). Pour cela deux indicateurs simples sont à recueillir: l'heure d'entrée et l'heure de sortie des urgences. Si l'heure d'entrée est présente dans 100% des RPU, l'heure de  sortie manque dans 11% des RPU (octobre 2015) mais avec des disparité importantes selon les établissements, allant de 0 à 70%.
+
 
 - l'exhaustivité de l'heure d'entrée est de 100% pour tous les ED.
 - l'exhaustivité de l'heure de sortie est variable. L'heure de sortie n'est pas calculable lors d'une sortie atypique: ORIENTATION = fugue, PSA, SCAM.
@@ -29,13 +30,59 @@ library(knitr)
 library(Rpu2)
 
 # pour mesurer le pourcentage de non réponses
-p.isna <- function(x){return(mean(is.na(x)))}
-n.isna <- function(x){return(sum(is.na(x)))}
+# p.isna <- function(x){return(mean(is.na(x)))}
+# n.isna <- function(x){return(sum(is.na(x)))}
+
+# pourcentage de NA dans un vecteur x
+p.isna <- function(x){mean(is.na(x))}
+
 ```
 
 Fonctions utiles:
 
 - horaire: extrait le groupe horaire d'une date
+
+Heure des sortie
+----------------
+
+```{r, comment=""}
+# % de données manquantes
+p.isna(dx$SORTIE)
+
+# % par établissement
+t <- round(tapply(dx$SORTIE, dx$FINESS, p.isna) * 100, 2)
+summary(t)
+sort(t)
+
+# utilitaire
+h <- c("CH St Louis", "CH Altkirch", "Clin.Ste Anne", "CH Colmar", "Diaconat-Fonderie", "Diaconat-Strasb.", "CH Guebwiller", "CH Haguenau", "HUS", "CH Mulhouse", "Clin.Ste Odile", "Diaconat-Roosvelt", "CH Saverne", "CH Selestat", "CH Wissembourg", "HUS-HTP", "HUS-NHC", "GHMSA-E.Muller", "GHMSA-Hasenrain", "HUS-CCOM")
+hop <- cbind(h, names(t))
+colnames(hop) <- c("ES", "abr")
+
+names(h) <- names(t)
+h['3Fr']
+t <- round(tapply(dx$SORTIE, dx$FINESS, p.isna) * 100, 2)
+
+
+p.na.es <- round(tapply(dx$MODE_SORTIE, dx$FINESS, p.isna) * 100, 2)
+t <- round(tapply(dx$SORTIE, dx$FINESS, p.isna) * 100, 2)
+tab <- cbind(names(t), p.na.es, t)
+
+t2 <- data.frame(tab, stringsAsFactors = FALSE)
+a <- c("Etablissement", "Mode_sortie_NR", "Heure_sortie_NR")
+names(t2) <- a
+t2$Mode_sortie_NR <- as.numeric(t2$Mode_sortie_NR)
+t2$Heure_sortie_NR <- as.numeric(t2$Heure_sortie_NR)
+
+barplot(t(as.matrix(t2[,2:3])), beside = TRUE, las = 2, ylab = "% de non réponses", main = "2015 - Heures et modes de sortie non renseignés par ES")
+abline(h = 10, col = "red", lty = 2)
+legend("top", legend = c("% mode de sortie non renseigné", "% heure de sortie non renseignée"), col = c("gray20", "gray80"), pch = 15, bty = "n")
+
+hop <- cbind(h, names(t))
+cbind(hop[,1])
+
+```
+
 
 
 Temps de passage
@@ -234,14 +281,86 @@ p.na.es.day <- tapply(dx$SORTIE, list(yday(as.Date(dx$ENTREE)), dx$FINESS), p.is
 x <- xts(p.na.es.day, order.by = unique(as.Date(dx$ENTREE)))
 x <- x[, -9] # supprime la colonne Hus qui est vide
 for(i in 1:ncol(x)){
-  plot(x[,i], main = names(x)[i], ylab = "% de non réponses")
-}
-
-for(i in 1:ncol(x)){
+  plot(x[,i], main = paste0(names(x)[i], "- Heure de sortie des Urgences (% non réponse)"), ylab = "% de non réponses")
   s <- apply(x[,i], MARGIN = 2, summary)
   print(s)
 }
+
+# for(i in 1:ncol(x)){
+#   s <- apply(x[,i], MARGIN = 2, summary)
+#   print(s)
+# }
 ```
 
 Utilisation des routines duree_passage.R
-===========================================================================================================
+============================================================================================================
+
+ Nombre de patients présents à une heure précide. Par exemple combien de patients sont présents à 15 heures?
+ Ce sont tous les patients arrivés avant 15 heures et repartis après 15 heures
+ On part d'un dataframe formé de deux colonnes (ENTREE et SORIE) où chaque couple est complet => il faut éliminer les couples
+ incomplets.
+ Nécessite lubridate, Rpu2
+
+ usage:
+ - créer un dataframe "duree de passage" avec df.duree.pas Ce dataframe est l'objet de base à partir duquel d'autres
+   fonctions vont agir
+ - la fonction is.present.at permet de créer un vecteur de présence d'un patient à une heure donnée, et de la le nombre de 
+   patients présents à une heure donné sum(is.present.at), ou le nombre de patients présents à une heure donnée pour 
+   chaque jour de l'année (tapply) puis de tracer le graphe de présence
+   
+```{r}
+source('~/Documents/Resural/Stat Resural/RPU_2014/Analyse/Duree_Passage/duree_passage.R')
+```
+
+Dataframe Durée de passage
+--------------------------
+fabrique à partir d'un dataframe de type RPU, un dataframe de type duree_passage comportant les colonnes suivantes:
+date/heure d'ebtree, date/heure de sortie, durée de passage (en minutes par défaut), l'heure d'entrée (HMS), l'heure de sortie.
+
+```{r}
+dp <- df.duree.pas(dx)
+head(dp)
+```
+
+Un patient est-il présent à une heure donnée ?
+----------------------------------------------
+
+### Nombre de présents à 15h
+```{r}
+# dp <- df.duree.pas(dx)
+           dp$present.a.15h <- is.present.at(dp)
+           # nombre moyen de patients présents à 15h tous les jours
+           n.p15 <- tapply(dp$present.a.15h, yday(as.Date(dp$ENTREE)), sum)
+           summary(n.p15)
+           sd(n.p15)
+           # transformation en xts
+           xts.p15 <- xts(n.p15, order.by = unique(as.Date(dp$ENTREE)))
+           plot(xts.p15, ylab = "Nombre de patients à 15h", main = "Nombre de patients présents à 15 heures")
+           lines(rollmean(x = xts.p15, k = 7), col = "red", lwd = 2)
+```
+
+### à 2h du matin
+
+```{r}
+           dp$present.a.2h <- is.present.at(dp, "02:00:00")
+           n.p2 <- tapply(dp$present.a.2h, yday(as.Date(dp$ENTREE)), sum)
+           summary(n.p2)
+           xts.p2 <- xts(n.p2, order.by = unique(as.Date(dp$ENTREE)))
+           plot(xts.p2, ylab = "Nombre de patients présents", main = "Nombre de patients présents à 2 heures du matin")
+           lines(rollmean(x = xts.p2, k = 7), col = "red", lwd = 2)
+           # pour les données de 2015, noter le pic à 2 heures du matin
+```
+
+En période de canicule, le nombre de présents à 2 heures du matin est anormalement élevé.
+
+### à 8 heures
+
+```{r}
+           present.a.8h <- is.present.at(dp, "08:00:00")
+           n.p8 <- tapply(present.a.8h, yday(as.Date(dp$ENTREE)), sum)
+           summary(n.p8)
+           xts.p8 <- xts(n.p8, order.by = unique(as.Date(dp$ENTREE)))
+           plot(xts.p8, ylab = "Nombre de patients présents", main = "Nombre de patients présents à 8 heures du matin")
+           lines(rollmean(x = xts.p8, k = 7), col = "red", lwd = 2)
+```
+

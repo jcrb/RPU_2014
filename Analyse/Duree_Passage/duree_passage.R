@@ -13,7 +13,7 @@
 #   patients présents à une heure donné sum(is.present.at), ou le nombre de patients présents à une heure donnée pour 
 #   chaque jour de l'année (tapply) puis de tracer le graphe de présence
 
-#' @title
+#' @title Dataframe Durée de passage
 #' @description fabrique à partir d'un dataframe de type RPU, un dataframe de type duree_passage comportant les colonnes suivantes:
 #' date/heure d'ebtree, date/heure de sortie, durée de passage (en minutes par défaut), l'heure d'entrée (HMS), l'heure de sortie
 #' @usage df.duree.pas(dx, unit = "mins", mintime = 0, maxtime = 3)

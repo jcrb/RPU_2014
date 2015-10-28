@@ -20,7 +20,7 @@ Le RPU connait quatre modes de sortie:
 ##     as.Date, as.Date.numeric
 ```
 
-Le mode de sortie est une information administrative qui devrait être présente dans tous les cas. Pourcentage de RPU où cette information est manquante, par établissement:
+Le mode de sortie est une information administrative qui devrait être présente dans tous les cas. Elle manque cependant dans 30% des RPU. Pourcentage de RPU où cette information est manquante, par établissement:
 
 
   Sel    Dia    Wis   Ccm    Col    Geb    Hag     Sav     Hsr    Ros     Odi     3Fr    Dts     Mul     Emr     NHC     Alk     HTP     Ane

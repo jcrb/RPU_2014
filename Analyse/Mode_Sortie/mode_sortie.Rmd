@@ -24,14 +24,15 @@ rm(d15)
 library(xts)
 library(lubridate)
 library(knitr)
+library(Rpu2)
 
-# pour mesurer le pourcentage de non réponses
-p.isna <- function(x){return(mean(is.na(x)))}
-n.isna <- function(x){return(sum(is.na(x)))}
+# # pour mesurer le pourcentage de non réponses
+# p.isna <- function(x){return(mean(is.na(x)))}
+# n.isna <- function(x){return(sum(is.na(x)))}
 
 ```
 
-Le mode de sortie est une information administrative qui devrait être présente dans tous les cas. Pourcentage de RPU où cette information est manquante, par établissement:
+Le mode de sortie est une information administrative qui devrait être présente dans tous les cas. Elle manque cependant dans 30% des RPU. Pourcentage de RPU où cette information est manquante, par établissement:
 
 ```{r, echo=FALSE}
 # pourcentage total de non réponse
