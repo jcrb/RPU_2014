@@ -1,0 +1,127 @@
+---
+title: "Le taux de recours aux urgences en Alsace en 2014"
+author: "RESURAL (JcB)"
+date: "31/10/2015"
+output:
+  pdf_document:
+    number_sections: yes
+---
+
+Le taux régional de recours aux urgences (TARRU) est le nombre de passages dans les services d’urgences (de la région ou département) de patients résidant dans une zone donnée (code postal ou commune) divisé par la population estimée de cette zone sur la période donnée.
+
+Le nombre de passages aux urgences est mesuré à partir des données RPU.
+
+La population de la zone est donnée par les chiffres de l'INSEE.
+
+```{r, echo=FALSE}
+# Récupération des données
+anc <- 2014
+wd <- getwd()
+setwd("~/Documents/Resural/Stat Resural/RPU_2014")
+
+# Récupération des RPU transmis
+load("rpu2014d0112_c2.Rda")
+dx <- d14
+rm(d14)
+
+# Nombre de passages selon la SAE
+passages.2014.SAE <- 521129
+
+# Récupération des données Insee. Le fichier pyramide_pop_alsace_2014.csv donne le détail de la population par département alsacien, sexe et tranches d'age de 5 ans.
+file <- "../RPU_Doc/RPU_Carto-Pop-Alsace/Demographie/data/pyramide_pop_alsace_2014.csv"
+pop.2014 <- read.csv(file, skip = 2)
+# ajout d'une colonne total par tranche d'age
+pop.2014$pop.tot <- pop.2014$H_Alsace_2014 + pop.2014$F_Alsace_2014
+# Population Alsacienne totale
+pop.2014.tot <- sum(pop.2014$H_Alsace_2014 + pop.2014$F_Alsace_2014)
+
+par(mar = c(6,5,4,2))
+
+```
+
+Taux de  recours moyen
+======================
+
+- Nombre de RPU transmis en `r anc`: `r nrow(dx)`
+- Population légale en Alsace en `r anc`: `r pop.2014.tot`
+- Taux de recours moyen en Alsace en `r anc`: `r round(nrow(dx) * 100 / pop.2014.tot, 2)` %
+
+Ce chiffre est sous estimé en `r anc` car le nombre de RPU n'est pas exhaustif. Si on utilise le nombre de passage fourni par la SAE, on obtient:
+
+- Taux de recours moyen corrigé (SAE) en Alsace en `r anc`: __`r round(passages.2014.SAE * 100 / pop.2014.tot, 2)`__ %
+
+
+Evolution du TARRU en fonction de l'âge
+========================================
+
+```{r, echo=FALSE}
+# Découpage de l'age de RPU par tranches de 5 ans
+max = max(dx$AGE, na.rm = TRUE)
+min = min(dx$AGE, na.rm = TRUE)
+cut <- 5
+
+a <- cut(dx$AGE, seq(from = min, to = max, by = cut), include.lowest = TRUE, right = FALSE)
+t <- table(a)
+barplot(t, horiz = TRUE, las = 1, cex.names = 0.7, main = "Pyramide des âges des RPU en Alsace (2014)",  xlab = "Nombre de RPU")
+
+# il faut cumuler les RPU des tranches d'ages > 94 ans car la dernière tranche de l'Insee est 95 ans et plus
+b1 <- t[1:19]
+b2 <- sum(t[20:24])
+b3 <- c(b1,b2) # RPU par tranche d'age Insee
+p.b3 <- b3/sum(b3)
+taru <- b3/pop.2014$pop.tot
+
+# Création d'une matrice RPU et POP Alsace pour les mêmes tranches d'âge
+# - b3 nb de RPU  par tranche d'âge
+# - p.b3 % de RPU  par tranche d'âge
+# - popAls nb d'habitant en Alsace par tranche d'âge
+# - pop.2014$pop.tot/pop.2014.tot % d'habitant en Alsace par tranche d'âge
+# - taru par tranche d'âge
+
+d <- cbind(b3, p.b3, pop.2014$pop.tot, pop.2014$pop.tot/pop.2014.tot, taru)
+rownames(d)[20] <- "[95,99)"
+colnames(d) <- c("RPU", "p.rpu", "popAls", "p.popAls", "TARU")
+
+# Découpage de l'age de RPU par tranches de 5 ans en pourcentages
+p <- barplot(t/sum(t), horiz = TRUE, las = 1, cex.names = 0.7, main = "Pyramide des âges des RPU en Alsace (2014)",  xlab = "Pourcentage de RPU", ylab = "Classes d'âge", col = "cornflowerblue")
+lines(d[,4], p[1:20], lty = 1, lwd = 3,  col = "red")
+legend("topright", legend = c("Population générale", "RPU"), col = c("red","cornflowerblue"), bty = "n", lty = 1, lwd = 3, pch = 15)
+
+
+color = c("gray20", "gray80")
+
+barplot(t(d[, c(2,4)]), beside = TRUE, horiz = TRUE, las = 1, cex.names = 0.7, cex.axis = 0.9, xlab = "Pourcentage de l'effectif", ylab = "Tranches d'âge", main = "Pyramide des âges des RPU et de la population alsacienne en 2014", col = color)
+legend("topright", legend = c("RPU Alsace", "Pop. Alsace"), col = color, bty = "n", pch = 15)
+
+plot(d[,5], xlim = c(0,20), ylim = c(0,1), type = "b", axes = FALSE, main = "Evolution du TARRU en fonction de l'âge", ylab = "% de recours", xlab = "Tranches d'âge")
+axis(2, at = seq(0, 1, 0.1))
+axis(1, at = 1:20, labels = rownames(d), las = 2, cex.axis = 0.8)
+
+```
+
+Le recours aux urgences est est particulièrement important avant 30 ans et au delà de 75 ans.
+
+On obtient la même courbe enformant le rapport du % de RPU pour une classe d'age sur le % de cette classe d'âge dans la population:
+
+```{r, echo=FALSE}
+x <- d[, 2] / d[, 4]
+plot(x, xlim = c(0,20), ylim = c(0,4), axes = FALSE, pch = 19, xlab = "Classes d'âge", ylab = "Fréquence aux urgences par rapport\n au reste de la population", main = "Sur ou sous repréentation des classes d'âge aux urgences")
+axis(1, at = 1:20, labels = rownames(d), las = 2, cex.axis = 0.8)
+axis(2, at = seq(0, 4, 0.5))
+abline(h = 1, col = "red", lty = 2)
+
+```
+
+Les points situés au dessus de la ligne pointillée, traduisent une sur-représentation de la tranche d'âge aux urgences. Par exemple la tranche d'âge 5-9 ans représente environ 6% de la population alsacienne et 6% des RPU. Les 95 ans et plus représentent 0,1% de la population alsacienne mais 0,34% des RPU soit 3,4 fois plus que dans la population générale. La sur-représentation augmente très vite à partir de 75 ans.
+
+Tableau des données
+-------------------
+
+```{r, echo=FALSE, comment=""}
+d
+file_name <- paste0("taru", anc)
+taru2014 <- d
+save(taru2014, file = "taru2014.Rda")
+```
+
+

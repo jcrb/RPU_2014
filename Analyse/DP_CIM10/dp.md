@@ -29,6 +29,21 @@ Pour l'analyse, le fichier doit s'appeler dx. Ainsi pour 2014 on mettra dans le 
 ##     as.Date, as.Date.numeric
 ```
 
+Avec __stringr__ il est possible de faire des recherches de chaines comme si on uilisait des expression régulière. Au préalable, pour supprimer le point comme dans J45.1, on peut utiliser l'expression 
+```{}
+a <- "J45.1"
+str_replace_all(a, "\\.", "")
+```
+
+Pour rechercher une phrase, il faut d'abord définir un pattern: [J][4][56]. La phrase doit commencer par un J, suivi d'un 4 puis d'un 5 ou 6.
+```{}
+pattern <- "[J][4][56]"
+dx.asthme <- dx$DP[!is.na(dx$DP) & str_detect(dx$DP, pattern) == TRUE]
+summary(dx.asthme)
+```
+On obtient:
+J45 J450 J451 J458 J459  J46 
+216  143  243   19 1109   59 
 
 
 
@@ -60,7 +75,7 @@ ex. avec Sélestat: on crée un objet de type liste formé d'autant de listes qu
 
 ```
    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-   0.00   57.00   63.00   61.34   68.50   92.00 
+   0.00   57.00   63.00   61.49   69.00   92.00 
 ```
 
 ![](dp_files/figure-html/diag_par_jour-1.png) 
@@ -81,7 +96,7 @@ round(n2 * 100 / n.bron, 2) # % de 2 ans et moins
 ```
 
 ```
-## [1] 97.01
+## [1] 96.95
 ```
 
 ```r
@@ -120,7 +135,7 @@ summary(bron$SEXE)
 
 ```
 ##    F    I    M      
-##  949    1 1527    0
+##  989    1 1600    0
 ```
 
 ```r
@@ -137,7 +152,7 @@ summary(ped2.age)
 
 ```
 ##     Min.  1st Qu.   Median     Mean  3rd Qu.     Max. 
-##  0.03333  4.80000 10.93000 11.11000 17.10000 24.07000
+##  0.03333  4.80000 10.97000 11.13000 17.13000 24.07000
 ```
 
 ```r
@@ -182,7 +197,7 @@ nombre de cas de grippes diagnostiqués aux urgences:
 
 - 2013: 626
 - 2014: 289
-- 2015: 1166
+- 2015: 1194
 
 Grippes en 2014 et 2015
 ------------------------
@@ -224,7 +239,7 @@ Gravité
 ```
 ## 
 ##    1    2    3    4    5    D    P      
-##  550 1369   85    3    1    1    0    0
+##  556 1389   87    3    1    1    0    0
 ```
 
 
@@ -268,6 +283,7 @@ Pathologies liées à la chaleur
 
 
 ```r
+# 2014-2015
 deshyd <-dpr[substr(dpr$DP,1,3)=="E86", ]
 chaleur <-dpr[substr(dpr$DP,1,3)=="T67", ]
 hist(as.Date(deshyd$ENTREE), start.on.monday = TRUE, breaks = "weeks", freq = TRUE, format = "", las = 2, border = "white", col = "cornflowerblue", main = "Déshydratation", cex = 0.6)
