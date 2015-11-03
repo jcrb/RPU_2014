@@ -1,0 +1,55 @@
+---
+title: "Cate des RPU produits par territoire de santé"
+author: "JcB"
+date: "03/11/2015"
+output: html_document
+---
+Objectif: dessiner une carte de l'Alsace avec une représentation du nombre de RPU produits par chacun des douze territoires de proximié. Les RPU sont représentés par des cercles dont la superficie est proportionnelle au nombre de RPU.
+
+Source: R et espace pp 189
+
+Réalisation: il faut disposer:
+
+- d'un fond cartographique de l'Alsace: ctss
+- de la position des 12 villes correspondant au 12 territoires de proximité: ts
+- d'une liste du nombre de RPU par territoire de proximité
+
+```{r}
+anc <- "2014"
+#library(sp)
+par(mar = c(0,0,2,0))
+load("../../../../Stat Resural/RPU_Doc/RPU_Carto-Pop-Alsace/Cartographie/Cartofile/als_ts.Rda") #ctss
+load("../../../../Stat Resural/RPU_Doc/RPU_Carto-Pop-Alsace/Cartographie/Cartofile/tsvilles.Rda") # tsvilles
+
+```
+```{r}
+# calcul du nombre de RPU par TP en 2014
+load("/home/jcb/Documents/Resural/Stat Resural/RPU_2014/rpu2014d0112_c2.Rda")
+t <- tapply(as.Date(d14$ENTREE), d14$FINESS, length)
+rpu <- c(t['Wis'], t['Sel'], t['Hag'], t['Sav'], NA, t['Hus']+t['Ane']+t['Odi']+t['Dts'], t['3Fr'], NA, t['Alk'], t['Col'], t['Mul']+t['Dia']+t['Ros'], t['Geb'])
+
+```
+
+```{r carte}
+# carte générale
+plot(ctss, main = paste("Volume de RPU produits par territoire de proximité en", anc), col = "palegreen")
+```
+
+```{r}
+# on tace des points proportionnels
+bg <- "cornflowerblue"
+cex <- 0.05
+points(tsvilles[,2]*100,tsvilles[,3]*100, pch=21, col="white", bg = bg, cex = cex * sqrt(tsvilles$rpu / pi))
+text(tsvilles[,2]*100,tsvilles[,3]*100,tsvilles[,1],cex=0.7,pos=4)
+rpu_legend <- c(10000, 30000, 60000, 100000)
+legend("topleft", legend = rpu_legend, pch = 21, col = "white", pt.bg = bg, bty = "n", pt.cex = cex * sqrt(rpu_legend / pi), title = "Nombre de RPU")
+
+```
+```{r}
+# on ajoute la colonne RPU au dataframe tsville
+tsvilles <- cbind(tsvilles, rpu)
+
+```
+
+
+La surface des cercles est proportionnelle au nombre de RPU. Il manque des informations sur deux territoires: Schirmeck et Thann.
