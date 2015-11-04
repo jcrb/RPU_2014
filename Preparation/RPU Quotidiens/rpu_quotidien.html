@@ -287,7 +287,7 @@ file.to.delete &lt;- &quot;/home/jcb/Documents/Resural/Stat Resural/Archives_Sag
 file.remove(file.to.delete)
 
 date1 &lt;- &quot;2015-10-08&quot;
-date2 &lt;- &quot;2015-10-14&quot;
+date2 &lt;- &quot;2015-11-01&quot;
 
 mc &lt;- substr(date1, 6, 7)
 ac &lt;- substr(date1, 1,4)
@@ -354,25 +354,25 @@ write.csv2(t, file = &quot;rpu_par_mois.xls&quot;)</code></pre>
 </div>
 <div id="nb-de-rpu-a-mois-constant-de-30-jours" class="section level1">
 <h1>nb de RPU à mois constant de 30 jours</h1>
-<p>n.jours &lt;- as.numeric(max(as.Date(d10<span class="math">\(ENTREE))-min(as.Date(d10\)</span>ENTREE)) + 1) n.rpu.mois.constant &lt;- nrow(d10) * 30 / n.jours</p>
+<p>n.jours &lt;- as.numeric(max(as.Date(d10<span class="math">\(ENTREE))-min(as.Date(d10\)</span>ENTREE)) + 1) n.rpu.mois.constant &lt;- nrow(d10) * 30 / n.jours n.rpu.mois.constant</p>
 <p>Total par mois et par mois constants</p>
 <pre><code>t &lt;- tapply(as.Date(d15$ENTREE), months(as.Date(d15$ENTREE)), length)
-t &lt;- t[, c(&quot;janvier&quot;,&quot;février&quot;,&quot;mars&quot;, &quot;avril&quot;,&quot;mai&quot;,&quot;juin&quot;,&quot;juillet&quot;, &quot;août&quot;, &quot;septembre&quot;)]
+t &lt;- t[, c(&quot;janvier&quot;,&quot;février&quot;,&quot;mars&quot;, &quot;avril&quot;,&quot;mai&quot;,&quot;juin&quot;,&quot;juillet&quot;, &quot;août&quot;, &quot;septembre&quot;,&quot;octobre&quot;)]
 t
 # nb de jours dans le mois (la séquence doit inclure le mois suivant. SOURCE: https://stat.ethz.ch/pipermail/r-help/2007-August/138116.html)
-n.j &lt;- as.integer(diff(seq(as.Date(&quot;2015-01-01&quot;), as.Date(&quot;2015-10-01&quot;), by = &quot;month&quot;)))
+n.j &lt;- as.integer(diff(seq(as.Date(&quot;2015-01-01&quot;), as.Date(&quot;2015-11-01&quot;), by = &quot;month&quot;)))
 # nb de RPU par mois constant de 30 jours
 t * 30 / n.j
-barplot(tc, main = &quot;Nombre de RPU par mois standards de 30 jours&quot;, col = &quot;cornflowerblue&quot;)
+barplot(t, main = &quot;Nombre de RPU par mois standards de 30 jours&quot;, col = &quot;cornflowerblue&quot;)
 </code></pre>
 <p>Nombre de jour en 2015</p>
 <pre><code>anc &lt;- &quot;2015&quot;
 d1 &lt;- as.Date(paste0(anc, &quot;-01-01&quot;))
 d2 &lt;- as.Date(paste0(as.integer(anc) + 1, &quot;-01-01&quot;))
 n.days &lt;- as.integer(d2-d1)</code></pre>
-<div id="nombre-de-jours-attendus-pour-lannee" class="section level4">
-<h4>Nombre de jours attendus pour l’année:</h4>
-<p><code>{ rpu_extrapoles} n &lt;- nrow(d15) td &lt;- max(as.Date(d15$ENTREE)) - min(as.Date(d15$ENTREE)) n * 365 / as.numeric(td)</code></p>
+<div id="nombre-de-rpu-attendus-pour-lannee" class="section level4">
+<h4>Nombre de RPU attendus pour l’année:</h4>
+<p><code>{ rpu_extrapoles} n &lt;- nrow(d15) td &lt;- max(as.Date(d15$ENTREE)) - min(as.Date(d15$ENTREE)) n * n.days / as.numeric(td)</code></p>
 </div>
 <div id="nb-actuel-de-rpu-par-finess" class="section level4">
 <h4>Nb actuel de RPU par FINESS</h4>
@@ -507,7 +507,7 @@ write.csv(rpu, file=&quot;exaustivite_rpu.csv&quot;) # enregistre la table au fo
 <li>récupérer le fichier source, le décompacter.</li>
 <li>appeler la fonction <strong>parse_rpu</strong> avec la date du jour, qui le transforme en dataframe ```{}</li>
 </ol>
-<p>d &lt;- parse_rpu(“2015-10-15”)</p>
+<p>d &lt;- parse_rpu(“2015-11-01”)</p>
 <p>min(as.Date(d<span class="math">\(ENTREE)) max(as.Date(d\)</span>ENTREE)) <code>3. puis la méthode __analyse_rpu__. Normalement on doit obtenir __16 valeurs__:</code> analyse_rpu_jour(d) <code>4. on peut obtenir une matrice établissement/nb rpu par date avec la formule suivante:</code> t &lt;- tapply(as.Date(d<span class="math">\(ENTREE), list(d\)</span>FINESS, as.Date(d$ENTREE)), length) t(t)</p>
 <pre><code>       3Fr Alk Col Dia Dts Geb Hag Hus Mul Odi Ros Sav Sel Wis</code></pre>
 <p>2015-01-01 48 51 190 59 29 52 129 306 220 15 9 83 85 28 2015-01-02 45 52 210 102 27 43 115 292 200 10 25 94 81 30 2015-01-03 31 42 203 85 30 64 125 323 NA NA 12 106 103 42 2015-01-04 43 39 175 79 21 48 102 291 186 2 12 81 76 31 2015-01-05 45 50 183 74 29 34 155 277 196 72 2 99 71 34 2015-01-06 37 37 153 82 31 48 131 283 176 61 12 84 76 22 2015-01-07 42 41 NA 66 35 39 125 296 156 64 8 69 84 39 ```</p>
@@ -543,7 +543,7 @@ dev.off()
 <div id="focus-mains" class="section level1">
 <h1>Focus mains</h1>
 <p>En 2015:</p>
-<pre><code>mains &lt;- d15[d15$FINESS %in% c(&quot;Dts&quot;,&quot;Ros&quot;),]
+<pre><code>mains &lt;- d15[d15$FINESS %in% c(&quot;Dts&quot;,&quot;Ros&quot;,&quot;Ccm&quot;),]
 nrow(mains)/nrow(d15)
 nrow(mains)*100/nrow(d15)
 
@@ -552,8 +552,13 @@ nrow(ros)
 
 dts &lt;- d15[d15$FINESS == &quot;Dts&quot;,]
 nrow(dts)
+
+ccm &lt;- d15[d15$FINESS == &quot;Ccm&quot;,]
+nrow(ccm)
+
 min(as.Date(dts$ENTREE))
 max(as.Date(dts$ENTREE))
+
 c &lt;- tapply(as.Date(dts$ENTREE), as.Date(dts$ENTREE), length)
 cbind(c)
 </code></pre>

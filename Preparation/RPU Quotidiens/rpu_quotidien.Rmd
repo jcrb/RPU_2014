@@ -205,7 +205,7 @@ file.to.delete <- "/home/jcb/Documents/Resural/Stat Resural/Archives_Sagec/dataQ
 file.remove(file.to.delete)
 
 date1 <- "2015-10-08"
-date2 <- "2015-10-19"
+date2 <- "2015-11-01"
 
 mc <- substr(date1, 6, 7)
 ac <- substr(date1, 1,4)
@@ -279,17 +279,18 @@ write.csv2(t, file = "rpu_par_mois.xls")
 # nb de RPU à mois constant de 30 jours
 n.jours <- as.numeric(max(as.Date(d10$ENTREE))-min(as.Date(d10$ENTREE)) + 1)
 n.rpu.mois.constant <- nrow(d10) * 30 / n.jours
+n.rpu.mois.constant
 
 Total par mois et par mois constants
 ```{}
 t <- tapply(as.Date(d15$ENTREE), months(as.Date(d15$ENTREE)), length)
-t <- t[, c("janvier","février","mars", "avril","mai","juin","juillet", "août", "septembre")]
+t <- t[, c("janvier","février","mars", "avril","mai","juin","juillet", "août", "septembre","octobre")]
 t
 # nb de jours dans le mois (la séquence doit inclure le mois suivant. SOURCE: https://stat.ethz.ch/pipermail/r-help/2007-August/138116.html)
-n.j <- as.integer(diff(seq(as.Date("2015-01-01"), as.Date("2015-10-01"), by = "month")))
+n.j <- as.integer(diff(seq(as.Date("2015-01-01"), as.Date("2015-11-01"), by = "month")))
 # nb de RPU par mois constant de 30 jours
 t * 30 / n.j
-barplot(tc, main = "Nombre de RPU par mois standards de 30 jours", col = "cornflowerblue")
+barplot(t, main = "Nombre de RPU par mois standards de 30 jours", col = "cornflowerblue")
 
 ```
 
@@ -302,12 +303,12 @@ n.days <- as.integer(d2-d1)
 ```
 
 
-#### Nombre de jours attendus pour l'année:
+#### Nombre de RPU attendus pour l'année:
 
 ```{ rpu_extrapoles}
 n <- nrow(d15)
 td <- max(as.Date(d15$ENTREE)) - min(as.Date(d15$ENTREE))
-n * 365 / as.numeric(td)
+n * n.days / as.numeric(td)
 ```
 
 #### Nb actuel de RPU par FINESS
@@ -487,7 +488,7 @@ Objet: mesure de l'activité au jour le jour avant consolidation. En pratique re
 2. appeler la fonction __parse_rpu__ avec la date du jour, qui le transforme en dataframe
 ```{}
 
-d <- parse_rpu("2015-10-19")
+d <- parse_rpu("2015-11-01")
 
 min(as.Date(d$ENTREE))
 max(as.Date(d$ENTREE))
