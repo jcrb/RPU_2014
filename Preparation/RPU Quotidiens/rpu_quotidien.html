@@ -287,7 +287,7 @@ file.to.delete &lt;- &quot;/home/jcb/Documents/Resural/Stat Resural/Archives_Sag
 file.remove(file.to.delete)
 
 date1 &lt;- &quot;2015-10-08&quot;
-date2 &lt;- &quot;2015-11-01&quot;
+date2 &lt;- &quot;2015-11-05&quot;
 
 mc &lt;- substr(date1, 6, 7)
 ac &lt;- substr(date1, 1,4)
@@ -507,7 +507,7 @@ write.csv(rpu, file=&quot;exaustivite_rpu.csv&quot;) # enregistre la table au fo
 <li>récupérer le fichier source, le décompacter.</li>
 <li>appeler la fonction <strong>parse_rpu</strong> avec la date du jour, qui le transforme en dataframe ```{}</li>
 </ol>
-<p>d &lt;- parse_rpu(“2015-11-01”)</p>
+<p>d &lt;- parse_rpu(“2015-11-05”)</p>
 <p>min(as.Date(d<span class="math">\(ENTREE)) max(as.Date(d\)</span>ENTREE)) <code>3. puis la méthode __analyse_rpu__. Normalement on doit obtenir __16 valeurs__:</code> analyse_rpu_jour(d) <code>4. on peut obtenir une matrice établissement/nb rpu par date avec la formule suivante:</code> t &lt;- tapply(as.Date(d<span class="math">\(ENTREE), list(d\)</span>FINESS, as.Date(d$ENTREE)), length) t(t)</p>
 <pre><code>       3Fr Alk Col Dia Dts Geb Hag Hus Mul Odi Ros Sav Sel Wis</code></pre>
 <p>2015-01-01 48 51 190 59 29 52 129 306 220 15 9 83 85 28 2015-01-02 45 52 210 102 27 43 115 292 200 10 25 94 81 30 2015-01-03 31 42 203 85 30 64 125 323 NA NA 12 106 103 42 2015-01-04 43 39 175 79 21 48 102 291 186 2 12 81 76 31 2015-01-05 45 50 183 74 29 34 155 277 196 72 2 99 71 34 2015-01-06 37 37 153 82 31 48 131 283 176 61 12 84 76 22 2015-01-07 42 41 NA 66 35 39 125 296 156 64 8 69 84 39 ```</p>
