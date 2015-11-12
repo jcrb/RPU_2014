@@ -394,6 +394,7 @@ rpu.jour &lt;- as.data.frame.matrix(rpu.par.jour(d15))
 
 # sauvegarde de la matrice
 write.csv(rpu.jour, file = &quot;rpu.jour_31-10-2015.csv&quot;) 
+write.csv(rpu.jour, file = paste0(&quot;rpu_jour_&quot;, anc, &quot;.csv&quot;)) 
 
 # fonction qui compte le nombre de rpu = 0 dans le vecteur x
 rpu.manquant &lt;- function(x){length(which(x == 0))}
