@@ -205,7 +205,7 @@ file.to.delete <- "/home/jcb/Documents/Resural/Stat Resural/Archives_Sagec/dataQ
 file.remove(file.to.delete)
 
 date1 <- "2015-11-08"
-date2 <- "2015-11-08"
+date2 <- "2015-11-12"
 
 mc <- substr(date1, 6, 7)
 ac <- substr(date1, 1,4)
@@ -227,8 +227,8 @@ mois.c <- paste("d", )
 
 ```{}
 d11 <- dx[as.Date(dx$ENTREE) >= "2015-11-01" & as.Date(dx$ENTREE) < "2015-12-01",]
-min(as.Date(d10$ENTREE))
-max(as.Date(d10$ENTREE))
+min(as.Date(d11$ENTREE))
+max(as.Date(d11$ENTREE))
 
 d11 <- normalise(d11)
 save(d11, file="rpu2015d11_provisoire.Rda")
@@ -334,7 +334,7 @@ rpu.jour <- as.data.frame.matrix(rpu.par.jour(d15))
 
 
 # sauvegarde de la matrice
-write.csv(rpu.jour, file = "rpu.jour_31-10-2015.csv") 
+write.csv(rpu.jour, file = "rpu.jour_08-11-2015.csv") 
 write.csv(rpu.jour, file = paste0("rpu_jour_", anc, ".csv")) 
 
 # fonction qui compte le nombre de rpu = 0 dans le vecteur x
@@ -489,7 +489,7 @@ Objet: mesure de l'activité au jour le jour avant consolidation. En pratique re
 2. appeler la fonction __parse_rpu__ avec la date du jour, qui le transforme en dataframe
 ```{}
 
-d <- parse_rpu("2015-11-08")
+d <- parse_rpu("2015-11-12")
 
 min(as.Date(d$ENTREE))
 max(as.Date(d$ENTREE))
