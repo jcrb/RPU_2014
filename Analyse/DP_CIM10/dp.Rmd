@@ -44,9 +44,20 @@ J45 J450 J451 J458 J459  J46
 216  143  243   19 1109   59
 ``` 
 
+Indicateurs InVS
+================
+
+Pour une pathologie donnée, l'InVS calcule le rapport du nombre de cas divisé par le nombre total de diagnostics codés pendant la période ce qui permet de s'affranchir de l'exhaustivité.
+
+
+Initialisation
+==============
+
 ```{r init2, echo=FALSE}
 
 path <- "../../"
+# console: path <- ""
+
 file <- "rpu2014d0112_c2.Rda"
 load(paste0(path, file)) # d14
 
@@ -57,6 +68,9 @@ file2 <- "rpu2015d0112_provisoire.Rda" # d15
 #file2 <- "d15_p.Rda" # d15.p
 load(paste0(path, file2)) 
 dx <- rbind(d1, d14, d15)
+
+#on ne garde que les DP non nuls
+dx<- dx[!is.na(dx$DP),]
 
 dpr<-dx[!is.na(dx$DP),c("DP","CODE_POSTAL","ENTREE","FINESS","GRAVITE","ORIENTATION","MODE_SORTIE","AGE","SEXE","TRANSPORT","DESTINATION", "NAISSANCE")]
 anc <- year(dpr$ENTREE[1]) # année courante
@@ -96,9 +110,11 @@ hist(m)
 Bronchiolites
 =============
 
+On se limite à 2015
+
 ```{r bronchiolites}
 
-bron<-dpr[substr(dpr$DP,1,3)=="J21" & dpr$AGE < 10 ,] # on limite aux moins de 10 ans
+bron<-dpr[substr(dpr$DP,1,3)=="J21" & dpr$AGE < 10 & year(as.Date(dpr$ENTREE)) == 2015,] # on limite aux moins de 10 ans
 n.bron <- nrow(bron) # nombre de bronchiolites
 # age des bronchioloites en mois
 age.bron <- (as.Date(bron$ENTREE) - as.Date(bron$NAISSANCE))/30
@@ -110,13 +126,27 @@ round(n2 * 100 / n.bron, 2) # % de 2 ans et moins
 
 titre <- paste0("Bronchiolites", " - ", anc)
 
-m<-month(bron$ENTREE,label=T)
+# crée un vecteur de date où la date est remplacée par le nom du mois. Puis ont fait le total par mois avec la fonction table:
+m <- month(bron$ENTREE,label=T)
 barplot(table(m),main = titre, xlab="Mois", ylab = "nombre de RPU")
+
+# nombre de RPU codés par mois
+m2 <- month(dpr$ENTREE,label=T)
+
+# rapport du nombre de RPU bronchiolite sur nombre de RPU codés par mois
+barplot(table(m)/table(m2),main = titre, xlab="Mois", ylab = "% du nombre de RPU")
+
 
 # nombre de bronchiolites par semaine
 s<-week(bron$ENTREE)
 n.bronchio.par.semaine <- table(s)
 barplot(table(s),main = titre, xlab = "Semaines", ylab = "nombre de RPU", las = 2, cex.names = 0.8)
+
+# bronchiolite par semaine en pourcentage des RPU codés:
+s2<-week(dpr$ENTREE) # nombre de RPU codés par semaine. Il y a une semaine de plus ? => ajustement nécéssaire:
+barplot(table(s)/table(s2)[1:42],main = titre, xlab = "Semaines", ylab = "proportion de bronchiolite parmi les RPU", las = 2, cex.names = 0.8, col = "orange")
+
+
 
 # ages des enfants en mois
 age.bron <- (as.Date(bron$ENTREE) - as.Date(bron$NAISSANCE))/30
@@ -124,7 +154,10 @@ s.age.bron <- summary(as.numeric(age.bron)) # résumé
 ceiling(as.numeric(s.age.bron["Min."] * 30)) # age min en jours
 
 # sexe
-summary(bron$SEXE)
+table(bron$SEXE)
+pie(table(bron$SEXE), col = c("cornflowerblue", "black","red"), main = "Bronchiolite et sexe", labels = c("Filles", "", "Garçons"))
+
+
 
 # age de tous les RPU en jours
 age.jours <- as.numeric(as.Date(dx$ENTREE) - as.Date(dx$NAISSANCE))
@@ -154,6 +187,17 @@ barplot(a, xlab = "semaines", ylab = "% de bronchiolites", main = "Pourcentage d
 plot(a, type="l", xlab = "semaines", ylab = "% de bronchiolites", main = "Proportion de bronchiolites parmi le total de passages\n chez les enfants de moins de 24 mois")
 
 ```
+
+Avec Xts
+========
+```{r}
+library(xts)
+t <- tapply(as.Date(bron$ENTREE), as.Date(bron$ENTREE), length)
+bronxts <- xts(t, order.by = as.Date(names(t)))
+plot(bronxts)
+
+```
+
 
 Syndrome grippal
 ================

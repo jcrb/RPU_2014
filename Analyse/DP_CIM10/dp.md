@@ -29,7 +29,7 @@ Pour l'analyse, le fichier doit s'appeler dx. Ainsi pour 2014 on mettra dans le 
 ##     as.Date, as.Date.numeric
 ```
 
-Avec __stringr__ il est possible de faire des recherches de chaines comme si on uilisait des expression régulière. Au préalable, pour supprimer le point comme dans J45.1, on peut utiliser l'expression 
+Avec __stringr__ il est possible de faire des recherches de chaines comme si on uilisait des expression régulière. Au préalable, pour supprimer le point comme dans J45.1, on peut utiliser l'expression:
 ```{}
 a <- "J45.1"
 str_replace_all(a, "\\.", "")
@@ -42,8 +42,19 @@ dx.asthme <- dx$DP[!is.na(dx$DP) & str_detect(dx$DP, pattern) == TRUE]
 summary(dx.asthme)
 ```
 On obtient:
+```{}
 J45 J450 J451 J458 J459  J46 
-216  143  243   19 1109   59 
+216  143  243   19 1109   59
+``` 
+
+Indicateurs InVS
+================
+
+Pour une pathologie donnée, l'InVS calcule le rapport du nombre de cas divisé par le nombre total de diagnostics codés pendant la période ce qui permet de s'affranchir de l'exhaustivité.
+
+
+Initialisation
+==============
 
 
 
@@ -75,7 +86,7 @@ ex. avec Sélestat: on crée un objet de type liste formé d'autant de listes qu
 
 ```
    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-   0.00   57.00   63.00   61.49   69.00   92.00 
+   1.00   58.00   63.00   62.08   69.00   92.00 
 ```
 
 ![](dp_files/figure-html/diag_par_jour-1.png) 
@@ -96,7 +107,7 @@ round(n2 * 100 / n.bron, 2) # % de 2 ans et moins
 ```
 
 ```
-## [1] 96.95
+## [1] 96.88
 ```
 
 ```r
@@ -135,7 +146,7 @@ summary(bron$SEXE)
 
 ```
 ##    F    I    M      
-##  989    1 1600    0
+## 1005    1 1618    0
 ```
 
 ```r
@@ -152,7 +163,7 @@ summary(ped2.age)
 
 ```
 ##     Min.  1st Qu.   Median     Mean  3rd Qu.     Max. 
-##  0.03333  4.80000 10.97000 11.13000 17.13000 24.07000
+##  0.03333  4.53300 10.77000 10.98000 17.00000 24.07000
 ```
 
 ```r
@@ -197,7 +208,7 @@ nombre de cas de grippes diagnostiqués aux urgences:
 
 - 2013: 626
 - 2014: 289
-- 2015: 1194
+- 2015: 1205
 
 Grippes en 2014 et 2015
 ------------------------
@@ -239,7 +250,7 @@ Gravité
 ```
 ## 
 ##    1    2    3    4    5    D    P      
-##  556 1389   87    3    1    1    0    0
+##  558 1398   87    3    1    1    0    0
 ```
 
 
@@ -314,4 +325,14 @@ hist(as.Date(chaleur$ENTREE), start.on.monday = TRUE, breaks = "weeks", freq = T
 ```
 
 ![](dp_files/figure-html/unnamed-chunk-1-2.png) 
+
+Maladies à déclaration obligatoire
+==================================
+
+
+```r
+# pattern
+
+typhoide <- "[A][0][1]|[A][0][1][01234]"
+```
 
