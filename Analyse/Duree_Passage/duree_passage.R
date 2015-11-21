@@ -15,7 +15,7 @@
 
 #' @title Dataframe Durée de passage
 #' @description fabrique à partir d'un dataframe de type RPU, un dataframe de type duree_passage comportant les colonnes suivantes:
-#' date/heure d'ebtree, date/heure de sortie, durée de passage (en minutes par défaut), l'heure d'entrée (HMS), l'heure de sortie
+#' date/heure d'entree, date/heure de sortie, durée de passage (en minutes par défaut), l'heure d'entrée (HMS), l'heure de sortie
 #' @usage df.duree.pas(dx, unit = "mins", mintime = 0, maxtime = 3)
 #' @param dx un dataframe de type RPU
 #' @param unit unité de temps. Défaut = mins

@@ -48,7 +48,7 @@ p.isna(dx$SORTIE)
 ```
 
 ```
-[1] 0.1084811
+[1] 0.1075106
 ```
 
 ```r
@@ -59,7 +59,7 @@ summary(t)
 
 ```
    Min. 1st Qu.  Median    Mean 3rd Qu.    Max.    NA's 
-   0.00    2.46    9.21   12.60   15.78   70.73       1 
+   0.00    2.58    9.09   12.46   15.32   70.45       1 
 ```
 
 ```r
@@ -68,9 +68,9 @@ sort(t)
 
 ```
   Dia   Ros   Ccm   Geb   HTP   Col   Wis   Sel   Ane   NHC   Hsr   Hag 
- 0.00  0.00  0.00  1.14  2.02  2.90  4.36  5.51  8.01  9.21  9.60 11.74 
-  Sav   Odi   Dts   Emr   Mul   3Fr   Alk 
-11.86 13.81 17.75 18.00 19.33 33.48 70.73 
+ 0.00  0.00  0.00  1.15  2.01  3.15  4.29  5.44  8.45  9.09  9.09 11.63 
+  Sav   Odi   Emr   Dts   Mul   3Fr   Alk 
+11.98 13.54 17.10 17.53 19.33 32.60 70.45 
 ```
 
 ```r
@@ -189,7 +189,7 @@ summary(pas3$P15)
 
 ```
 ##    Mode   FALSE    TRUE    NA's 
-## logical  281374   66414       0
+## logical  299231   70691       0
 ```
 
 ```r
@@ -200,7 +200,7 @@ summary(n.p15)
 
 ```
 ##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-##     158     211     231     233     252     322
+##   158.0   211.0   229.0   232.5   252.0   322.0
 ```
 
 ```r
@@ -208,7 +208,7 @@ sd(n.p15)
 ```
 
 ```
-## [1] 30.96083
+## [1] 30.55167
 ```
 
 ```r
@@ -226,21 +226,21 @@ ms <- summary(as.factor(pas3$MODE_SORTIE))
 n.hosp <- ms["Mutation"] + ms["Transfert"]
 n.dom <- ms["Domicile"]
 ```
-__Année 2015__ (date de point: 2015-10-12):
+__Année 2015__ (date de point: 2015-10-31):
 
-- nombre de RPU: 395387
-- nombre de PRU où la durée de passage est calculable: 352495
-- nombre de PRU où la durée de passage est conforme: 347788
+- nombre de RPU: 420619
+- nombre de PRU où la durée de passage est calculable: 375398
+- nombre de PRU où la durée de passage est conforme: 369922
 
-- durée de passage moyenne: 180.9183181
+- durée de passage moyenne: 179.5991074
 - durée de passage médiane: 118
 
-- nombre de sorties conformes renseignées: 267961
-- nombre de retour à domicile: 205721
-- nombre d'hospitalisation: 62239
-- taux d'hospitalisation: 0.2322689
+- nombre de sorties conformes renseignées: 287953
+- nombre de retour à domicile: 221561
+- nombre d'hospitalisation: 66391
+- taux d'hospitalisation: 0.2305619
 
-- nombre de patients présents à 15 heures: 233.0315789
+- nombre de patients présents à 15 heures: 232.5361842
 
 Temps de passage de moins de 4 heures
 ----------------------------------------
@@ -256,10 +256,10 @@ n.hosp4 <- ms4["Mutation"] + ms4["Transfert"]
 n.dom4 <- ms4["Domicile"]
 ```
 
-- nombre de sorties en moins de 4 heures renseignées: 204436
-- nombre de retour à domicile en moins de 4 h: 170206
-- nombre d'hospitalisation en moins de 4 h: 34229
-- taux d'hospitalisation en moins de 4 h: 0.1674314
+- nombre de sorties en moins de 4 heures renseignées: 220247
+- nombre de retour à domicile en moins de 4 h: 183650
+- nombre d'hospitalisation en moins de 4 h: 36596
+- taux d'hospitalisation en moins de 4 h: 0.1661589
 
 Temps de passage par jour
 --------------------------
@@ -287,11 +287,11 @@ summary(xts.my.day)
 ```
 ##      Index              xts.my.day   
 ##  Min.   :2015-01-01   Min.   :130.6  
-##  1st Qu.:2015-03-13   1st Qu.:161.6  
-##  Median :2015-05-23   Median :176.0  
-##  Mean   :2015-05-23   Mean   :180.8  
-##  3rd Qu.:2015-08-02   3rd Qu.:201.7  
-##  Max.   :2015-10-12   Max.   :241.0
+##  1st Qu.:2015-03-17   1st Qu.:160.2  
+##  Median :2015-06-01   Median :172.5  
+##  Mean   :2015-06-01   Mean   :179.5  
+##  3rd Qu.:2015-08-16   3rd Qu.:200.7  
+##  Max.   :2015-10-31   Max.   :241.0
 ```
 
 ```r
@@ -321,11 +321,11 @@ summary(xts.my.day)
 ```
 ##      Index              xts.my.day   
 ##  Min.   :2015-01-01   Min.   :202.0  
-##  1st Qu.:2015-03-13   1st Qu.:248.2  
-##  Median :2015-05-23   Median :266.6  
-##  Mean   :2015-05-23   Mean   :266.4  
-##  3rd Qu.:2015-08-02   3rd Qu.:282.3  
-##  Max.   :2015-10-12   Max.   :359.8
+##  1st Qu.:2015-03-17   1st Qu.:247.1  
+##  Median :2015-06-01   Median :264.6  
+##  Mean   :2015-06-01   Mean   :265.3  
+##  3rd Qu.:2015-08-16   3rd Qu.:281.9  
+##  Max.   :2015-10-31   Max.   :359.8
 ```
 
 ```r
@@ -362,7 +362,7 @@ cor(my.day, nb.pas.jour)
 ```
 
 ```
-## [1] 0.3642023
+## [1] 0.3570587
 ```
 
 
@@ -400,7 +400,7 @@ summary(pas5$duree)
 
 ```
 ##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-##       1      62     119     183     223    4320
+##     1.0    62.0   119.0   181.7   222.0  4320.0
 ```
 
 ```r
@@ -425,9 +425,9 @@ kable(t(a))
 
 
 
- Dia   Ros   Ccm    Geb    HTP   Col    Wis    Sel    Ane    NHC   Hsr     Hag     Sav     Odi     Dts   Emr     Mul     3Fr     Alk
-----  ----  ----  -----  -----  ----  -----  -----  -----  -----  ----  ------  ------  ------  ------  ----  ------  ------  ------
-   0     0     0   1.14   2.02   2.9   4.36   5.51   8.01   9.21   9.6   11.74   11.86   13.81   17.75    18   19.33   33.48   70.73
+ Dia   Ros   Ccm    Geb    HTP    Col    Wis    Sel    Ane    NHC    Hsr     Hag     Sav     Odi    Emr     Dts     Mul    3Fr     Alk
+----  ----  ----  -----  -----  -----  -----  -----  -----  -----  -----  ------  ------  ------  -----  ------  ------  -----  ------
+   0     0     0   1.15   2.01   3.15   4.29   5.44   8.45   9.09   9.09   11.63   11.98   13.54   17.1   17.53   19.33   32.6   70.45
 
 Pourcentage de non réponse par jour et par FINESS
 -------------------------------------------------
@@ -451,10 +451,10 @@ for(i in 1:ncol(x)){
 ```
 ##            3Fr
 ## Min.    0.0000
-## 1st Qu. 0.2432
-## Median  0.3409
-## Mean    0.3341
-## 3rd Qu. 0.4348
+## 1st Qu. 0.2272
+## Median  0.3333
+## Mean    0.3238
+## 3rd Qu. 0.4266
 ## Max.    0.9167
 ```
 
@@ -463,10 +463,10 @@ for(i in 1:ncol(x)){
 ```
 ##            Alk
 ## Min.    0.0000
-## 1st Qu. 0.6346
-## Median  0.7273
-## Mean    0.7041
-## 3rd Qu. 0.8163
+## 1st Qu. 0.6238
+## Median  0.7228
+## Mean    0.7005
+## 3rd Qu. 0.8151
 ## Max.    1.0000
 ```
 
@@ -476,9 +476,9 @@ for(i in 1:ncol(x)){
 ##             Ane
 ## Min.    0.00000
 ## 1st Qu. 0.00000
-## Median  0.02083
-## Mean    0.07995
-## 3rd Qu. 0.15490
+## Median  0.06557
+## Mean    0.08535
+## 3rd Qu. 0.16360
 ## Max.    0.35420
 ## NA's    1.00000
 ```
@@ -486,14 +486,14 @@ for(i in 1:ncol(x)){
 ![](duree_passage_files/figure-html/unnamed-chunk-11-4.png) 
 
 ```
-##              Col
-## Min.    0.000000
-## 1st Qu. 0.000000
-## Median  0.009412
-## Mean    0.029500
-## 3rd Qu. 0.056910
-## Max.    0.171600
-## NA's    1.000000
+##             Col
+## Min.    0.00000
+## 1st Qu. 0.00000
+## Median  0.01047
+## Mean    0.03217
+## 3rd Qu. 0.06326
+## Max.    0.17160
+## NA's    1.00000
 ```
 
 ![](duree_passage_files/figure-html/unnamed-chunk-11-5.png) 
@@ -514,8 +514,8 @@ for(i in 1:ncol(x)){
 ##             Dts
 ## Min.    0.00000
 ## 1st Qu. 0.08571
-## Median  0.16220
-## Mean    0.18110
+## Median  0.15950
+## Mean    0.17850
 ## 3rd Qu. 0.25000
 ## Max.    1.00000
 ```
@@ -527,8 +527,8 @@ for(i in 1:ncol(x)){
 ## Min.    0.00000
 ## 1st Qu. 0.00000
 ## Median  0.00000
-## Mean    0.01120
-## 3rd Qu. 0.01923
+## Mean    0.01128
+## 3rd Qu. 0.01971
 ## Max.    0.22920
 ```
 
@@ -537,10 +537,10 @@ for(i in 1:ncol(x)){
 ```
 ##             Hag
 ## Min.    0.01626
-## 1st Qu. 0.07519
-## Median  0.10770
-## Mean    0.11660
-## 3rd Qu. 0.15250
+## 1st Qu. 0.07407
+## Median  0.10610
+## Mean    0.11540
+## 3rd Qu. 0.15110
 ## Max.    0.28470
 ```
 
@@ -554,7 +554,7 @@ for(i in 1:ncol(x)){
 ## Mean     0.1856
 ## 3rd Qu.  0.2158
 ## Max.     0.8828
-## NA's    46.0000
+## NA's    65.0000
 ```
 
 ![](duree_passage_files/figure-html/unnamed-chunk-11-10.png) 
@@ -562,10 +562,10 @@ for(i in 1:ncol(x)){
 ```
 ##             Odi
 ## Min.    0.00000
-## 1st Qu. 0.08772
-## Median  0.12880
-## Mean    0.13580
-## 3rd Qu. 0.16930
+## 1st Qu. 0.08333
+## Median  0.12730
+## Mean    0.13300
+## 3rd Qu. 0.16890
 ## Max.    0.66670
 ## NA's    1.00000
 ```
@@ -587,10 +587,10 @@ for(i in 1:ncol(x)){
 ```
 ##             Sav
 ## Min.    0.00000
-## 1st Qu. 0.06818
-## Median  0.11590
-## Mean    0.11660
-## 3rd Qu. 0.16470
+## 1st Qu. 0.06803
+## Median  0.11800
+## Mean    0.11790
+## 3rd Qu. 0.16520
 ## Max.    0.30340
 ```
 
@@ -599,10 +599,10 @@ for(i in 1:ncol(x)){
 ```
 ##              Sel
 ## Min.     0.00000
-## 1st Qu.  0.02319
-## Median   0.04348
-## Mean     0.08939
-## 3rd Qu.  0.07507
+## 1st Qu.  0.02260
+## Median   0.04301
+## Mean     0.08627
+## 3rd Qu.  0.07407
 ## Max.     1.00000
 ## NA's    13.00000
 ```
@@ -614,7 +614,7 @@ for(i in 1:ncol(x)){
 ## Min.    0.00000
 ## 1st Qu. 0.00000
 ## Median  0.03226
-## Mean    0.04416
+## Mean    0.04327
 ## 3rd Qu. 0.06522
 ## Max.    0.21950
 ```
@@ -622,13 +622,13 @@ for(i in 1:ncol(x)){
 ![](duree_passage_files/figure-html/unnamed-chunk-11-15.png) 
 
 ```
-##              HTP
-## Min.    0.000000
-## 1st Qu. 0.009569
-## Median  0.018940
-## Mean    0.020260
-## 3rd Qu. 0.028690
-## Max.    0.070180
+##             HTP
+## Min.    0.00000
+## 1st Qu. 0.00978
+## Median  0.01890
+## Mean    0.02022
+## 3rd Qu. 0.02844
+## Max.    0.07018
 ```
 
 ![](duree_passage_files/figure-html/unnamed-chunk-11-16.png) 
@@ -637,9 +637,9 @@ for(i in 1:ncol(x)){
 ##             NHC
 ## Min.    0.00000
 ## 1st Qu. 0.05000
-## Median  0.08333
-## Mean    0.09427
-## 3rd Qu. 0.13160
+## Median  0.08151
+## Mean    0.09306
+## 3rd Qu. 0.13100
 ## Max.    0.45310
 ```
 
@@ -648,12 +648,12 @@ for(i in 1:ncol(x)){
 ```
 ##              Emr
 ## Min.      0.0000
-## 1st Qu.   0.1543
-## Median    0.1826
-## Mean      0.1787
-## 3rd Qu.   0.2077
+## 1st Qu.   0.1488
+## Median    0.1788
+## Mean      0.1699
+## 3rd Qu.   0.2086
 ## Max.      0.3072
-## NA's    222.0000
+## NA's    223.0000
 ```
 
 ![](duree_passage_files/figure-html/unnamed-chunk-11-18.png) 
@@ -661,12 +661,12 @@ for(i in 1:ncol(x)){
 ```
 ##               Hsr
 ## Min.      0.00000
-## 1st Qu.   0.05469
-## Median    0.08990
-## Mean      0.09732
-## 3rd Qu.   0.12910
-## Max.      0.22220
-## NA's    243.00000
+## 1st Qu.   0.04837
+## Median    0.08760
+## Mean      0.08985
+## 3rd Qu.   0.12640
+## Max.      0.25530
+## NA's    244.00000
 ```
 
 ![](duree_passage_files/figure-html/unnamed-chunk-11-19.png) 
@@ -753,7 +753,7 @@ Un patient est-il présent à une heure donnée ?
 
 ```
 ##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-##     158     211     231     233     252     322
+##   158.0   211.0   229.0   232.5   252.0   322.0
 ```
 
 ```r
@@ -761,7 +761,7 @@ Un patient est-il présent à une heure donnée ?
 ```
 
 ```
-## [1] 30.96083
+## [1] 30.55167
 ```
 
 ```r
@@ -784,7 +784,7 @@ Un patient est-il présent à une heure donnée ?
 
 ```
 ##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-##   15.00   25.00   30.00   31.09   36.00   63.00
+##   14.00   24.00   30.00   30.77   36.00   63.00
 ```
 
 ```r
@@ -812,7 +812,7 @@ En période de canicule, le nombre de présents à 2 heures du matin est anormal
 
 ```
 ##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-##   32.00   50.00   57.00   57.82   65.00   93.00
+##   32.00   50.00   56.00   57.59   65.00   93.00
 ```
 
 ```r

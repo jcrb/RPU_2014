@@ -204,8 +204,8 @@ source("Preparation/RPU Quotidiens/quot_utils.R")
 file.to.delete <- "/home/jcb/Documents/Resural/Stat Resural/Archives_Sagec/dataQ/archivesCsv/rpu2014.data"
 file.remove(file.to.delete)
 
-date1 <- "2015-10-08"
-date2 <- "2015-11-01"
+date1 <- "2015-11-08"
+date2 <- "2015-11-12"
 
 mc <- substr(date1, 6, 7)
 ac <- substr(date1, 1,4)
@@ -226,17 +226,17 @@ num.mc <- 1 # numéro du mois courant
 mois.c <- paste("d", )
 
 ```{}
-d10 <- dx[as.Date(dx$ENTREE) >= "2015-10-01" & as.Date(dx$ENTREE) < "2015-11-01",]
-min(as.Date(d10$ENTREE))
-max(as.Date(d10$ENTREE))
+d11 <- dx[as.Date(dx$ENTREE) >= "2015-11-01" & as.Date(dx$ENTREE) < "2015-12-01",]
+min(as.Date(d11$ENTREE))
+max(as.Date(d11$ENTREE))
 
-d10 <- normalise(d10)
-save(d10, file="rpu2015d10_provisoire.Rda")
+d11 <- normalise(d11)
+save(d11, file="rpu2015d11_provisoire.Rda")
 rm(dx)
 
 # si le mois est complet:
-# save(d10, file="rpu2015d10.Rda")
-# rm(rpu2015d10_provisoire.Rda)
+# save(d11, file="rpu2015d11.Rda")
+# rm(rpu2015d11_provisoire.Rda)
 
 # uniquement le premier mois
 # d15 <- d01
@@ -253,10 +253,10 @@ rm(dx)
 # load("rpu2015d08.Rda") # mois précédent
 
 load("RPU_2014/rpu2015d0112_provisoire.Rda") # load("rpu2015d0112_provisoire.Rda") # si console
-d15 <- d15[as.Date(d15$ENTREE) < "2015-10-01",]
+d15 <- d15[as.Date(d15$ENTREE) < "2015-11-01",]
 
 # dx <- rbind(d01, d02, d03, d04, d05, d06, d07, d08)
-dx <- rbind(d15, d10)
+dx <- rbind(d15, d11)
 
 min(as.Date(dx$ENTREE))
 max(as.Date(dx$ENTREE))
@@ -266,13 +266,13 @@ save(d15, file="rpu2015d0112_provisoire.Rda")
 
 # Table des RPU par jour et par FINESS pour le mois en cours
 # n <- tapply(as.Date(dsi$ENTREE), list(as.Date(dsi$ENTREE), dsi$FINESS), length)
-rpu.par.jour(d10)
+rpu.par.jour(d11)
 ```
 
 Total RPU par mois et par FINESS
 ```{}
 t <- tapply(as.Date(d15$ENTREE), list(d15$FINESS, months(as.Date(d15$ENTREE))), length)
-t <- t[, c("janvier","février","mars", "avril","mai","juin","juillet", "août", "septembre", "octobre")]
+t <- t[, c("janvier","février","mars", "avril","mai","juin","juillet", "août", "septembre", "octobre", "novembre")]
 write.csv2(t, file = "rpu_par_mois.xls")
 ```
 
@@ -284,10 +284,10 @@ n.rpu.mois.constant
 Total par mois et par mois constants
 ```{}
 t <- tapply(as.Date(d15$ENTREE), months(as.Date(d15$ENTREE)), length)
-t <- t[, c("janvier","février","mars", "avril","mai","juin","juillet", "août", "septembre","octobre")]
+t <- t[, c("janvier","février","mars", "avril","mai","juin","juillet", "août", "septembre","octobre", "novembre")]
 t
 # nb de jours dans le mois (la séquence doit inclure le mois suivant. SOURCE: https://stat.ethz.ch/pipermail/r-help/2007-August/138116.html)
-n.j <- as.integer(diff(seq(as.Date("2015-01-01"), as.Date("2015-11-01"), by = "month")))
+n.j <- as.integer(diff(seq(as.Date("2015-01-01"), as.Date("2015-12-01"), by = "month")))
 # nb de RPU par mois constant de 30 jours
 t * 30 / n.j
 barplot(t, main = "Nombre de RPU par mois standards de 30 jours", col = "cornflowerblue")
@@ -334,7 +334,8 @@ rpu.jour <- as.data.frame.matrix(rpu.par.jour(d15))
 
 
 # sauvegarde de la matrice
-write.csv(rpu.jour, file = "rpu.jour_31-10-2015.csv") 
+write.csv(rpu.jour, file = "rpu.jour_08-11-2015.csv") 
+write.csv(rpu.jour, file = paste0("rpu_jour_", anc, ".csv")) 
 
 # fonction qui compte le nombre de rpu = 0 dans le vecteur x
 rpu.manquant <- function(x){length(which(x == 0))}
@@ -488,7 +489,7 @@ Objet: mesure de l'activité au jour le jour avant consolidation. En pratique re
 2. appeler la fonction __parse_rpu__ avec la date du jour, qui le transforme en dataframe
 ```{}
 
-d <- parse_rpu("2015-11-01")
+d <- parse_rpu("2015-11-12")
 
 min(as.Date(d$ENTREE))
 max(as.Date(d$ENTREE))
@@ -870,7 +871,14 @@ Objet: alimenter le site RESURAL
 
 ```{}
 library(lubridate)
-tapply(as.Date(dx$ENTREE), month(as.Date(dx$ENTREE)), length)
+rpu.mois <- tapply(as.Date(dx$ENTREE), month(as.Date(dx$ENTREE)), length)
+rpu.mois
+
+# nb de jours dans le mois (la séquence doit inclure le mois suivant. SOURCE: https://stat.ethz.ch/pipermail/r-help/2007-August/138116.html). NE PAS OUBLIER de mettre à jour le dernier mois
+n.j <- as.integer(diff(seq(as.Date("2015-01-01"), as.Date("2015-11-01"), by = "month")))
+# nb de RPU par mois constant de 30 jours
+rpu.mois.cst <- rpu.mois * 30 / n.j
+barplot(rpu.mois.cst, main = "Nombre de RPU par mois standards de 30 jours", col = "cornflowerblue")
 
 ```
 
