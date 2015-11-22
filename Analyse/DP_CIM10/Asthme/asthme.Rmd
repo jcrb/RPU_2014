@@ -86,7 +86,7 @@ ped.dp.rens <- ped[!is.na(ped$DP),]
 n.ped.dp.rens <- nrow(ped.dp.rens)
 s.ped.dp.rens <- resume.mode.sortie(ped.dp.rens$MODE_SORTIE)
 ```
-La recherche des codes CIM10 utilse la fonction __str_detect__ de _stringr_. Cette fonction utilise deux arguments, un vecteur où se trouvent les caractères à chercher et un _pattern_ qui peut ^etre une expression régulière. C'est ce qui est utilisé ici: on veut identifier tous les enregistrements commençant par 'J' suivi du chiffre '4' puis des chiffres '5' ou '6'.
+La recherche des codes CIM10 utilse la fonction __str_detect__ de _stringr_. Cette fonction utilise deux arguments, un vecteur où se trouvent les caractères à chercher et un _pattern_ qui peut être une expression régulière. C'est ce qui est utilisé ici: on veut identifier tous les enregistrements commençant par 'J' suivi du chiffre '4' puis des chiffres '5' ou '6'.
 
 pattern <- "[J][4][56]"
 
