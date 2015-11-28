@@ -1,0 +1,83 @@
+---
+title: "Charge d'occupation"
+author: "JcB"
+date: "26/11/2015"
+output: html_document
+---
+
+Charge d’occupation : nombre de patients présents pendant une tranche horaire définie.
+
+fichier test: 1er janvier 2014 à Wissembourg
+```{r}
+load("~/Documents/Resural/Stat Resural/RPU_2014/rpu2014d0112_c2.Rda")
+dx <- d14[d14$FINESS == "Wis" & as.Date(d14$ENTREE) == "2014-01-01",]
+
+```
+
+Library nécessaires:
+```{r}
+library(Rpu2)
+library(lubridate)
+
+```
+
+Heures d'arrivées et de départ
+```{r}
+he <- horaire(dx$ENTREE)
+hs <- horaire(dx$SORTIE)
+a <- he[1]
+a
+a < hms("00:00:00")
+a < hms("15:00:00")
+
+```
+- nombre total d'arrivées: `r length(he)`
+- nombre total de départs: `r length(hs)`
+- nombre d'arrivées et de sorties par heure:
+```{r}
+n.he <- tapply(he, hour(he), length)
+n.hs <- tapply(hs, hour(hs), length)
+```
+
+
+Nombre de patients arrivés  entre 8h et 9h
+```{r}
+h1 <- hms("08:00:00")
+h2 <- hms("09:00:00")
+
+h8_9 <- he[he > h1 & he < h2]
+length(h8_9)
+
+une.heure <- hms("01:00:00")
+h1 <- h1 + une.heure
+h2 <- h1 + une.heure
+h8_9 <- he[he > h1 & he < h2]
+length(h8_9)
+```
+
+Nombre de patients présents entre 8h et 9 h
+```{r}
+h1 <- hms("08:00:00")
+h2 <- hms("09:00:00")
+
+in.interval <- function(h1, h2, he, hs){
+  i <- (he < h1 & hs > h1)
+  j <- (he > h1 & hs < h2)
+  k <- (he < h2 & hs > h2)
+  
+  a <- i|j|k
+  return(a)
+  }
+
+n <- 39
+for(i in 1:39){a[i] = in.interval(h1, h2, he[i], hs[i])}
+sum(a)
+
+une.heure <- hms("01:00:00")
+h1 <- h1 + une.heure
+h2 <- h1 + une.heure
+for(i in 1:39){a[i] = in.interval(h1, h2, he[i], hs[i])}
+sum(a)
+
+```
+

@@ -2,7 +2,10 @@
 title: "Cate des RPU produits par territoire de santé"
 author: "JcB"
 date: "03/11/2015"
-output: html_document
+output:
+  html_document:
+    keep_md: yes
+  pdf_document: default
 ---
 Objectif: dessiner une carte de l'Alsace avec une représentation du nombre de RPU produits par chacun des douze territoires de proximié. Les RPU sont représentés par des cercles dont la superficie est proportionnelle au nombre de RPU.
 
@@ -14,28 +17,40 @@ Réalisation: il faut disposer:
 - de la position des 12 villes correspondant au 12 territoires de proximité: ts
 - d'une liste du nombre de RPU par territoire de proximité
 
-```{r}
-anc <- "2014"
-#library(sp)
+```{r, echo=FALSE}
+anc <- "2015"
+library(sp)
 par(mar = c(0,0,2,0))
+
+# en mode console retirer ../../
 load("../../../../Stat Resural/RPU_Doc/RPU_Carto-Pop-Alsace/Cartographie/Cartofile/als_ts.Rda") #ctss
 load("../../../../Stat Resural/RPU_Doc/RPU_Carto-Pop-Alsace/Cartographie/Cartofile/tsvilles.Rda") # tsvilles
 
 ```
-```{r}
+```{r, echo=FALSE}
 # calcul du nombre de RPU par TP en 2014
-load("/home/jcb/Documents/Resural/Stat Resural/RPU_2014/rpu2014d0112_c2.Rda")
-t <- tapply(as.Date(d14$ENTREE), d14$FINESS, length)
-rpu <- c(t['Wis'], t['Sel'], t['Hag'], t['Sav'], NA, t['Hus']+t['Ane']+t['Odi']+t['Dts'], t['3Fr'], NA, t['Alk'], t['Col'], t['Mul']+t['Dia']+t['Ros'], t['Geb'])
+if(anc == 2014){
+  load("/home/jcb/Documents/Resural/Stat Resural/RPU_2014/rpu2014d0112_c2.Rda")
+  dx <- d14
+  t <- tapply(as.Date(dx$ENTREE), dx$FINESS, length)
+  rpu <- c(t['Wis'], t['Sel'], t['Hag'], t['Sav'], NA, t['Hus']+t['Ane']+t['Odi']+t['Dts'], t['3Fr'], NA, t['Alk'], t['Col'],t['Mul']+t['Dia']+t['Ros'], t['Geb'])
+} else if(anc == 2015){
+  load("/home/jcb/Documents/Resural/Stat Resural/RPU_2014/rpu2015d0112_provisoire.Rda")
+  dx <- d15
+  t <- tapply(as.Date(dx$ENTREE), dx$FINESS, length)
+  rpu <- c(t['Wis'], t['Sel'], t['Hag'], t['Sav'], NA, t['HTP']+t['NHC']+t['Ane']+t['Odi']+t['Dts'], t['3Fr'], NA, t['Alk'], t['Col'], t['Mul']+t['Dia']+t['Ros']+t['Emr']+t['Hsr'], t['Geb'])
+
+}
+
+# ajout de la colonne rpu à tsvilles
+tsvilles$rpu <- rpu
 
 ```
 
-```{r carte}
+```{r carte, fig.height=8, echo=FALSE}
 # carte générale
-plot(ctss, main = paste("Volume de RPU produits par territoire de proximité en", anc), col = "palegreen")
-```
+plot(ctss, main = paste("Nombre de RPU produits par territoire de proximité en", anc), col = "palegreen")
 
-```{r}
 # on tace des points proportionnels
 bg <- "cornflowerblue"
 cex <- 0.05
@@ -45,11 +60,16 @@ rpu_legend <- c(10000, 30000, 60000, 100000)
 legend("topleft", legend = rpu_legend, pch = 21, col = "white", pt.bg = bg, bty = "n", pt.cex = cex * sqrt(rpu_legend / pi), title = "Nombre de RPU")
 
 ```
-```{r}
-# on ajoute la colonne RPU au dataframe tsville
-tsvilles <- cbind(tsvilles, rpu)
+
+La surface des cercles est proportionnelle au nombre de RPU. Il manque des informations sur deux territoires: Schirmeck et Thann. En 2014, le nombre de RPU de la zone Strasbourg est fortement sous estimé.
+
+```{r, echo=FALSE, results='asis'}
+
+library(xtable)
+
+type = "html"
+print.xtable(xtable(tsvilles[, c(1, 4)], caption = paste0("RPU produits en ", anc, " par zone de proximité")), type = type, include.rownames = FALSE, format.args = list(big.mark = " ", decimal.mark = ","), comment = FALSE)
+
 
 ```
 
-
-La surface des cercles est proportionnelle au nombre de RPU. Il manque des informations sur deux territoires: Schirmeck et Thann.
