@@ -78,7 +78,7 @@ img {
 <li><a href="#si-un-seul-fichier-de-rattrapage">Si un seul fichier de rattrapage</a></li>
 <li><a href="#si-on-a-une-collection-de-fichiers">Si on a une collection de fichiers:</a></li>
 </ul></li>
-<li><a href="#nb-de-rpu-a-mois-constant-de-30-jours">nb de RPU à mois constant de 30 jours</a><ul>
+<li><a href="#mois-courant-projection-du-nb-de-rpu-a-mois-constant-de-30-jours.">Mois courant: projection du nb de RPU à mois constant de 30 jours.</a><ul>
 <li><a href="#bilan-des-rpu-a-la-date-du-3172015">bilan des RPU à la date du 31/7/2015</a></li>
 <li><a href="#recherche-de-doublons-code_postal-commune-entree-finess-naissance-sexe">Recherche de doublons: CODE_POSTAL, COMMUNE, ENTREE, FINESS, NAISSANCE, SEXE</a></li>
 <li><a href="#exhaustivite-des-donnees">exhaustivité des données</a></li>
@@ -287,7 +287,7 @@ file.to.delete &lt;- &quot;/home/jcb/Documents/Resural/Stat Resural/Archives_Sag
 file.remove(file.to.delete)
 
 date1 &lt;- &quot;2015-11-08&quot;
-date2 &lt;- &quot;2015-11-12&quot;
+date2 &lt;- &quot;2015-11-26&quot;
 
 mc &lt;- substr(date1, 6, 7)
 ac &lt;- substr(date1, 1,4)
@@ -352,18 +352,27 @@ write.csv2(t, file = &quot;rpu_par_mois.xls&quot;)</code></pre>
 </div>
 </div>
 </div>
-<div id="nb-de-rpu-a-mois-constant-de-30-jours" class="section level1">
-<h1>nb de RPU à mois constant de 30 jours</h1>
-<p>n.jours &lt;- as.numeric(max(as.Date(d10<span class="math">\(ENTREE))-min(as.Date(d10\)</span>ENTREE)) + 1) n.rpu.mois.constant &lt;- nrow(d10) * 30 / n.jours n.rpu.mois.constant</p>
+<div id="mois-courant-projection-du-nb-de-rpu-a-mois-constant-de-30-jours." class="section level1">
+<h1>Mois courant: projection du nb de RPU à mois constant de 30 jours.</h1>
+<p>n.jours &lt;- as.numeric(max(as.Date(d11<span class="math">\(ENTREE))-min(as.Date(d11\)</span>ENTREE)) + 1) n.rpu.mois.constant &lt;- nrow(d11) * 30 / n.jours n.rpu.mois.constant</p>
 <p>Total par mois et par mois constants</p>
-<pre><code>t &lt;- tapply(as.Date(d15$ENTREE), months(as.Date(d15$ENTREE)), length)
-t &lt;- t[, c(&quot;janvier&quot;,&quot;février&quot;,&quot;mars&quot;, &quot;avril&quot;,&quot;mai&quot;,&quot;juin&quot;,&quot;juillet&quot;, &quot;août&quot;, &quot;septembre&quot;,&quot;octobre&quot;, &quot;novembre&quot;)]
+<pre><code># Total par mois (non corrigé). Il vaut mieux utiliser la fonction 'month' de Lubridate qui conserve l'ordre calendaire
+# des mois plutôt que 'months' qui retourne les résultats en ordre dispersé. Par contre le nom des mois est en anglais.
+t &lt;- tapply(as.Date(d15$ENTREE), month(as.Date(d15$ENTREE), label = TRUE), length)
+names(t) &lt;- c(&quot;janvier&quot;,&quot;février&quot;,&quot;mars&quot;, &quot;avril&quot;,&quot;mai&quot;,&quot;juin&quot;,&quot;juillet&quot;, &quot;août&quot;, &quot;septembre&quot;,&quot;octobre&quot;, &quot;novembre&quot;)
+
 t
+
 # nb de jours dans le mois (la séquence doit inclure le mois suivant. SOURCE: https://stat.ethz.ch/pipermail/r-help/2007-August/138116.html)
 n.j &lt;- as.integer(diff(seq(as.Date(&quot;2015-01-01&quot;), as.Date(&quot;2015-12-01&quot;), by = &quot;month&quot;)))
-# nb de RPU par mois constant de 30 jours
-t * 30 / n.j
-barplot(t, main = &quot;Nombre de RPU par mois standards de 30 jours&quot;, col = &quot;cornflowerblue&quot;)
+
+# nb de RPU par mois constant de 30 jours. On supprime les valeurs de t égales à NA, correspondant aux mois manquants
+# par exemple décembre si la série s'arrête à novembre
+t.corrige &lt;- t[1:length(t[!is.na(t)])] * 30 / n.j
+
+barplot(t.corrige, main = &quot;Nombre de RPU par mois standards de 30 jours&quot;, col = &quot;cornflowerblue&quot;)
+
+barplot(t2, beside = TRUE, cex.names = 0.7)
 </code></pre>
 <p>Nombre de jour en 2015</p>
 <pre><code>anc &lt;- &quot;2015&quot;
@@ -393,7 +402,7 @@ rpu.jour &lt;- as.data.frame.matrix(rpu.par.jour(d15))
 
 
 # sauvegarde de la matrice
-write.csv(rpu.jour, file = &quot;rpu.jour_08-11-2015.csv&quot;) 
+write.csv(rpu.jour, file = &quot;rpu.jour_26-11-2015.csv&quot;) 
 write.csv(rpu.jour, file = paste0(&quot;rpu_jour_&quot;, anc, &quot;.csv&quot;)) 
 
 # fonction qui compte le nombre de rpu = 0 dans le vecteur x
@@ -415,11 +424,11 @@ rpu.manquant &lt;- function(x){length(which(x &lt; 20))}
 
 load(&quot;~/Documents/Stat Resural/RPU_2014/rpu2015d0112_provisoire.Rda&quot;)
 
-library(xts)
-rpu &lt;- read.csv(&quot;rpu.jour_31-09-2015.csv&quot;)
+rpu &lt;- read.csv(&quot;rpu.jour_26-11-2015.csv&quot;)
 names(rpu)[1] &lt;- &quot;date&quot;
 names(rpu)[2] &lt;- &quot;3Fr&quot;
 
+library(xts)
 xts &lt;- xts(rpu, order.by = as.Date(rpu$date), frequency = TRUE)
 
 # exemple de Sélestat:
@@ -445,6 +454,7 @@ s.b &lt;- summary(b)
 sd.b &lt;- sd(b)
 
 # on dessine les nouvelles limites:
+abline(h = s.b[&quot;Mean&quot;], col = &quot;red&quot;)
 abline(h = summary(b)[&quot;Mean&quot;] - sd(b), col = &quot;blue&quot;, lty = 2)
 abline(h = summary(b)[&quot;Mean&quot;] - sd(b) * 2, col = &quot;blue&quot;, lty = 2)
 abline(h = summary(b)[&quot;Mean&quot;] - sd(b) * 3, col = &quot;blue&quot;, lty = 2)
@@ -483,9 +493,9 @@ write.csv(rpu, file=&quot;exaustivite_rpu.csv&quot;) # enregistre la table au fo
 <h1>Résumé activité</h1>
 <p>On crée un tableau Finess x Jour de l’année permettant de voir rapidement où sont les “trous”. A partir du tableau <strong>rpu</strong> on crée un dataframe <strong>a</strong> comportant deux colonnes: la date du jour et le nombre de RPU correspondants pour l’ensemble des SU d’Alsace. Ce dataframe peut être utilisé pour <strong>Dygraph</strong>.</p>
 <p>On peut aussi l’utiliser pour tracer le graphe correspondant.</p>
-<p>A partir de la table <strong>rpu</strong> crée précédamment, pn ajout une colonne avec la somme de la ligne, ce qui correspond au nombre de RPU créés quotidiennement. Puis on transforme le tableau <em>rpu</em> en dataframe appelé <strong>a</strong> où ne sont conservée que deux colonnes, la date du jour et le nombre de RPU. Le dataframe <em>a</em> est transformé en objet <em>xts</em> appelé <strong>x</strong>, ce qui permet de l’afficher sous forme de graphe d’une série temporelle.</p>
+<p>A partir de la table <strong>rpu</strong> crée précédamment, on ajoute une colonne avec la somme de la ligne, ce qui correspond au nombre de RPU créés quotidiennement. Puis on transforme le tableau <em>rpu</em> en dataframe appelé <strong>a</strong> où ne sont conservée que deux colonnes, la date du jour et le nombre de RPU. Le dataframe <em>a</em> est transformé en objet <em>xts</em> appelé <strong>x</strong>, ce qui permet de l’afficher sous forme de graphe d’une série temporelle.</p>
 <p>```{ activite}</p>
-<p>s &lt;- rowSums(rpu) b &lt;- rownames(rpu) a &lt;- as.data.frame(cbind(b,s)) m &lt;- rowMeans(rpu)</p>
+<p>s &lt;- rowSums(rpu[, 2:ncol(rpu)]) b &lt;- rownames(rpu) a &lt;- as.data.frame(cbind(b,s)) m &lt;- rowMeans(rpu[, 2:ncol(rpu)])</p>
 <p>colnames(a) &lt;- c(“Date”,“RPU”) a<span class="math">\(Date &lt;- as.Date(a\)</span>Date) a<span class="math">\(RPU &lt;- as.numeric(as.character(a\)</span>RPU)) # transforme les facteurs en nombre</p>
 <p>library(“xts”) library(“lubridate”)</p>
 <p>plot(a<span class="math">\(Date, a\)</span>RPU, type=“l”, ylab=“nombre de RPU”, xlab=paste0(“Année”, year(Sys.Date())), main=“Activité des SU d’Alsace en nombre de RPU”)</p>
@@ -508,7 +518,7 @@ write.csv(rpu, file=&quot;exaustivite_rpu.csv&quot;) # enregistre la table au fo
 <li>récupérer le fichier source, le décompacter.</li>
 <li>appeler la fonction <strong>parse_rpu</strong> avec la date du jour, qui le transforme en dataframe ```{}</li>
 </ol>
-<p>d &lt;- parse_rpu(“2015-11-12”)</p>
+<p>d &lt;- parse_rpu(“2015-11-26”)</p>
 <p>min(as.Date(d<span class="math">\(ENTREE)) max(as.Date(d\)</span>ENTREE)) <code>3. puis la méthode __analyse_rpu__. Normalement on doit obtenir __16 valeurs__:</code> analyse_rpu_jour(d) <code>4. on peut obtenir une matrice établissement/nb rpu par date avec la formule suivante:</code> t &lt;- tapply(as.Date(d<span class="math">\(ENTREE), list(d\)</span>FINESS, as.Date(d$ENTREE)), length) t(t)</p>
 <pre><code>       3Fr Alk Col Dia Dts Geb Hag Hus Mul Odi Ros Sav Sel Wis</code></pre>
 <p>2015-01-01 48 51 190 59 29 52 129 306 220 15 9 83 85 28 2015-01-02 45 52 210 102 27 43 115 292 200 10 25 94 81 30 2015-01-03 31 42 203 85 30 64 125 323 NA NA 12 106 103 42 2015-01-04 43 39 175 79 21 48 102 291 186 2 12 81 76 31 2015-01-05 45 50 183 74 29 34 155 277 196 72 2 99 71 34 2015-01-06 37 37 153 82 31 48 131 283 176 61 12 84 76 22 2015-01-07 42 41 NA 66 35 39 125 296 156 64 8 69 84 39 ```</p>

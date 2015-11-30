@@ -21,6 +21,31 @@ Je forme un dataframe qui englobe tous les RPU du 31 décembre 2014 et du 1er ja
 
 [Voir vigette lubridate](http://cran.r-project.org/web/packages/lubridate/vignettes/lubridate.html)
 
+Les calculs se font à partir de la colonne ENTREE qui contient des objets DateTime au format Character. Il faut donc transformer des chaines de caractères en objets temporels. C'est le travail de la fonction __parse_date_time__:
+```{}
+POSIXct <- parse_date_time(character, format)
+```
+La fonction __new_interval__ permet de créer un intervalle entre 2 dates puis de tester la présence d'une date dans cet intervalle avec la méthode __%within%__. L'objet _intervall_ contient en interne la durée de l'intervalle en secondes. On peut la récupérer avec __as.duration()__ et convertir le résultat en heure (en divisant par 3600):
+```{}
+date1 <- as.POSIXct("2013-12-31 19:59:59")
+date2 <- as.POSIXct("2014-01-01 07:59:59")
+
+i <- new_interval(date1, date2)
+as.duration(i)
+as.numeric(as.duration(i))/3600
+
+```
+Lorsque un objet datetime est au format POSIXct, on peut extraire le groupe horaire avec __format__:
+```{}
+format(date1, "%X")
+```
+et la date au format local:
+```{}
+format(date1, "%x")
+```
+
+
+
 ```{r}
 library("lubridate")
 source("../../Preparation/RPU Quotidiens/quot_utils.R")
@@ -61,6 +86,8 @@ for(i in calendrier){
   return(date1)
 }
 
+```{}
+
 S60-S69  Lésions traumatiques du poignet et de la main 
 
 S60  Lésion traumatique superficielle du poignet et de la main
@@ -82,7 +109,12 @@ S054	TRAUMA	Traumatologique	TRAU_TETEC	Traumatologie de la tête et du cou	TRAU_
 S055	TRAUMA	Traumatologique	TRAU_TETEC	Traumatologie de la tête et du cou	TRAU_OPHT	Lésions de l'oeil ou de l'orbite
 S056	TRAUMA	Traumatologique	TRAU_TETEC	Traumatologie de la tête et du cou	TRAU_OPHT	Lésions de l'oeil ou de l'orbite
 
-Lésions par un matériaux explosif: W40, w39
+W39	Projections de feu d'artifice 
+
+Y25  Contact avec matériel explosif, intention non déterminée
+Y25.9   Contact avec du matériel explosif
+
+```
 
 
 Question 2

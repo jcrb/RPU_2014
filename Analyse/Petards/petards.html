@@ -98,6 +98,20 @@ img {
 <h2>Réponse</h2>
 <p>Je forme un dataframe qui englobe tous les RPU du 31 décembre 2014 et du 1er janvier 2014 concernant mes hôpitaux du haut-Rhin. Pour cela j’utilise le fichier <strong>rpu2013-2014.Rda</strong>. La librairie lubridate est indispensable pour manipuler des dates. Cette question permet d’approfondir le concept <strong>d’intervalle</strong>.</p>
 <p><a href="http://cran.r-project.org/web/packages/lubridate/vignettes/lubridate.html">Voir vigette lubridate</a></p>
+<p>Les calculs se font à partir de la colonne ENTREE qui contient des objets DateTime au format Character. Il faut donc transformer des chaines de caractères en objets temporels. C’est le travail de la fonction <strong>parse_date_time</strong>:</p>
+<pre><code>POSIXct &lt;- parse_date_time(character, format)</code></pre>
+<p>La fonction __new__interval<strong> permet de créer un intervalle entre 2 dates puis de tester la présence d’une date dans cet intervalle avec la méthode </strong>%within%__. L’objet <em>intervall</em> contient en interne la durée de l’intervalle en secondes. On peut la récupérer avec <strong>as.duration()</strong> et convertir le résultat en heure (en divisant par 3600):</p>
+<pre><code>date1 &lt;- as.POSIXct(&quot;2013-12-31 19:59:59&quot;)
+date2 &lt;- as.POSIXct(&quot;2014-01-01 07:59:59&quot;)
+
+i &lt;- new_interval(date1, date2)
+as.duration(i)
+as.numeric(as.duration(i))/3600
+</code></pre>
+<p>Lorsque un objet datetime est au format POSIXct, on peut extraire le groupe horaire avec <strong>format</strong>:</p>
+<pre><code>format(date1, &quot;%X&quot;)</code></pre>
+<p>et la date au format local:</p>
+<pre><code>format(date1, &quot;%x&quot;)</code></pre>
 <pre class="r"><code>library(&quot;lubridate&quot;)
 source(&quot;../../Preparation/RPU Quotidiens/quot_utils.R&quot;)
 
@@ -137,10 +151,33 @@ t</code></pre>
 <pre class="r"><code>sum(t)</code></pre>
 <pre><code>## [1] 202</code></pre>
 <p>calendrier &lt;- seq(as.Date(“2013-01-01”), as.Date(“2013-12-31”), 1) for(i in calendrier){ date1 &lt;- paste(as.Date(i, origin = as.Date(“1970-01-01”)), “19:59:59”, sep = &quot; “) return(date1) }</p>
-<p>S60-S69 Lésions traumatiques du poignet et de la main</p>
-<p>S60 Lésion traumatique superficielle du poignet et de la main S61 Plaie ouverte du poignet et de la main S62 Fracture au niveau du poignet et de la main S63 Luxation, entorse et foulure d’articulations et de ligaments au niveau du poignet et de la main S64 Lésion traumatique de nerfs au niveau du poignet et de la main S65 Lésion traumatique de vaisseaux sanguins au niveau du poignet et de la main S66 Lésion traumatique de muscles et de tendons au niveau du poignet et de la main S67 Ecrasement du poignet et de la main S68 Amputation traumatique du poignet et de la main S69 Lésions traumatiques du poignet et de la main, autres et sans précision</p>
-<p>S0230 TRAUMA Traumatologique TRAU_TETEC Traumatologie de la tête et du cou TRAU_OPHT Lésions de l’oeil ou de l’orbite S0231 TRAUMA Traumatologique TRAU_TETEC Traumatologie de la tête et du cou TRAU_OPHT Lésions de l’oeil ou de l’orbite S050 TRAUMA Traumatologique TRAU_TETEC Traumatologie de la tête et du cou TRAU_OPHT Lésions de l’oeil ou de l’orbite S051 TRAUMA Traumatologique TRAU_TETEC Traumatologie de la tête et du cou TRAU_OPHT Lésions de l’oeil ou de l’orbite S054 TRAUMA Traumatologique TRAU_TETEC Traumatologie de la tête et du cou TRAU_OPHT Lésions de l’oeil ou de l’orbite S055 TRAUMA Traumatologique TRAU_TETEC Traumatologie de la tête et du cou TRAU_OPHT Lésions de l’oeil ou de l’orbite S056 TRAUMA Traumatologique TRAU_TETEC Traumatologie de la tête et du cou TRAU_OPHT Lésions de l’oeil ou de l’orbite</p>
-<p>Lésions par un matériaux explosif: W40, w39</p>
+<pre><code>
+S60-S69  Lésions traumatiques du poignet et de la main 
+
+S60  Lésion traumatique superficielle du poignet et de la main
+S61 Plaie ouverte du poignet et de la main
+S62 Fracture au niveau du poignet et de la main
+S63 Luxation, entorse et foulure d'articulations et de ligaments au niveau du poignet et de la main
+S64 Lésion traumatique de nerfs au niveau du poignet et de la main
+S65 Lésion traumatique de vaisseaux sanguins au niveau du poignet et de la main
+S66 Lésion traumatique de muscles et de tendons au niveau du poignet et de la main
+S67 Ecrasement du poignet et de la main
+S68 Amputation traumatique du poignet et de la main
+S69 Lésions traumatiques du poignet et de la main, autres et sans précision 
+
+S0230  TRAUMA   Traumatologique TRAU_TETEC  Traumatologie de la tête et du cou  TRAU_OPHT   Lésions de l'oeil ou de l'orbite
+S0231   TRAUMA  Traumatologique TRAU_TETEC  Traumatologie de la tête et du cou  TRAU_OPHT   Lésions de l'oeil ou de l'orbite
+S050  TRAUMA    Traumatologique TRAU_TETEC  Traumatologie de la tête et du cou  TRAU_OPHT   Lésions de l'oeil ou de l'orbite
+S051    TRAUMA  Traumatologique TRAU_TETEC  Traumatologie de la tête et du cou  TRAU_OPHT   Lésions de l'oeil ou de l'orbite
+S054    TRAUMA  Traumatologique TRAU_TETEC  Traumatologie de la tête et du cou  TRAU_OPHT   Lésions de l'oeil ou de l'orbite
+S055    TRAUMA  Traumatologique TRAU_TETEC  Traumatologie de la tête et du cou  TRAU_OPHT   Lésions de l'oeil ou de l'orbite
+S056    TRAUMA  Traumatologique TRAU_TETEC  Traumatologie de la tête et du cou  TRAU_OPHT   Lésions de l'oeil ou de l'orbite
+
+W39 Projections de feu d'artifice 
+
+Y25  Contact avec matériel explosif, intention non déterminée
+Y25.9   Contact avec du matériel explosif
+</code></pre>
 </div>
 <div id="question-2" class="section level1">
 <h1>Question 2</h1>

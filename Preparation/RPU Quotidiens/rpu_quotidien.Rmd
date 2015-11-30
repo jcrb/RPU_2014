@@ -205,7 +205,7 @@ file.to.delete <- "/home/jcb/Documents/Resural/Stat Resural/Archives_Sagec/dataQ
 file.remove(file.to.delete)
 
 date1 <- "2015-11-08"
-date2 <- "2015-11-12"
+date2 <- "2015-11-26"
 
 mc <- substr(date1, 6, 7)
 ac <- substr(date1, 1,4)
@@ -276,21 +276,30 @@ t <- t[, c("janvier","février","mars", "avril","mai","juin","juillet", "août",
 write.csv2(t, file = "rpu_par_mois.xls")
 ```
 
-# nb de RPU à mois constant de 30 jours
-n.jours <- as.numeric(max(as.Date(d10$ENTREE))-min(as.Date(d10$ENTREE)) + 1)
-n.rpu.mois.constant <- nrow(d10) * 30 / n.jours
+# Mois courant: projection du nb de RPU à mois constant de 30 jours. 
+n.jours <- as.numeric(max(as.Date(d11$ENTREE))-min(as.Date(d11$ENTREE)) + 1)
+n.rpu.mois.constant <- nrow(d11) * 30 / n.jours
 n.rpu.mois.constant
 
 Total par mois et par mois constants
 ```{}
-t <- tapply(as.Date(d15$ENTREE), months(as.Date(d15$ENTREE)), length)
-t <- t[, c("janvier","février","mars", "avril","mai","juin","juillet", "août", "septembre","octobre", "novembre")]
+# Total par mois (non corrigé). Il vaut mieux utiliser la fonction 'month' de Lubridate qui conserve l'ordre calendaire
+# des mois plutôt que 'months' qui retourne les résultats en ordre dispersé. Par contre le nom des mois est en anglais.
+t <- tapply(as.Date(d15$ENTREE), month(as.Date(d15$ENTREE), label = TRUE), length)
+names(t) <- c("janvier","février","mars", "avril","mai","juin","juillet", "août", "septembre","octobre", "novembre")
+
 t
+
 # nb de jours dans le mois (la séquence doit inclure le mois suivant. SOURCE: https://stat.ethz.ch/pipermail/r-help/2007-August/138116.html)
 n.j <- as.integer(diff(seq(as.Date("2015-01-01"), as.Date("2015-12-01"), by = "month")))
-# nb de RPU par mois constant de 30 jours
-t * 30 / n.j
-barplot(t, main = "Nombre de RPU par mois standards de 30 jours", col = "cornflowerblue")
+
+# nb de RPU par mois constant de 30 jours. On supprime les valeurs de t égales à NA, correspondant aux mois manquants
+# par exemple décembre si la série s'arrête à novembre
+t.corrige <- t[1:length(t[!is.na(t)])] * 30 / n.j
+
+barplot(t.corrige, main = "Nombre de RPU par mois standards de 30 jours", col = "cornflowerblue")
+
+barplot(t2, beside = TRUE, cex.names = 0.7)
 
 ```
 
@@ -334,7 +343,7 @@ rpu.jour <- as.data.frame.matrix(rpu.par.jour(d15))
 
 
 # sauvegarde de la matrice
-write.csv(rpu.jour, file = "rpu.jour_08-11-2015.csv") 
+write.csv(rpu.jour, file = "rpu.jour_26-11-2015.csv") 
 write.csv(rpu.jour, file = paste0("rpu_jour_", anc, ".csv")) 
 
 # fonction qui compte le nombre de rpu = 0 dans le vecteur x
@@ -356,11 +365,11 @@ rpu.manquant <- function(x){length(which(x < 20))}
 
 load("~/Documents/Stat Resural/RPU_2014/rpu2015d0112_provisoire.Rda")
 
-library(xts)
-rpu <- read.csv("rpu.jour_31-09-2015.csv")
+rpu <- read.csv("rpu.jour_26-11-2015.csv")
 names(rpu)[1] <- "date"
 names(rpu)[2] <- "3Fr"
 
+library(xts)
 xts <- xts(rpu, order.by = as.Date(rpu$date), frequency = TRUE)
 
 # exemple de Sélestat:
@@ -386,6 +395,7 @@ s.b <- summary(b)
 sd.b <- sd(b)
 
 # on dessine les nouvelles limites:
+abline(h = s.b["Mean"], col = "red")
 abline(h = summary(b)["Mean"] - sd(b), col = "blue", lty = 2)
 abline(h = summary(b)["Mean"] - sd(b) * 2, col = "blue", lty = 2)
 abline(h = summary(b)["Mean"] - sd(b) * 3, col = "blue", lty = 2)
@@ -439,14 +449,14 @@ Résumé activité
 
 On peut aussi l'utiliser pour tracer le graphe correspondant.
 
-A partir de la table __rpu__ crée précédamment, pn ajout une colonne avec la somme de la ligne, ce qui correspond au nombre de RPU créés quotidiennement. Puis on transforme le tableau _rpu_ en dataframe appelé __a__ où ne sont conservée que deux colonnes, la date du jour et le nombre de RPU. Le dataframe _a_ est transformé en objet _xts_ appelé __x__, ce qui permet de l'afficher sous forme de graphe d'une série temporelle.
+A partir de la table __rpu__ crée précédamment, on ajoute une colonne avec la somme de la ligne, ce qui correspond au nombre de RPU créés quotidiennement. Puis on transforme le tableau _rpu_ en dataframe appelé __a__ où ne sont conservée que deux colonnes, la date du jour et le nombre de RPU. Le dataframe _a_ est transformé en objet _xts_ appelé __x__, ce qui permet de l'afficher sous forme de graphe d'une série temporelle.
 
 ```{ activite}
 
-s <- rowSums(rpu)
+s <- rowSums(rpu[, 2:ncol(rpu)])
 b <- rownames(rpu)
 a <- as.data.frame(cbind(b,s))
-m <- rowMeans(rpu)
+m <- rowMeans(rpu[, 2:ncol(rpu)])
 
 colnames(a) <- c("Date","RPU")
 a$Date <- as.Date(a$Date)
@@ -489,7 +499,7 @@ Objet: mesure de l'activité au jour le jour avant consolidation. En pratique re
 2. appeler la fonction __parse_rpu__ avec la date du jour, qui le transforme en dataframe
 ```{}
 
-d <- parse_rpu("2015-11-12")
+d <- parse_rpu("2015-11-26")
 
 min(as.Date(d$ENTREE))
 max(as.Date(d$ENTREE))
