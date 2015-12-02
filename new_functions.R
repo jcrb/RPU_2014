@@ -106,8 +106,15 @@ mode.sortie <- function(dx){
   date1 <- min(as.Date(dx$ENTREE), na.rm = TRUE)
   date2 <- max(as.Date(dx$ENTREE), na.rm = TRUE)
   
+  # dataframe à 2 colonnes: date, nb de RPU
   passages.jour <- tapply(as.Date(dx$ENTREE), as.Date(dx$ENTREE), length)
   passages.jour <- aligne.sur.calendrier(date1, date2, passages.jour)
+  
+  # passages.jours où le MODE_SORTIE est renseigné
+  ms.rens <- dx[!is.na(dx$MODE_SORTIE), "ENTREE"]
+  passages.jours.ms.renseine <- tapply(as.Date(ms.rens), as.Date(ms.rens), length)
+  # dataframe à 2 colonnes: date, nb de RPU ou mode_sortie est renseigné
+  passages.jours.ms.renseine <- aligne.sur.calendrier(date1, date2, passages.jours.ms.renseine)
   
   mut <- dx[dx$MODE_SORTIE == "Mutation", "ENTREE"]
   mutations.jour <- tapply(as.Date(mut),  as.Date(mut), length) # a ajuster sur calendrier
@@ -124,9 +131,11 @@ mode.sortie <- function(dx){
   
   # date <- unique(sort(as.Date(dx$ENTREE)))
   date <- passages.jour$calendrier
-  taux.hosp <- round(hospit.jour * 100 / passages.jour$rpu, 2)
+  
+  taux.hosp <- round(hospit.jour * 100 / passages.jours.ms.renseine$rpu, 2)
+
   # sortie <- data.frame(date, passages.jour, hospit.jour, mutations.jour, transfert.jour, taux.hosp)
-  sortie <- data.frame(date, passages.jour$rpu, hospit.jour, mutations.jour$rpu, transfert.jour$rpu, taux.hosp)
+  sortie <- data.frame(date, passages.jour$rpu, passages.jours.ms.renseine$rpu, hospit.jour, mutations.jour$rpu, transfert.jour$rpu, taux.hosp)
   return(sortie)
 }
 

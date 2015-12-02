@@ -45,7 +45,7 @@ Le dataframe s'appelle __devenir__ et il s'enregistre dans _devenir.csv_ [read.c
 Expérimentation d'un graphe avec 2 courbes ayant des échelles différentes. Référence [Multiple Y-axis in a R plot](http://www.r-bloggers.com/multiple-y-axis-in-a-r-plot/)
 
 ```{r tx_hosp}
-path <- "../../" # path <= ""
+path <- "../../" # path <- ""
 load(paste0(path, "rpu2014d0112_c.Rda")) # d14
 # load(paste0(path, "rpu2015d0112_provisoire.Rda")) # d01
 load(paste0(path, "d15_p.Rda")) # d15.p
@@ -100,7 +100,7 @@ mtext("% hospitalisation",side=4,line=2,col=4) # légende axe 4
 legend("topleft", legend = c("Passages","Taux d'hospitalisation"), col = c("black", "blue"), lty = 1, bty = "n")
 
 # enregistrement du dataframe en csv:
-write.csv(devenir, file = "devenir.csv", row.names = FALSE)
+write.csv(devenir, file = "Preparation/Preparation des fichiers pour Dygraph/devenir.csv", row.names = FALSE)
 
 ```
 

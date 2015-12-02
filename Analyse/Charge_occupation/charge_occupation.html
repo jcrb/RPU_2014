@@ -97,6 +97,13 @@ a</code></pre>
 <pre><code>## [1] FALSE</code></pre>
 <pre class="r"><code>a &lt; hms(&quot;15:00:00&quot;)</code></pre>
 <pre><code>## [1] TRUE</code></pre>
+<ul>
+<li>nombre total d’arrivées: 39</li>
+<li>nombre total de départs: 39</li>
+<li>nombre d’arrivées et de sorties par heure:</li>
+</ul>
+<pre class="r"><code>n.he &lt;- tapply(he, hour(he), length)
+n.hs &lt;- tapply(hs, hour(hs), length)</code></pre>
 <p>Nombre de patients arrivés entre 8h et 9h</p>
 <pre class="r"><code>h1 &lt;- hms(&quot;08:00:00&quot;)
 h2 &lt;- hms(&quot;09:00:00&quot;)
