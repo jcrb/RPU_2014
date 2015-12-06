@@ -173,11 +173,13 @@ Suivi des Complétude par établissement et par mois
 
 Crée un tableau de complétude par mois:
 
-```{}
+```{r}
 
 
-tableau.des.completudes <- function(dx, finess){
-  d <- dx[dx$FINESS == finess[i],] # établissement
+tableau.des.completudes <- function(dx, finess = NULL){
+  if(!is.null(finess))
+    d <- dx[dx$FINESS == finess,] # établissement
+  else d <- dx
   a <- by(d, month(as.Date(d$ENTREE)), completude) # split le DF par mois et lui applique la fonction completude
   b <- matrix(unlist(a), ncol = length(a)) # transforme en matrice
   # alternative: en dataframe
@@ -188,22 +190,22 @@ tableau.des.completudes <- function(dx, finess){
 }
 
 for(i in 1:length(finess)){
-#   b <- tableau.des.completudes(dx, finess[i])
+  b <- tableau.des.completudes(dx, finess[i])
   
-  d <- dx[dx$FINESS == finess[i],] # établissement
-  a <- by(d, month(as.Date(d$ENTREE)), completude) # split le DF par mois et lui applique la fonction completude
-  b <- matrix(unlist(a), ncol = length(a)) # transforme en matrice
-  # alternative: en dataframe
-  # b <- as.data.frame(matrix(unlist(a), ncol = length(a)))
-  colnames(b) <- paste("2015 -", names(a))
-  rownames(b) <- names(unlist(a[1][1]))
+#   d <- dx[dx$FINESS == finess[i],] # établissement
+#   a <- by(d, month(as.Date(d$ENTREE)), completude) # split le DF par mois et lui applique la fonction completude
+#   b <- matrix(unlist(a), ncol = length(a)) # transforme en matrice
+#   # alternative: en dataframe
+#   # b <- as.data.frame(matrix(unlist(a), ncol = length(a)))
+#   colnames(b) <- paste("2015 -", names(a))
+#   rownames(b) <- names(unlist(a[1][1]))
   
   print('')
   print("=====================================================================")
   print(finess[i])
   print("=====================================================================")
   print(b)
-  #print("=====================================================================")
+  print("=====================================================================")
 }
 ```
 
