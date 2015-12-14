@@ -38,13 +38,15 @@
 #' 
 #' @usage a <- rpu_jour("2014-03-07")
 #' @param date.jour date du fichier .sql (ex. 2014-03-07)
+#' @param echo si TRUE (default) imprime un commentaire (ajouté le 12-12-2015)
 #' @return un fichier .csv corespondant à J-7 (2014-03-01)
 #' 
-rpu_jour <- function(date.jour){
+rpu_jour <- function(date.jour, echo = TRUE){
   dx <- parse_rpu(date.jour)
   dx$FINESS <- as.factor(finess2hop(dx$FINESS))
   dx <- rpu2factor(dx)
-  analyse_rpu_jour(dx)
+  if(echo == TRUE)
+    analyse_rpu_jour(dx)
   dday <- jour_consolide(dx)
   return(dx)
 }
