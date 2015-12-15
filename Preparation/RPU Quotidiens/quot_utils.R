@@ -870,8 +870,7 @@ jour_glissant <- function(date, finess, n = 6, save = NULL){
     d <- rpu_jour(s[i])
     d <- d[d[, "FINESS"] == finess & as.Date(d$ENTREE) == date,]
     if(!is.null(save))
-      write.csv(d, file = paste0(save, "/", date, ".csv")
-    else print(d)
+      write.csv(d, file = paste0(save, "/", date, ".csv")) else print(d)
   }
 
 }
