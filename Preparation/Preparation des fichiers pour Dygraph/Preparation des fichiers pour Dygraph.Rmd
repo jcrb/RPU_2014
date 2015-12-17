@@ -89,7 +89,6 @@ d.xts <- xts(devenir, order.by = devenir$date)
 anim <- dygraph(d.xts[,2:6], main = "SU 2014", ylab = "Affaires")
 anim
 
-
 # graphe avec 2 axes y pour les passages et le taux d'hospitalisation. 
 par(mar=c(3,4,3,4))
 plot(d.xts$passages, minor.ticks = FALSE, main = "", ylab = "nombre de passages")

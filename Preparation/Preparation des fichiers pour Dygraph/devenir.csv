@@ -1,4 +1,4 @@
-"date","passages.jour.rpu","passages.jours.ms.renseine.rpu","hospit.jour","mutations.jour.rpu","transfert.jour.rpu","taux.hosp"
+"Date","RPU","RPU exploitables","Hospitalisations","Mutations","Transferts","Taux hospitalisation"
 2014-01-01,972,868,194,179,15,22.35
 2014-01-02,1055,877,265,243,22,30.22
 2014-01-03,1038,867,264,241,23,30.45
