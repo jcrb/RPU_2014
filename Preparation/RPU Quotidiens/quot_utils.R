@@ -38,13 +38,15 @@
 #' 
 #' @usage a <- rpu_jour("2014-03-07")
 #' @param date.jour date du fichier .sql (ex. 2014-03-07)
+#' @param echo si TRUE (default) imprime un commentaire (ajouté le 12-12-2015)
 #' @return un fichier .csv corespondant à J-7 (2014-03-01)
 #' 
-rpu_jour <- function(date.jour){
+rpu_jour <- function(date.jour, echo = TRUE){
   dx <- parse_rpu(date.jour)
   dx$FINESS <- as.factor(finess2hop(dx$FINESS))
   dx <- rpu2factor(dx)
-  analyse_rpu_jour(dx)
+  if(echo == TRUE)
+    analyse_rpu_jour(dx)
   dday <- jour_consolide(dx)
   return(dx)
 }
@@ -845,3 +847,30 @@ barplot.week.variations <- function(x, coltitre = TRUE, colmoins = "red", colplu
 # b <- d3[1:(length(d3)-2)] # ou -1 si on a pas supprimé la dernière semaine pour x
 # p <- round(a*100/b, 2)
 # p
+
+#===========================================================================
+#
+# Analyse une journée glissante
+#
+#===========================================================================
+#' @title Analyse une journée glissante
+#' @description Récupère les données d'un même jour pour un FINESS donné au cours des n jours qui suivent sa production
+#' @usage
+#' @param date date du jour à analyser
+#' @param finess pour quel établissement ?
+#' @param save dossier de sauvegarde. Ce dossier doit exister
+#' @details les jours glissants doivent exister
+#' @return un dataframe des RPU glissants
+#' 
+
+jour_glissant <- function(date, finess, n = 6, save = NULL){
+  
+  s <- seq(as.Date(date), as.Date(date) + n, 1)
+  for(i in 1:length(s)){
+    d <- rpu_jour(s[i])
+    d <- d[d[, "FINESS"] == finess & as.Date(d$ENTREE) == date,]
+    if(!is.null(save))
+      write.csv(d, file = paste0(save, "/", date, ".csv")) else print(d)
+  }
+
+}
