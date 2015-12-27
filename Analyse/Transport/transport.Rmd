@@ -40,7 +40,7 @@ plot(as.table(t3[1:11,]), las = 1,main="Evolution des moyens de transport en fon
 
 ```
 
-L'analyse par tranches d'âge révèle une modificarion importante des comportements ave l'âge. L'utilisation d'un moyen personnel diminue progressivement alors que la part des transporteurs privés ne cesse d'augmenter pour devenir majoritaire aux ages les plus avancés. La bascule se fait vers 70 ans. Le phénomène est encore plus net si on y inclu les VSAV (anciennement VSAB). Il est donc important d'inclure dans la formation de ces personnels (CESU, IFA) des messages gériatriques. 
+L'analyse par tranches d'âge révèle une modification importante des comportements avec l'âge. L'utilisation d'un moyen personnel diminue progressivement alors que la part des transporteurs privés ne cesse d'augmenter pour devenir majoritaire aux ages les plus avancés. La bascule se fait vers 70 ans. Le phénomène est encore plus net si on y inclu les VSAV (anciennement VSAB). Il est donc important d'inclure dans la formation de ces personnels (CESU, IFA) des messages gériatriques. 
 
 ToDo
 -----
