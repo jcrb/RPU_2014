@@ -403,7 +403,96 @@ t <- tapply(as.Date(pet.dp.plaie$ENTREE), as.Date(pet.dp.plaie$ENTREE), length)
 c <- ifelse((wday(names(t)) == 1 | names(t) %in% c("2013-12-25","2013-12-25","2013-12-31","2014-01-01")) == 1, "red", "light blue") # on colorie en rouge les WE et JF
 x <- barplot(t, las=2, cex.names=0.8, main = "Plaies de la main", ylab = "nombre", col = c)
 
+```
+
+Analyse CCOM
+============
+
+Analyse faite le 28/12/2015 pour évaluer l'introduction du DP au CCOM.
+```{r}
+load("../../d15_p.Rda")
+# RPU du CCM
+ccm <- d15.p[d15.p$FINESS == "Ccm",]
+# RPU où le DP est renseigné
+dpccm <- ccm[!is.na(ccm$DP),]
+range(as.Date(dpccm$ENTREE))
+# Age
+hist(dpccm$AGE, main = "CCOM 17/12 - 28/12/2015 (n = 209 RPU)", xlab = "Age (années)", col = "cornflowerblue", border = "white", ylab = "nombre de RPU")
+abline(v = mean(dpccm$AGE), col = "red", lty = 2)
+text(41, 40, expression(paste(mu, "= 41 ans")))
+
+# sexe
+a <- table(dpccm$SEXE)
+leg <- paste0(c("Femmes ","Hommes "), round(a*100/sum(a)), "%")
+pie(table(dpccm$SEXE), col = c("red","blue"), labels = leg, main = "CCOM - Répartition par sexe")
+
+
+# Répartition des codes CIM 10
+barplot(sort(table(dpccm$DP)), las = 2)
 
 ```
 
+Code CIM10 mains
+----------------
+Les codes CIM10 sont dans le dossier FEDORU:
+```{r}
+cim10 <- read.csv("../../FEDORU/CIM10/CIM10.csv", header = FALSE)
+names(cim10) <- c("CODE", "LIBELLE")
 
+# lésions observées
+tb <- data.frame(table(dpccm$DP))
+a <- merge(tb, cim10, by.x = "Var1", by.y = "CODE", all.x = TRUE)
+a
+
+```
+
+Lesions liées aux pétards
+-------------------------
+
+Sélectionne toutes les lignes avec le code W39:
+
+```{r}
+library(stringr)
+pattern <- "[W][3][9]"
+p <- dpccm[str_detect(dpccm$DP, pattern) == TRUE,]
+nrow(p)
+```
+
+Pétards - Extension à tous les sos mains
+----------------------------------------
+```{r}
+sos <- d15.p[d15.p$FINESS %in% c("Ccm","Dts","Ros") ,]
+dpsos <- sos[!is.na(sos$DP),]
+p <- dpsos[str_detect(dpsos$DP, pattern) == TRUE,]
+nrow(p)
+```
+
+Lésions de la main - Extension à tous les sos mains
+---------------------------------------------------
+
+```{r}
+tb <- data.frame(table(dpsos$DP))
+a <- merge(tb, cim10, by.x = "Var1", by.y = "CODE", all.x = TRUE)
+
+```
+- Codes aberrants
+
+Roosevelt
+---------
+```{r}
+ros <- dpsos[dpsos$FINESS == "Ros",]
+tb <- data.frame(table(ros$DP))
+a <- merge(tb, cim10, by.x = "Var1", by.y = "CODE", all.x = TRUE)
+a
+```
+4 diagnostics dont 2 aberrants...
+
+Diaconat Strasbourg
+-------------------
+```{r}
+dts  <- dpsos[dpsos$FINESS == "Dts",]
+tb <- data.frame(table(dts$DP))
+a <- merge(tb, cim10, by.x = "Var1", by.y = "CODE", all.x = TRUE)
+
+```
+Diagnostics imprécis: douleur aigue, B99+1 (Syndrome infectieux sans cause trouvée)

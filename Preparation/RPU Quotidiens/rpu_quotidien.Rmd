@@ -205,7 +205,7 @@ file.to.delete <- "/home/jcb/Documents/Resural/Stat Resural/Archives_Sagec/dataQ
 file.remove(file.to.delete)
 
 date1 <- "2015-12-07"
-date2 <- "2015-12-16"
+date2 <- "2015-12-29"
 
 mc <- substr(date1, 6, 7)
 ac <- substr(date1, 1,4)
@@ -272,13 +272,20 @@ rpu.par.jour(d12)
 Total RPU par mois et par FINESS
 ```{}
 t <- tapply(as.Date(d15$ENTREE), list(d15$FINESS, months(as.Date(d15$ENTREE))), length)
-t <- t[, c("janvier","février","mars", "avril","mai","juin","juillet", "août", "septembre", "octobre", "novembre")]
+t <- t[, c("janvier","février","mars", "avril","mai","juin","juillet", "août", "septembre", "octobre", "novembre", "décembre")]
+# tableau mensuel brut
+t
+
+# Total brut par mois
+apply(t, 2, sum, na.rm = TRUE)
+
+# Sauvegarde
 write.csv2(t, file = "rpu_par_mois.xls")
 ```
 
 # Mois courant: projection du nb de RPU à mois constant de 30 jours. 
-n.jours <- as.numeric(max(as.Date(d11$ENTREE))-min(as.Date(d11$ENTREE)) + 1)
-n.rpu.mois.constant <- nrow(d11) * 30 / n.jours
+n.jours <- as.numeric(max(as.Date(d12$ENTREE))-min(as.Date(d12$ENTREE)) + 1)
+n.rpu.mois.constant <- nrow(d12) * 30 / n.jours
 n.rpu.mois.constant
 
 Total par mois et par mois constants
@@ -286,7 +293,7 @@ Total par mois et par mois constants
 # Total par mois (non corrigé). Il vaut mieux utiliser la fonction 'month' de Lubridate qui conserve l'ordre calendaire
 # des mois plutôt que 'months' qui retourne les résultats en ordre dispersé. Par contre le nom des mois est en anglais.
 t <- tapply(as.Date(d15$ENTREE), month(as.Date(d15$ENTREE), label = TRUE), length)
-names(t) <- c("janvier","février","mars", "avril","mai","juin","juillet", "août", "septembre","octobre", "novembre")
+names(t) <- c("janvier","février","mars", "avril","mai","juin","juillet", "août", "septembre","octobre", "novembre", "décembre")
 
 t
 
@@ -343,7 +350,7 @@ rpu.jour <- as.data.frame.matrix(rpu.par.jour(d15))
 
 
 # sauvegarde de la matrice
-write.csv(rpu.jour, file = "rpu.jour_26-11-2015.csv") 
+write.csv(rpu.jour, file = "rpu.jour_22-12-2015.csv") 
 write.csv(rpu.jour, file = paste0("rpu_jour_", anc, ".csv")) 
 
 # fonction qui compte le nombre de rpu = 0 dans le vecteur x
@@ -365,7 +372,7 @@ rpu.manquant <- function(x){length(which(x < 20))}
 
 load("~/Documents/Stat Resural/RPU_2014/rpu2015d0112_provisoire.Rda")
 
-rpu <- read.csv("rpu.jour_26-11-2015.csv")
+rpu <- read.csv("rpu.jour_22-12-2015.csv")
 names(rpu)[1] <- "date"
 names(rpu)[2] <- "3Fr"
 
@@ -499,7 +506,7 @@ Objet: mesure de l'activité au jour le jour avant consolidation. En pratique re
 2. appeler la fonction __parse_rpu__ avec la date du jour, qui le transforme en dataframe
 ```{}
 
-d <- parse_rpu("2015-12-01")
+d <- parse_rpu("2015-12-29")
 
 min(as.Date(d$ENTREE))
 max(as.Date(d$ENTREE))
