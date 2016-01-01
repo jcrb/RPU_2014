@@ -1,18 +1,5 @@
 # Routines pour Durée de passage
 
-# nombre de patients présents à une heure précide. Par exemple combien de patients sont présents à 15 heures?
-# Ce sont tous les patients arrivés avant 15 heures et repartis après 15 heures
-# On part d'un dataframe formé de deux colonnes (ENTREE et SORIE) où chaque couple est complet => il faut éliminer les couples
-# incomplets.
-# Nécessite lubridate, Rpu2
-
-# usage:
-# - créer un dataframe "duree de passage" avec df.duree.pas Ce dataframe est l'objet de base à partir duquel d'autres
-#   fonctions vont agir
-# - la fonction is.present.at permet de créer un vecteur de présence d'un patient à une heure donnée, et de la le nombre de 
-#   patients présents à une heure donné sum(is.present.at), ou le nombre de patients présents à une heure donnée pour 
-#   chaque jour de l'année (tapply) puis de tracer le graphe de présence
-
 #' @title Dataframe Durée de passage
 #' @description fabrique à partir d'un dataframe de type RPU, un dataframe de type duree_passage comportant les colonnes suivantes:
 #' date/heure d'entree, date/heure de sortie, durée de passage (en minutes par défaut), l'heure d'entrée (HMS), l'heure de sortie
@@ -21,6 +8,17 @@
 #' @param unit unité de temps. Défaut = mins
 #' @param mintime défaut = 0. Durée de passage minimale
 #' @param maxtime défaut = 3 (72 heures). Durée de passage maximale
+#' @details # nombre de patients présents à une heure précide. Par exemple combien de patients sont présents à 15 heures?
+#' Ce sont tous les patients arrivés avant 15 heures et repartis après 15 heures
+#' On part d'un dataframe formé de deux colonnes (ENTREE et SORIE) où chaque couple est complet => il faut éliminer les couples
+#' incomplets.
+#' # usage:
+#' - créer un dataframe "duree de passage" avec df.duree.pas Ce dataframe est l'objet de base à partir duquel d'autres
+#'   fonctions vont agir
+#' - la fonction is.present.at permet de créer un vecteur de présence d'un patient à une heure donnée, et de la le nombre de 
+#'   patients présents à une heure donné sum(is.present.at), ou le nombre de patients présents à une heure donnée pour 
+#'   chaque jour de l'année (tapply) puis de tracer le graphe de présence
+#' Nécessite lubridate, Rpu2
 #' @return dataframe de type duree_passage
 #' @examples df <- df.duree.pas(dx)
 
