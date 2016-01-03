@@ -1,16 +1,16 @@
 ---
 title: "Pathologie de la main"
-author: "JcB"
+author: "JcB - RESURAL"
 date: "31/12/2015"
 output:
-  html_document:
-    keep_md: yes
-    number_sections: yes
+  word_document: default
   pdf_document:
     keep_tex: yes
     number_sections: yes
     toc: yes
-  word_document: default
+  html_document:
+    keep_md: yes
+    number_sections: yes
 ---
 
 Analyse CCOM
@@ -18,7 +18,10 @@ Analyse CCOM
 
 Analyse faite le 28/12/2015 pour évaluer l'introduction du DP au CCOM.
 
-```{r, echo=FALSE}
+```{r, echo=FALSE, message=FALSE}
+library(xts)
+library(lubridate)
+
 load("../../d15_p.Rda")
 # RPU du CCM
 ccm <- d15.p[d15.p$FINESS == "Ccm",]
@@ -43,9 +46,9 @@ Evolution du taux de completude du diagnostic principal (DP)
 ```{r, echo=FALSE, message=FALSE}
 comp <- function(x){mean(!is.na(x))}
 c <- tapply(ccmdp$DP, as.Date(ccmdp$ENTREE), comp)
-library(xts)
+
 xts <- xts(c, order.by = as.Date(names(c)))
-plot(xts, ylim = c(0, 1), ylab = "% de complétude du DP", main = "Evolution du taux de complétude du Diagnostic Principal", xlab = "SOS Mains - CCOM")
+plot(xts, ylim = c(0, 1), ylab = "% de complétude du DP", main = "Evolution du taux de complétude\n du Diagnostic Principal", xlab = "SOS Mains - CCOM")
 abline(h = 0.8, col = "red", lty = 2)
 ```
 
@@ -58,9 +61,9 @@ Caractéristiques de la population
 
 ```{r, echo=FALSE}
 # Age
-hist(dpccm$AGE, main = "CCOM 17/12 - 28/12/2015 (n = 209 RPU)", xlab = "Age (années)", col = "cornflowerblue", border = "white", ylab = "nombre de RPU")
-abline(v = mean(dpccm$AGE), col = "red", lty = 2)
-text(41, 40, expression(paste(mu, "= 41 ans")))
+# hist(dpccm$AGE, main = "CCOM 17/12 - 28/12/2015 (n = 209 RPU)", xlab = "Age (années)", col = "cornflowerblue", border = "white", ylab = "nombre de RPU")
+# abline(v = mean(dpccm$AGE), col = "red", lty = 2)
+# text(41, 40, expression(paste(mu, "= 41 ans")))
 ```
 
 Tous les RPU du CCOM
@@ -130,6 +133,44 @@ n.p <- nrow(p)
 
 - Nombre de lésions dues aux pétards: `r n.p`
 
+Nombre de passages par mois
+---------------------------
+```{r, echo=FALSE}
+mois <- tapply(as.Date(ccm$ENTREE), month(as.Date(ccm$ENTREE), label = TRUE), length)
+barplot(mois, xlab = "2015", ylab = "Nombre de RPU", main = "SOS Mains - Nombre mensuel de RPU")
+```
+
+Nombre de passages par semaine
+-------------------------------
+```{r, echo=FALSE}
+week <- tapply(as.Date(ccm$ENTREE), week(as.Date(ccm$ENTREE)), length)
+barplot(week, xlab = "2015", ylab = "Nombre de RPU", main = "SOS Mains - Nombre hebdomadaire de RPU", col = "cornflowerblue")
+```
+
+Nombre de passages par jour de semaine
+--------------------------------------
+```{r, echo=FALSE}
+wday <- tapply(as.Date(ccm$ENTREE), wday(as.Date(ccm$ENTREE), label = TRUE), length)
+a <- wday[1]
+b <- wday[2:7]
+wday <- c(b,a)
+names(wday) <- c("lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi", "dimanche")
+barplot(wday, main = "Nombre de RPU selon le jour")
+
+```
+
+Nombre de passages par jour
+---------------------------
+```{r, echo=FALSE}
+d <- tapply(as.Date(ccm$ENTREE), as.Date(ccm$ENTREE), length)
+xts <- xts(d, order.by = as.Date(names(d)))
+plot(xts, main = "SOS Mains - Activité quotidienne des urgences", ylab = "Nombre de RPU")
+lines(rollmean(xts, k = 7), col = "red", lwd = 3)
+legend("bottom", legend = "Moyenne lissée sur 7 jours", col = "red", lty = 1, lwd = 3, bty = "n")
+```
+
+
+
 Horaires de passage
 -------------------
 
@@ -149,7 +190,7 @@ Durées de passage
 
 L'heure de sortie n'est différente de l'heure d'entrée que dans 7% des cas. Lorsque l'heure de sortie diffère de l'heure d'entrée, la durée de passage est égale à une minute dans 75% des cas... Il y a donc un problème avec l'heure de sortie.
 
-```{r}
+```{r, echo=FALSE}
 s <- ymd_hms(as.POSIXct(ccm$SORTIE))
 e <- ymd_hms(as.POSIXct(ccm$ENTREE))
 d <- as.numeric(s - e)
@@ -170,7 +211,7 @@ Origine des patients
 
 ### Par département
 
-```{r}
+```{r, echo=FALSE}
 cp2 <- substr(ccm$CODE_POSTAL, 1, 2)
 sort(table(cp2))
 round(sort(table(cp2)) * 100 /nrow(ccm), 3) # en %

@@ -8,6 +8,15 @@ Analyse CCOM
 Analyse faite le 28/12/2015 pour évaluer l'introduction du DP au CCOM.
 
 
+```
+## Loading required package: zoo
+## 
+## Attaching package: 'zoo'
+## 
+## The following objects are masked from 'package:base':
+## 
+##     as.Date, as.Date.numeric
+```
 
 - Période analysée: 17/12/2015, 28/12/2015
 - Date d'envoi du premier RPU: 06/10/2015
@@ -105,12 +114,30 @@ Sélectionne toutes les lignes avec le code W39:
 
 - Nombre de lésions dues aux pétards: 1
 
+Nombre de passages par mois
+---------------------------
+![](mains_files/figure-html/unnamed-chunk-10-1.png) 
+
+Nombre de passages par semaine
+-------------------------------
+![](mains_files/figure-html/unnamed-chunk-11-1.png) 
+
+Nombre de passages par jour de semaine
+--------------------------------------
+![](mains_files/figure-html/unnamed-chunk-12-1.png) 
+
+Nombre de passages par jour
+---------------------------
+![](mains_files/figure-html/unnamed-chunk-13-1.png) 
+
+
+
 Horaires de passage
 -------------------
 
 L'histogramme des horaires de passage est assez semblable à celui des services d'urgence polyvalents. Cependant l'aspect bimodal parait plus marqué, avec une fréquentation plus forte en début de matinée et d'après-midi (messages de prévention ?).
 
-![](mains_files/figure-html/unnamed-chunk-10-1.png) 
+![](mains_files/figure-html/unnamed-chunk-14-1.png) 
 
 
 Durées de passage
@@ -148,7 +175,7 @@ summary(as.numeric(d2))
 hist(as.numeric(d2), breaks = 60, col = "brown", border = "white", main = "Durées de passage", xlab = "Temps (mn)")
 ```
 
-![](mains_files/figure-html/unnamed-chunk-11-1.png) 
+![](mains_files/figure-html/unnamed-chunk-15-1.png) 
 
 Origine des patients
 --------------------
@@ -196,10 +223,10 @@ with 96 features
 It has 11 fields
 ```
 
-![](mains_files/figure-html/unnamed-chunk-13-1.png) 
+![](mains_files/figure-html/unnamed-chunk-17-1.png) 
 
 
 ### en Alsace
 
-![](mains_files/figure-html/unnamed-chunk-14-1.png) ![](mains_files/figure-html/unnamed-chunk-14-2.png) 
+![](mains_files/figure-html/unnamed-chunk-18-1.png) ![](mains_files/figure-html/unnamed-chunk-18-2.png) 
 
