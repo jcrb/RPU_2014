@@ -1,5 +1,5 @@
 # Pathologie de la main
-JcB  
+JcB - RESURAL  
 31/12/2015  
 
 Analyse CCOM
@@ -8,15 +8,6 @@ Analyse CCOM
 Analyse faite le 28/12/2015 pour évaluer l'introduction du DP au CCOM.
 
 
-```
-## Loading required package: zoo
-## 
-## Attaching package: 'zoo'
-## 
-## The following objects are masked from 'package:base':
-## 
-##     as.Date, as.Date.numeric
-```
 
 - Période analysée: 17/12/2015, 28/12/2015
 - Date d'envoi du premier RPU: 06/10/2015
@@ -36,7 +27,7 @@ Caractéristiques de la population
 
 ### Age
 
-![](mains_files/figure-html/unnamed-chunk-3-1.png) 
+
 
 Tous les RPU du CCOM
 
@@ -146,33 +137,13 @@ Durées de passage
 L'heure de sortie n'est différente de l'heure d'entrée que dans 7% des cas. Lorsque l'heure de sortie diffère de l'heure d'entrée, la durée de passage est égale à une minute dans 75% des cas... Il y a donc un problème avec l'heure de sortie.
 
 
-```r
-s <- ymd_hms(as.POSIXct(ccm$SORTIE))
-e <- ymd_hms(as.POSIXct(ccm$ENTREE))
-d <- as.numeric(s - e)
-# on ne garde que les durées < 24 h
-d2 <- d[d < 24*60]
-# nb de données aberrantes
-outliner <- length(d) - length(d2)
-# % de données manquantes
-mean(is.na(d2)) * 100
-```
-
 ```
 ## [1] 0
-```
-
-```r
-summary(as.numeric(d2))
 ```
 
 ```
 ##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
 ##   0.000   0.000   0.000   3.505   0.000  60.000
-```
-
-```r
-hist(as.numeric(d2), breaks = 60, col = "brown", border = "white", main = "Durées de passage", xlab = "Temps (mn)")
 ```
 
 ![](mains_files/figure-html/unnamed-chunk-15-1.png) 
@@ -183,11 +154,6 @@ Origine des patients
 ### Par département
 
 
-```r
-cp2 <- substr(ccm$CODE_POSTAL, 1, 2)
-sort(table(cp2))
-```
-
 ```
 ## cp2
 ##   01   24   27   30   33   42   49   50   56   59   66   81   86   36   44 
@@ -196,10 +162,6 @@ sort(table(cp2))
 ##    2    2    2    2    2    3    3    3    3    3    4    4    9   51   66 
 ##   67 
 ## 2174
-```
-
-```r
-round(sort(table(cp2)) * 100 /nrow(ccm), 3) # en %
 ```
 
 ```

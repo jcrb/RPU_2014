@@ -3,14 +3,14 @@ title: "Pathologie de la main"
 author: "JcB - RESURAL"
 date: "31/12/2015"
 output:
-  word_document: default
+  html_document:
+    keep_md: yes
+    number_sections: yes
   pdf_document:
     keep_tex: yes
     number_sections: yes
     toc: yes
-  html_document:
-    keep_md: yes
-    number_sections: yes
+  word_document: default
 ---
 
 Analyse CCOM
