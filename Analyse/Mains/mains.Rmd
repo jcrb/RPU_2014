@@ -24,7 +24,7 @@ library(lubridate)
 
 load("../../d15_p.Rda")
 # RPU du CCM
-ccm <- d15.p[d15.p$FINESS == "Ccm",]
+ccm <- d15.p[d15.p$FINESS == "Ros",]
 # RPU où le DP est renseigné
 dpccm <- ccm[!is.na(ccm$DP),]
 r <- range(as.Date(dpccm$ENTREE))

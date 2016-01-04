@@ -205,7 +205,7 @@ file.to.delete <- "/home/jcb/Documents/Resural/Stat Resural/Archives_Sagec/dataQ
 file.remove(file.to.delete)
 
 date1 <- "2015-12-07"
-date2 <- "2015-12-29"
+date2 <- "2016-01-03"
 
 mc <- substr(date1, 6, 7)
 ac <- substr(date1, 1,4)
@@ -350,7 +350,7 @@ rpu.jour <- as.data.frame.matrix(rpu.par.jour(d15))
 
 
 # sauvegarde de la matrice
-write.csv(rpu.jour, file = "rpu.jour_22-12-2015.csv") 
+write.csv(rpu.jour, file = "rpu.jour_27-12-2015.csv") 
 write.csv(rpu.jour, file = paste0("rpu_jour_", anc, ".csv")) 
 
 # fonction qui compte le nombre de rpu = 0 dans le vecteur x
@@ -506,7 +506,7 @@ Objet: mesure de l'activité au jour le jour avant consolidation. En pratique re
 2. appeler la fonction __parse_rpu__ avec la date du jour, qui le transforme en dataframe
 ```{}
 
-d <- parse_rpu("2015-12-29")
+d <- parse_rpu("2016-01-03")
 
 min(as.Date(d$ENTREE))
 max(as.Date(d$ENTREE))
@@ -951,4 +951,64 @@ p <- round(a*100/b, 2)
 p
 ```
 
+Comparaison 2014-2015-2016
+==========================
+On compare novembre et décembre 2014 à novembre-décembre 2015 puis 2016 à 2015
+
+Récupération des données 2014-2015
+----------------------------------
+```{}
+# novembre 2014
+load("~/Documents/Resural/Stat Resural/DATA/RPU_2014/Archives 2014/rpu2014d11.Rda")
+nov2014 <- d11
+rm(d11)
+# décembre 2014
+load("~/Documents/Resural/Stat Resural/DATA/RPU_2014/Archives 2014/rpu2014d12.Rda")
+dec2014 <- d12
+rm(d12)
+# novembre 2015
+load("~/Documents/Resural/Stat Resural/DATA/RPU_2015/rpu2015d11.Rda")
+nov2015
+rm(d11)
+# décembre 2015
+dec2015 <- d15.p[as.Date(d15.p$ENTREE) > as.Date("2015-11-30"),]
+
+# Pour 2015 il faut retirer le CCOM
+nov2015 <- nov2015[nov2015$FINESS != "Ccm",]
+dec2015 <- dec2015[dec2015$FINESS != "Ccm",]
+```
+Combinaison:
+```{}
+a <- matrix(c(nrow(nov2014), nrow(dec2014), nrow(nov2015), nrow(dec2015)), nrow = 2)
+colnames(a) <- c("2014", "2015")
+rownames(a) <- c("nov","dec")
+a
+barplot(t(a), beside = TRUE, main = "Activité 2014-2015")
+text(b[2,1], 35000, paste(round((a[1,2]/a[1,1] - 1)*100, 2), "%"))
+text(b[2,2], 35000, paste(round((a[2,2]/a[2,1] - 1)*100, 2), "%"))
+
+```
+
+Pétards 2015-2016
+=================
+
+Exploité à partir de d15.p pour un résultat rapide
+```{}
+library(stringr)
+pattern <- "[W][3][9]"
+p <- d15.p[str_detect(d15.p$DP, pattern) == TRUE,] # il faut éliminer les NA
+n.p <- nrow(p)
+# Age
+summary(p$AGE)
+# Sexe
+summary(as.factor(p$SEXE))
+# nb par jour
+t <- tapply(as.Date(p$ENTREE), as.Date(p$ENTREE), length)
+t
+barplot(t, main = "Lésions par pétards (2015-2016)")
+# par établisement
+s <- summary(p$FINESS)
+s[s > 0]
+
+```
 
