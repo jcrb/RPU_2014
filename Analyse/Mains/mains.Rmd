@@ -1,0 +1,274 @@
+---
+title: "Pathologie de la main"
+author: "JcB - RESURAL"
+date: "31/12/2015"
+output:
+  html_document:
+    keep_md: yes
+    number_sections: yes
+  pdf_document:
+    keep_tex: yes
+    number_sections: yes
+    toc: yes
+  word_document: default
+---
+
+Analyse CCOM
+============
+
+Analyse faite le 28/12/2015 pour évaluer l'introduction du DP au CCOM.
+
+```{r, echo=FALSE, message=FALSE}
+library(xts)
+library(lubridate)
+
+load("../../d15_p.Rda")
+# RPU du CCM
+ccm <- d15.p[d15.p$FINESS == "Ros",]
+# RPU où le DP est renseigné
+dpccm <- ccm[!is.na(ccm$DP),]
+r <- range(as.Date(dpccm$ENTREE))
+# Nombre de RPU créés depuis le 17/12/2015
+ccmdp <- ccm[as.Date(ccm$ENTREE) > "2015-12-16",]
+# taux de complétude moyen
+tcm <- mean(!is.na(ccmdp$DP))
+```
+
+- Période analysée: `r format(r, "%d/%m/%Y")`
+- Date d'envoi du premier RPU: `r format(min(as.Date(ccm$ENTREE)), "%d/%m/%Y")`
+- Date de point: `r format(max(as.Date(ccm$ENTREE)), "%d/%m/%Y")`
+- Nombre de RPU créés: `r nrow(ccm)`
+- Date de début d'envoi de RPU avec DP renseigné: `r format(min(as.Date(dpccm$ENTREE)), "%d/%m/%Y")`
+- Taux de complétude moyen du DP: `r round(tcm * 100)` %
+
+Evolution du taux de completude du diagnostic principal (DP)
+
+```{r, echo=FALSE, message=FALSE}
+comp <- function(x){mean(!is.na(x))}
+c <- tapply(ccmdp$DP, as.Date(ccmdp$ENTREE), comp)
+
+xts <- xts(c, order.by = as.Date(names(c)))
+plot(xts, ylim = c(0, 1), ylab = "% de complétude du DP", main = "Evolution du taux de complétude\n du Diagnostic Principal", xlab = "SOS Mains - CCOM")
+abline(h = 0.8, col = "red", lty = 2)
+```
+
+__Un taux de complétude régulièrement supérieur à 80% est nécessaire pour tirer des conclusions valides.__
+
+Caractéristiques de la population
+-------------------------------------------------------
+
+### Age
+
+```{r, echo=FALSE}
+# Age
+# hist(dpccm$AGE, main = "CCOM 17/12 - 28/12/2015 (n = 209 RPU)", xlab = "Age (années)", col = "cornflowerblue", border = "white", ylab = "nombre de RPU")
+# abline(v = mean(dpccm$AGE), col = "red", lty = 2)
+# text(41, 40, expression(paste(mu, "= 41 ans")))
+```
+
+Tous les RPU du CCOM
+
+```{r, echo=FALSE}
+hist(ccm$AGE, main = paste("CCOM 2015 (n = ", nrow(ccm), "RPU)"), xlab = "Age (années)", col = "cornflowerblue", border = "white", ylab = "nombre de RPU")
+m <-  mean(ccm$AGE)
+sd <- sd(ccm$AGE)
+abline(v = m, col = "red", lty = 2)
+text(41, 400, bquote(mu == .(round(m)) %+-% .(round(sd)) ~ "ans"))
+```
+
+
+### Sexe
+
+```{r, echo=FALSE}
+# sexe
+a <- table(ccm$SEXE)
+leg <- paste0(c("Femmes ","Hommes "), round(a*100/sum(a)), "%")
+pie(table(ccm$SEXE), col = c("red","blue"), labels = leg, main = "CCOM - Répartition par sexe")
+```
+
+En moyenne, les femmes sont plus agées que les hommes:
+```{r, echo=FALSE}
+t <- t.test(AGE ~ SEXE, data = ccm)
+```
+- age moyen des femmes: `r round(t$estimate[1],1)` ans.
+- age moyen des hommes: `r round(t$estimate[2],1)` ans.
+- la différence est statistiquement significative (p = `r t$p.value`)
+
+### Répartition des codes CIM 10
+
+```{r, echo=FALSE}
+# Répartition des codes CIM 10
+barplot(sort(table(dpccm$DP), decreasing = TRUE), las = 2, cex.names = 0.8, ylab = "nombre de RPU")
+
+```
+
+Code CIM10 mains
+----------------
+Les codes CIM10 sont dans le dossier FEDORU:
+```{r, echo=FALSE, comment=""}
+cim10 <- read.csv("../../../../FEDORU/CIM10/CIM10.csv", header = FALSE)
+names(cim10) <- c("CODE", "LIBELLE")
+
+# lésions observées
+tb <- data.frame(table(dpccm$DP))
+a <- merge(tb, cim10, by.x = "Var1", by.y = "CODE", all.x = TRUE)
+names(a)[1] <- "CODE"
+b <- a[with(a, order(-Freq)),]
+library(knitr)
+kable(b)
+
+```
+
+Lesions liées aux pétards
+-------------------------
+
+Sélectionne toutes les lignes avec le code W39:
+
+```{r, echo=FALSE}
+library(stringr)
+pattern <- "[W][3][9]"
+p <- dpccm[str_detect(dpccm$DP, pattern) == TRUE,]
+n.p <- nrow(p)
+```
+
+- Nombre de lésions dues aux pétards: `r n.p`
+
+Nombre de passages par mois
+---------------------------
+```{r, echo=FALSE}
+mois <- tapply(as.Date(ccm$ENTREE), month(as.Date(ccm$ENTREE), label = TRUE), length)
+barplot(mois, xlab = "2015", ylab = "Nombre de RPU", main = "SOS Mains - Nombre mensuel de RPU")
+```
+
+Nombre de passages par semaine
+-------------------------------
+```{r, echo=FALSE}
+week <- tapply(as.Date(ccm$ENTREE), week(as.Date(ccm$ENTREE)), length)
+barplot(week, xlab = "2015", ylab = "Nombre de RPU", main = "SOS Mains - Nombre hebdomadaire de RPU", col = "cornflowerblue")
+```
+
+Nombre de passages par jour de semaine
+--------------------------------------
+```{r, echo=FALSE}
+wday <- tapply(as.Date(ccm$ENTREE), wday(as.Date(ccm$ENTREE), label = TRUE), length)
+a <- wday[1]
+b <- wday[2:7]
+wday <- c(b,a)
+names(wday) <- c("lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi", "dimanche")
+barplot(wday, main = "Nombre de RPU selon le jour")
+
+```
+
+Nombre de passages par jour
+---------------------------
+```{r, echo=FALSE}
+d <- tapply(as.Date(ccm$ENTREE), as.Date(ccm$ENTREE), length)
+xts <- xts(d, order.by = as.Date(names(d)))
+plot(xts, main = "SOS Mains - Activité quotidienne des urgences", ylab = "Nombre de RPU")
+lines(rollmean(xts, k = 7), col = "red", lwd = 3)
+legend("bottom", legend = "Moyenne lissée sur 7 jours", col = "red", lty = 1, lwd = 3, bty = "n")
+```
+
+
+
+Horaires de passage
+-------------------
+
+L'histogramme des horaires de passage est assez semblable à celui des services d'urgence polyvalents. Cependant l'aspect bimodal parait plus marqué, avec une fréquentation plus forte en début de matinée et d'après-midi (messages de prévention ?).
+
+```{r, echo=FALSE}
+library(lubridate)
+# vecteur des heures d'arrivées en heures entières
+h <- hour(hms(format(as.POSIXct(ccm$ENTREE), "%X")))
+
+hist(h, breaks = 23, xlim = c(0,23), col = "cornflowerblue", border = "white", main = "CCOM - Horaires de pasage", ylab = "Nombre de RPU", xlab = "Horaires")
+```
+
+
+Durées de passage
+-----------------
+
+L'heure de sortie n'est différente de l'heure d'entrée que dans 7% des cas. Lorsque l'heure de sortie diffère de l'heure d'entrée, la durée de passage est égale à une minute dans 75% des cas... Il y a donc un problème avec l'heure de sortie.
+
+```{r, echo=FALSE}
+s <- ymd_hms(as.POSIXct(ccm$SORTIE))
+e <- ymd_hms(as.POSIXct(ccm$ENTREE))
+d <- as.numeric(s - e)
+# on ne garde que les durées < 24 h
+d2 <- d[d < 24*60]
+# nb de données aberrantes
+outliner <- length(d) - length(d2)
+# % de données manquantes
+mean(is.na(d2)) * 100
+
+summary(as.numeric(d2))
+hist(as.numeric(d2), breaks = 60, col = "brown", border = "white", main = "Durées de passage", xlab = "Temps (mn)")
+
+```
+
+Origine des patients
+--------------------
+
+### Par département
+
+```{r, echo=FALSE}
+cp2 <- substr(ccm$CODE_POSTAL, 1, 2)
+sort(table(cp2))
+round(sort(table(cp2)) * 100 /nrow(ccm), 3) # en %
+```
+
+Cartographie
+```{r, message=FALSE, echo=FALSE, comment=""}
+
+library(rgdal)
+library(sp)
+library(Rpu2)
+library("cartography")
+
+par(mar = c(0,0,0,0))
+dsn <- "/home/jcb/Documents/CartographieR/IGN_GEOFLA_2015/Fichier_SHP/DEPARTEMENT"
+file <- "DEPARTEMENT"
+france <- readOGR(dsn = dsn, layer = file, stringsAsFactors = FALSE)
+t <- table(cp2)
+d <- data.frame(t)
+a <- attribJoin(df = d, spdf = france, df.field = "cp2", spdf.field = "CODE_DEPT")
+
+cols <- carto.pal("sand.pal", 5)
+a$cut <- cut(a$Freq, breaks = c(1,5,10,100,500,15000), include.lowest = TRUE, right = FALSE)
+
+plot(a, col = cols[as.numeric(as.factor(a$cut))])
+legend("right", legend = levels(a$cut), fill = cols, bty = "n", title = "Nb de patients")
+```
+
+
+### en Alsace
+
+```{r, echo=FALSE}
+# fond de carte des codes postaux
+load("~/Documents/Resural/Stat Resural/RPU_Doc/RPU_Carto-Pop-Alsace/Cartographie/Cartofile/cp67.Rda")
+load("~/Documents/Resural/Stat Resural/RPU_Doc/RPU_Carto-Pop-Alsace/Cartographie/Cartofile/cp68.Rda")
+par(mar = c(0,0,0,0))
+
+# Les CP sont transformés en caractères (au lieu de factor)
+cp <- as.character(ccm$CODE_POSTAL)
+# on ne conserve que les CP alsaciens
+t <- table(cp[cp > 66999 & cp < 69000])
+# transformation en dataframe pour être mergé avec attrJoin
+d <- data.frame(t)
+names(d)[1] <- "cp" # renome la colonne 1
+
+# Bas-Rhin
+a <- attribJoin(df = d, spdf = cp67, df.field = "cp", spdf.field = "ID")
+cols <- carto.pal("sand.pal", 5)
+a$cut <- cut(a$Freq, breaks = c(1,5,10,100,200,500), include.lowest = TRUE, right = FALSE)
+plot(a, col = cols[as.numeric(as.factor(a$cut))])
+legend("right", legend = levels(a$cut), fill = cols, bty = "n", title = "Nb de patients")
+
+# Haut-Rhin
+a <- attribJoin(df = d, spdf = cp68, df.field = "cp", spdf.field = "ID")
+cols <- carto.pal("sand.pal", 5)
+a$cut <- cut(a$Freq, breaks = c(1,5,10,100,200,500), include.lowest = TRUE, right = FALSE)
+plot(a, col = cols[as.numeric(as.factor(a$cut))])
+legend("right", legend = levels(a$cut), fill = cols, bty = "n", title = "Nb de patients")
+```
+

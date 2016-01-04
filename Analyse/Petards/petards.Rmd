@@ -38,6 +38,12 @@ as.numeric(as.duration(i))/3600
 Lorsque un objet datetime est au format POSIXct, on peut extraire le groupe horaire avec __format__:
 ```{}
 format(date1, "%X")
+
+hour <- format(as.POSIXct(date1), "%X") # hour est une string
+
+# avec lubridate:
+hour <- hms(format(as.POSIXct(date1), "%X")) # "19H 59M 59S"
+
 ```
 et la date au format local:
 ```{}
@@ -408,7 +414,5 @@ t <- tapply(as.Date(pet.dp.plaie$ENTREE), as.Date(pet.dp.plaie$ENTREE), length)
 c <- ifelse((wday(names(t)) == 1 | names(t) %in% c("2013-12-25","2013-12-25","2013-12-31","2014-01-01")) == 1, "red", "light blue") # on colorie en rouge les WE et JF
 x <- barplot(t, las=2, cex.names=0.8, main = "Plaies de la main", ylab = "nombre", col = c)
 
-
 ```
-
 
