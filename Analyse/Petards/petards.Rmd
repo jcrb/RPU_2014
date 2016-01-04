@@ -43,7 +43,12 @@ et la date au format local:
 ```{}
 format(date1, "%x")
 ```
-
+Dans les deux cas, le résultat est un character. On peut utiliser la formule suivante pour extraire l'heure au format HMS d'une chaine de caractère date <- "2013-12-31 19:59:59":
+```{}
+date <- "2013-12-31 19:59:59"
+a <- hms(format(as.POSIXct(date), "%X"))
+```
+"19H 59M 59S"
 
 
 ```{r}
