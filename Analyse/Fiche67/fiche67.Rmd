@@ -1,0 +1,159 @@
+---
+title: "Fiche Bas-Rhin"
+author: "JcB"
+date: "06/01/2016"
+output:
+  pdf_document: default
+  html_document:
+    number_sections: yes
+---
+
+Cette fiche reproduit le modèle de la Lorraine (rapport activité 2014)
+
+Département du Bas-Rhin
+=======================
+C'est le département le plus peuplé de la région Grand-Est
+
+Tableau 1
+---------
+Informations nécessaires:
+
+- nombre total de passages dans la région (n.rpu.als)
+- nombre de passages par SU (n.rpu.es.67)
+
+informatiosn déduites:
+
+- % départemental de passages par SU (p.rpu.es.67)
+- % régional de passages par SU (p.rpu.es67.als)
+- nb total de passage pour le département (n.rpu67)
+- % de passages pour le département (p.rpu67.als)
+
+### Exécution
+
+```{r data, echo=FALSE}
+library(knitr)
+load("~/Documents/Resural/Stat Resural/DATA/RPU_2014/rpu2014d0112_c2.Rda")
+n.rpu.als <- nrow(d14)
+```
+- nombre de passage en Alsace: `r n.rpu.als`
+
+```{r, echo=FALSE}
+n.rpu.es <- tapply(as.Date(d14$ENTREE), d14$FINESS, length)
+n.rpu.es.67 <- n.rpu.es[c("Wis","Hag","Sav","Hus","Ane","Odi","Dts","Sel")]
+n.rpu67 <- sum(n.rpu.es.67)
+p.rpu.es.67 <- n.rpu.es.67 / n.rpu67
+p.rpu.es67.als <- n.rpu.es.67 / n.rpu.als
+p.rpu67.als <- n.rpu67 / n.rpu.als
+```
+- nombre de passages par SU: `r n.rpu.es.67`
+
+informatiosn déduites:
+
+- % départemental de passages par SU: `r round(p.rpu.es.67 * 100, 2)`
+- % régional de passages par SU: `r round(p.rpu.es67.als * 100, 2)`
+- nb total de passage pour le département: `r n.rpu67`
+- % de passages pour le département: `r round(p.rpu67.als * 100, 2)`
+
+### Synthèse
+```{r,echo=FALSE}
+tab1 <- cbind(n.rpu.es.67, round(p.rpu.es.67 * 100, 2), round(p.rpu.es67.als * 100, 2))
+colnames(tab1) <- c("Nb de passages","% départemental", "%régional")
+tab1 <- rbind(tab1, apply(tab1, 2, sum))
+rownames(tab1)[nrow(tab1)] <- "Total 67"
+tab1 <- rbind(tab1, c(n.rpu.als, "", ""))
+rownames(tab1)[nrow(tab1)] <- "Total Alsace"
+kable(tab1, align = "r")
+```
+
+
+
+Carte des villes siège de SU
+-----------------------------
+
+```{r, echo=FALSE, message=FALSE}
+# carte des communes du bas-rhin
+library(sp)
+par(mar = c(0,0,0,0))
+load("~/Documents/Resural/Stat Resural/RPU_Doc/RPU_Carto-Pop-Alsace/Cartographie/Cartofile/carto67.Rda")
+load("~/Documents/Resural/Stat Resural/RPU_Doc/RPU_Carto-Pop-Alsace/Cartographie/Cartofile/contour67.Rda")
+
+# carte de contours du bas-rhin
+# library("maptools")
+# contour67<-unionSpatialPolygons(st,IDs= st$CODE_REG)
+
+plot(st, border = "gray70", col = "lightblue")
+plot(contour67, add = TRUE, border = "cornflowerblue", lwd = 3)
+```
+
+Pyramide des ages
+-------------------
+
+```{r, echo=FALSE, fig.width=10, fig.height=8}
+library(plotrix)
+age <- d14[d14$FINESS %in% c("Wis","Hag","Sav","Hus","Ane","Odi","Dts","Sel"), c("AGE","SEXE")]
+age.f <- age[which(age$SEXE == "F"), "AGE"]
+age.h <- age[which(age$SEXE == "M"), "AGE"]
+xx <- table(cut(age.f, c(0, 1, seq(5, 100, 5), 120), include.lowest = TRUE, right = TRUE))
+xy <- table(cut(age.h, c(0, 1, seq(5, 100, 5), 120), include.lowest = TRUE, right = TRUE))
+age.labels <- names(xx)
+age.labels[length(age.labels)] <- "> 100"
+
+# couleurs
+a <- length(xx)
+mcol<-color.gradient(c(0,0,0.5,1),c(0,0,0.5,1),c(1,1,0.5,1), a)
+fcol<-color.gradient(c(1,1,0.5,1),c(0.5,0.5,0.5,1),c(0.5,0.5,0.5,1), a)
+# pyraide
+par(mar=pyramid.plot(as.numeric(xy*100/length(age.h)), as.numeric(xx*100/length(age.f)), labels=age.labels, main="Pyramide des ages de la population du bas-Rhin en 2014",lxcol = mcol, rxcol = fcol, gap=0.65, show.values=TRUE, top.labels=c("Homme","Age","Femme")))
+
+
+```
+
+
+Origine de la patientèle
+------------------------
+
+```{r, echo=FALSE}
+cp <- d14[d14$FINESS %in% c("Wis","Hag","Sav","Hus","Ane","Odi","Dts","Sel"), c("CODE_POSTAL", "FINESS")]
+cp$CODE_POSTAL <- substr(cp$CODE_POSTAL, 1, 2)
+# origine 67
+cp67 <- cp[cp$CODE_POSTAL == "67",]
+n.cp67 <- summary(factor(cp67$FINESS))
+# origine 68
+cp68 <- cp[cp$CODE_POSTAL == "68",]
+n.cp68 <- summary(factor(cp68$FINESS))
+# origine 57
+cp57 <- cp[cp$CODE_POSTAL == "57",]
+n.cp57 <- summary(factor(cp57$FINESS))
+# origine 88
+cp88 <- cp[cp$CODE_POSTAL == "88",]
+n.cp88 <- summary(factor(cp88$FINESS))
+
+# origine France
+cpfr <- cp[!(cp$CODE_POSTAL %in% c("67","68","57","88")),]
+n.cpfr <- summary(factor(cpfr$FINESS))
+
+# % non renseigné
+p.na <- tapply(cp$CODE_POSTAL, factor(cp$FINESS), function(x) mean(is.na(x)))
+
+# on regroupe le tout
+n.p <- cbind(n.cp67, n.cp68, n.cp57, n.cp88, n.cpfr)
+
+# les résultats sont exprimés sous forme de vecteurs nommés, triés par ordre alphabétique. Pour calculer des % il faut diviser par le vecteur du nb de RPU par ES organisé dans le même ordre. Pour trier un vecteur nommé en fonction du nom de ses éléments:
+n.rpu.es.67 <- n.rpu.es.67[ order(names(n.rpu.es.67))]
+
+# origine des patients en %
+p.p <- apply(n.p, 2, function(x) round(x*100/n.rpu.es.67,2))
+p.p <- cbind(p.p, p.na)
+p.p <- apply(p.p, c(1,2), function(x) paste0(x, "%"))
+
+colnames(p.p) <- c("67", "68", "57", "88", "Autre dep.", "Non Rens.")
+
+# total des colonnes
+n.tot <- apply(n.p, 2, sum)
+p.tot <- round(n.tot*100/n.rpu67, 2)
+TOTAL <- paste0(c(p.tot, 0), "%")
+p.p <- rbind(p.p, TOTAL)
+
+kable(p.p, align = "r", caption = "Patientèle du Bas-Rhin (en %)")
+```
+
