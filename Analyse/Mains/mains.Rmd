@@ -24,7 +24,7 @@ library(lubridate)
 
 load("../../d15_p.Rda")
 # RPU du CCM
-ccm <- d15.p[d15.p$FINESS == "Ros",]
+ccm <- d15.p[d15.p$FINESS == "Ccm",]
 # RPU où le DP est renseigné
 dpccm <- ccm[!is.na(ccm$DP),]
 r <- range(as.Date(dpccm$ENTREE))
@@ -211,11 +211,18 @@ Origine des patients
 
 ### Par département
 
-```{r, echo=FALSE}
+#### En nombre:
+```{r, echo=FALSE, comment=""}
 cp2 <- substr(ccm$CODE_POSTAL, 1, 2)
 sort(table(cp2))
+
+```
+
+#### En pourcentage:
+```{r, echo=FALSE, comment=""}
 round(sort(table(cp2)) * 100 /nrow(ccm), 3) # en %
 ```
+
 
 Cartographie
 ```{r, message=FALSE, echo=FALSE, comment=""}

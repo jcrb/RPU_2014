@@ -102,6 +102,7 @@ parse_rpu <- function(date.jour){
 finess2hop <- function(a){
   # a<-dx$FINESS
   a[a=="670000397"]<-"Sel"
+  a[a=="670017755"]<-"Sel" # GHSO depuis le 5/1/2016
   a[a=="680000684"]<-"Col"
   a[a=="670016237"]<-"Odi"
   a[a=="670780204"]<-"Odi" # Finess juridique
@@ -205,7 +206,7 @@ file.to.delete <- "/home/jcb/Documents/Resural/Stat Resural/Archives_Sagec/dataQ
 file.remove(file.to.delete)
 
 date1 <- "2015-12-07"
-date2 <- "2016-01-03"
+date2 <- "2016-01-07"
 
 mc <- substr(date1, 6, 7)
 ac <- substr(date1, 1,4)
@@ -252,7 +253,8 @@ rm(dx)
 # load("rpu2015d07.Rda") # mois précédent
 # load("rpu2015d08.Rda") # mois précédent
 
-load("RPU_2014/rpu2015d0112_provisoire.Rda") # load("rpu2015d0112_provisoire.Rda") # si console
+#load("RPU_2014/rpu2015d0112_provisoire.Rda")
+load("rpu2015d0112_provisoire.Rda") # si console
 d15 <- d15[as.Date(d15$ENTREE) < "2015-12-01",]
 
 # dx <- rbind(d01, d02, d03, d04, d05, d06, d07, d08)
@@ -262,6 +264,13 @@ min(as.Date(dx$ENTREE))
 max(as.Date(dx$ENTREE))
 
 d15 <- dx
+
+# Uniquement le CCOM
+ccm2015 <- d15[d15$FINESS == "Ccm",]
+save(ccm2015, file = "ccm2015.Rda")
+
+# TOUS les rpu SAUF le CCOM
+d15 <- d15[d15$FINESS != "Ccm",]
 save(d15, file="rpu2015d0112_provisoire.Rda")
 
 # Table des RPU par jour et par FINESS pour le mois en cours
@@ -506,7 +515,7 @@ Objet: mesure de l'activité au jour le jour avant consolidation. En pratique re
 2. appeler la fonction __parse_rpu__ avec la date du jour, qui le transforme en dataframe
 ```{}
 
-d <- parse_rpu("2016-01-03")
+d <- parse_rpu("2016-01-07")
 
 min(as.Date(d$ENTREE))
 max(as.Date(d$ENTREE))
@@ -1011,4 +1020,6 @@ s <- summary(p$FINESS)
 s[s > 0]
 
 ```
+
+
 

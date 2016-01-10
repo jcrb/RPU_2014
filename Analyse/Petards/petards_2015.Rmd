@@ -1,0 +1,95 @@
+---
+title: "Lésions de la main par pétards 2015-2016"
+author: "JcB - RESURAL"
+date: "10/01/2016"
+output: pdf_document
+---
+
+Pétards 2015-2016
+=================
+
+Les lésions graves de la mains provoquées par l'explosion de pétards à l'occasion du réveillon sont un motif fréquent de consultation sans les services spécialisés. Depuis 2015 en Alsace, les trois services SOS Mains de la région (CCOM, Diaconat-Strasbourg, Diaconat-Roosevelt) remontent des RPU. Il a paru intéressant de colliger les cas à partir des RPU comportant le code __CIM10 W39__ comme diagnostic principal (DP). La consigne d'utiliser prioritairement de code avait été préalablement donnée à l'ensemble des structures d'urgence.
+
+```{r, echo=FALSE, comment="", message=FALSE}
+
+library(stringr)
+library(Rpu2)
+
+# Exploité à partir de d15.p pour avoir les données jusqu'au 6/1/2016
+load("../../d15_p.Rda") # d15.p
+# le fichier d15 a été nettoyé des données du CCOM => il faut prndre en compte ces données
+load("~/Documents/Resural/Stat Resural/RPU_2014/ccm2015.Rda")
+
+pattern <- "[W][3][9]"
+# lésions par pétard contenues dans d15.p
+p <- d15.p[!is.na(d15.p$DP) & str_detect(d15.p$DP, pattern) == TRUE,] # il faut éliminer les NA
+
+# lésions par pétards du CCOM avant le 1/1/2016
+p2 <- ccm2015[!is.na(ccm2015$DP) & str_detect(ccm2015$DP, pattern) == TRUE,] # il faut éliminer les NA
+
+# merging des deux
+p <- rbind(p, p2)
+n.p <- nrow(p)
+```
+
+Fréquence
+---------
+
+La période d'observation s'étend du 25 décembre 2015 au 6 janvier 2016. On observe __`r n.p`__ cas de lésions par pétards. La plus pécoce date du 28 décembre, les plus tardives du 2 janvier avec un pic le premier janvier, essentiellement entre minuit et 6 heures du matin.
+
+```{r, echo=FALSE}
+# nb par jour
+t <- tapply(as.Date(p$ENTREE), as.Date(p$ENTREE), length)
+
+barplot(t, main = "Lésions par pétards (2015-2016)", ylab = "Nombre de cas")
+copyright("2013 - 2016")
+```
+
+Age
+---
+
+```{r, echo=FALSE, comment=""}
+# Age
+s.age <- summary(p$AGE)
+hist(p$AGE, col = "cornflowerblue", border = "white", ylab = "Fréquence", xlab = "Age (années)", main = "Lésions de la main liées aux pétards\n en Alsace (réveillon 2015-2016)")
+copyright("2013 - 2016")
+```
+
+Sexe
+----
+
+Il existe une nette prédominance masculine: 11 hommes pour une femme.
+```{r, echo=FALSE, comment="", message=FALSE}
+# Sexe
+summary(as.factor(p$SEXE))
+pie(table(p$SEXE), col = c("blue", "red"), main = "Sexe et lésions par pétards")
+copyright("2013 - 2016")
+```
+
+Origine
+--------
+La quasi totalité des patients sont originaires du bas-Rhin.
+
+```{r, echo=FALSE, comment=""}
+# lieu d'habitation
+c <- cbind(table(p$COMMUNE))
+colnames(c) <- "Nombre"
+c
+```
+
+Prise en charge
+---------------
+
+La majorité des patients (10 sur 12) ont été pris en charge par les services SOS Mains de Strasbourg. Deux patients ont été pris en charge par un service d'urgence polyvalent.
+```{r, echo=FALSE, comment=""}
+# par établisement
+s <- summary(p$FINESS)
+#s[s > 0]
+```
+
+Conclusion
+==========
+Ce travail montre la faisabilité d'un suivi ponctuel des lésions de la main liées à l'utilisation festive de pétards, à partir des RPU. Le nombre de cas recensés parait plus faible que celui observé au cours des années précédentes. La concentration des cas observés sur le département du bas-Rhin (11 cas sur 12) est un peu étrange.
+
+
+

@@ -1,0 +1,32 @@
+---
+title: "Couleur avec R"
+author: "JcB"
+date: "09/01/2016"
+output: html_document
+---
+
+Noms des couleurs
+```{r}
+a <- colors()
+# uniquement les bleus
+library(stringr)
+pattern <- "[b][l][u][e]"
+b <- str_extract(a, pattern)
+c <- a[which(!is.na(b))]
+c
+
+```
+
+```{r}
+opar <- par(oma = c(0, 0, 0, 0), mar = c(0, 0, 0, 0))
+x1 <- rep(1:10, 10)
+x2 <- rep(1:10, each = 10)
+x3 <- 1:100
+numeros.couleurs.interessants <- c(1:152, 253:259, 362:657)
+tracez.nous <- sample(numeros.couleurs.interessants, size = max(x3))
+plot(x1, x2, col = colors()[tracez.nous], pch = 20, cex = 10, axes = F, xlim = c(0, 10.5), ylim = c(0, 10))
+text(x1, x2 - 0.5, colors()[tracez.nous], cex = 0.6)
+text(x1 + 0.4, x2 - 0.4, tracez.nous, cex = 0.5)
+par(opar)
+```
+
