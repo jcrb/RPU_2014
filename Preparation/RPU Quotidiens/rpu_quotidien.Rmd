@@ -1005,19 +1005,29 @@ Exploité à partir de d15.p pour un résultat rapide
 ```{}
 library(stringr)
 pattern <- "[W][3][9]"
-p <- d15.p[str_detect(d15.p$DP, pattern) == TRUE,] # il faut éliminer les NA
+p <- d15.p[!is.na(d15.p$DP) & str_detect(d15.p$DP, pattern) == TRUE,] # il faut éliminer les NA
 n.p <- nrow(p)
+
 # Age
 summary(p$AGE)
+hist(p$AGE, col = "cornflowerblue", border = "white", ylab = "Fréquence", xlab = "Age (années)", main = "Lésions de la main liées aux pétards\n en Alsace (réveillon 2015-2016)")
+
 # Sexe
 summary(as.factor(p$SEXE))
+
 # nb par jour
 t <- tapply(as.Date(p$ENTREE), as.Date(p$ENTREE), length)
 t
 barplot(t, main = "Lésions par pétards (2015-2016)")
+
 # par établisement
 s <- summary(p$FINESS)
 s[s > 0]
+
+# lieu d'habitation
+c <- cbind(table(p$COMMUNE))
+colnames(c) <- "Nombre"
+c
 
 ```
 

@@ -1,15 +1,18 @@
 ---
-title: "Cate des RPU produits par territoire de santé"
+title: "Carte des RPU produits par territoire de santé"
 author: "JcB"
-date: "03/11/2015"
+date: "08/01/2016"
 output:
   html_document:
     keep_md: yes
-  pdf_document: default
+  pdf_document:
+    keep_tex: yes
 ---
 Objectif: dessiner une carte de l'Alsace avec une représentation du nombre de RPU produits par chacun des douze territoires de proximié. Les RPU sont représentés par des cercles dont la superficie est proportionnelle au nombre de RPU.
 
 Source: R et espace pp 189
+
+Emplacement: <u>RPU_2014/Analyse/Carte_RPU_TP</u>
 
 Réalisation: il faut disposer:
 
@@ -28,14 +31,14 @@ load("../../../../Stat Resural/RPU_Doc/RPU_Carto-Pop-Alsace/Cartographie/Cartofi
 
 ```
 ```{r, echo=FALSE}
-# calcul du nombre de RPU par TP en 2014
+# calcul du nombre de RPU par TP en 2014 et 2015. La création des zones varie selon l'année. Par exemple HUS existe en 2014 mais remplacé par NHC et HTP en 2015. Pour 2016, Mul sera remplacé par Hsr et Emr.
 if(anc == 2014){
   load("/home/jcb/Documents/Resural/Stat Resural/RPU_2014/rpu2014d0112_c2.Rda")
   dx <- d14
   t <- tapply(as.Date(dx$ENTREE), dx$FINESS, length)
   rpu <- c(t['Wis'], t['Sel'], t['Hag'], t['Sav'], NA, t['Hus']+t['Ane']+t['Odi']+t['Dts'], t['3Fr'], NA, t['Alk'], t['Col'],t['Mul']+t['Dia']+t['Ros'], t['Geb'])
 } else if(anc == 2015){
-  load("/home/jcb/Documents/Resural/Stat Resural/RPU_2014/rpu2015d0112_provisoire.Rda")
+  load("/home/jcb/Documents/Resural/Stat Resural/RPU_2014/rpu2015d0112.Rda")
   dx <- d15
   t <- tapply(as.Date(dx$ENTREE), dx$FINESS, length)
   rpu <- c(t['Wis'], t['Sel'], t['Hag'], t['Sav'], NA, t['HTP']+t['NHC']+t['Ane']+t['Odi']+t['Dts'], t['3Fr'], NA, t['Alk'], t['Col'], t['Mul']+t['Dia']+t['Ros']+t['Emr']+t['Hsr'], t['Geb'])
@@ -49,7 +52,7 @@ tsvilles$rpu <- rpu
 
 ```{r carte, fig.height=8, echo=FALSE}
 # carte générale
-plot(ctss, main = paste("Nombre de RPU produits par territoire de proximité en", anc), col = "palegreen")
+plot(ctss, main = paste("Nombre de RPU produits par zone de proximité en", anc), col = "palegreen")
 
 # on tace des points proportionnels
 bg <- "cornflowerblue"
@@ -64,12 +67,27 @@ legend("topleft", legend = rpu_legend, pch = 21, col = "white", pt.bg = bg, bty 
 La surface des cercles est proportionnelle au nombre de RPU. Il manque des informations sur deux territoires: Schirmeck et Thann. En 2014, le nombre de RPU de la zone Strasbourg est fortement sous estimé.
 
 ```{r, echo=FALSE, results='asis'}
-
+# tableau de chiffres
 library(xtable)
+tab <- tsvilles[, c(1, 4)] # on garde les colonnes 1 et 4
+tab <- tab[order(tab[,1]),] # tri alphabétique
+
+# ajout d'une ligne TOTAL
+TOTAL <- sum(tab[, "rpu"], na.rm = TRUE) # total des RPU
+tab[, 1] <- as.character(tab[, 1]) # 
+
+tab <- rbind(tab, c("TOTAL", TOTAL))
+tab[, 2] <- as.numeric(tab[, 2]) #
+colnames(tab) <- c("Zone de proximité", "Nombre de RPU")
 
 type = "html"
-print.xtable(xtable(tsvilles[, c(1, 4)], caption = paste0("RPU produits en ", anc, " par zone de proximité")), type = type, include.rownames = FALSE, format.args = list(big.mark = " ", decimal.mark = ","), comment = FALSE)
+print.xtable(xtable(tab, caption = paste0("RPU produits en ", anc, " par zone de proximité")), type = type, include.rownames = FALSE, format.args = list(big.mark = " ", decimal.mark = ","), comment = FALSE, hline.after = c(-1, 0, nrow(tab)-1))
 
+# sauvegarde de la table tab pour usage ultérieur:
+# tab <- "/home/jcb/Documents/Resural/Stat Resural/RPU_2014/Analyse/Carte_RPU_TP/tab2015.csv""
+# type = "html"
+# print.xtable(xtable(tab, caption = paste0("RPU produits en ", anc, " par zone de proximité")), type = type, include.rownames = FALSE, format.args = list(big.mark = " ", decimal.mark = ","), comment = FALSE, hline.after = c(-1, 0, nrow(tab)-1))
+write.csv(tab, file = "tab2015.csv", row.names = FALSE)
 
 ```
 
