@@ -1,0 +1,232 @@
+---
+title: "Activité 2013-2014"
+author: "JcB"
+date: "10/07/2014"
+output:
+  html_document:
+    fig_caption: yes
+    keep_md: yes
+    toc: yes
+---
+
+Activité 2013-2014
+==================
+
+On crée le fichier __d2__ concaténation de 2013 (d1) et 2014 (dx):
+
+```{r}
+load("../RPU_2013/rpu2013d0112.Rda") # d1
+load("rpu2014d0112_c.Rda")
+d2 <- rbind(d1,d14)
+save(d2, file="rpu2013-2014.Rda")
+```
+ou on charge directement __d2__
+```{r load_archive}
+load("rpu2013-2014.Rda")
+```
+Librairies et routines nécessaires
+----------------------------------
+
+La librairie __xtsExtra__ be fait pas partie des librairiees standards, il faut la charger sur _source-forge_:
+install.packages("xtsExtra", repos="http://R-Forge.R-project.org")
+
+```{r lib}
+library("xtsExtra")
+library("xts")
+library("lubridate")
+
+source("Preparation/RPU Quotidiens/quot_utils.R")
+
+```
+
+Chiffres clés
+------------
+d2 rpu 2013 + rpu 2014
+```{r clés}
+anc <- "2014"
+a <- table(year(as.Date(d2$ENTREE)))
+n_2013 <- a[1] # rpu 2013
+n_2014 <- a[2] # rpu 2014
+delta <- as.numeric(100 * (n_2014/n_2013 - 1)) # variation 2013/2014
+ 
+```
+$`r n_2014`$ RPU créés en `r anc`  
+$`r round(delta,1)`$ % par rapport à 2013.
+
+
+tableau des hôpitaux
+---------------------
+```{r hop}
+t <- table(as.Date(d2$ENTREE), d2$FINESS)
+s <- rowSums(t)
+b <- rownames(t)
+a <- as.data.frame(cbind(b,s))
+colnames(a) <- c("Date","RPU")
+a$Date <- as.Date(a$Date)
+a$RPU <- as.numeric(as.character(a$RPU))
+
+plot(a$Date, a$RPU, type="l", ylab="nombre de RPU", xlab="Année 2013-2014", main="Activité des SU d'Alsace en nombre de RPU")
+x <- as.xts(a$RPU, a$Date)
+z <- as.zoo(x)
+plot(z, col="blue")
+lines(rollmean(z, 7), col="red")
+plot.xts(x, ylab="nombre de RPU", xlab="Année 2014", main="Activité des SU d'Alsace en nombre de RPU", col="blue", las=2, minor.ticks=FALSE, cex.axis=c(0.8))
+lines(rollmean(z, 7), col="red")
+```
+
+Comparaison de l'activité globale 2013-2014
+============================================
+
+On veut comparer le nombre  de RPU quotidiens créés en 2013 et 2014. Pour cela on veut tracer deux courbes sur le même graphique avec:
+
+- en abcisse les mois de l'année de janvier à janvier
+- en ordonnée le nombre de RPU
+Je n'ai pas trouvé dans R en général et dans les séries temporelles de fonction pour tracer ce genre de graphe. J'y sui arrivé en appliquant la méthodologie suivante:
+
+1. récupérer les données. La colonne ENTREE contient une ligne par RPU avec la date et l'heure de création de l'enregistrement. Avec tapply on répère le nombre de RPU créés par jour (t).
+2. on crée un dataframe à partir de t où:
+  - la colonne 1 = nom des lignes = date du jour (V1)
+  - la colonne 2 = nb de RPU du jour (V2)
+  - la colonne 3 = n° du jour de l'année (1er janvier = 1)
+  - la colonne 4 = moyenne lissée sur 7 jours
+3. On obtient les 2 dataframes __t2013__ et __t2014__ que l'on peut plotter sur le même graphe.
+4. Il faut redessiner complètement le graphe
+
+```{r comp, fig.cap="Comparaison 2013:2015", fig.height=8, fig.width=8}
+
+# comparaison RPU 2013-2014
+
+#nb de rpu/jour 2014
+
+# séquence remplacée par la fonction rpu.par.jour
+# t <- tapply(as.Date(d14$ENTREE), as.Date(d14$ENTREE), length)
+# t2014 <- as.data.frame(cbind(names(t), as.numeric(t)), stringsAsFactors = FALSE)
+# t2014$V1 <- as.Date(t2014$V1) # col. date
+# t2014$V2 <- as.numeric(t2014$V2) # nb de RPU
+# t2014$V3 <- yday(t2014$V1) # date du jour en n° du jour dans l'année
+# t2014$V4 <- rollmean(t2014$V2, 7, fill = NA) # moyenne mobile sur 7 jours. rollmean crée un vecteur plus petit. Pour obtenir un vecteur de la même longueur, on remplace les valeurs manquantes par NA
+p2014 <- rpu.par.jour(d14$ENTREE)
+plot(p2014$V2, type="l")
+lines(p2014$V3, p2014$V4) # moyenne mobile
+
+
+# nb rpu/jpour en 2013
+# t2013 <- tapply(as.Date(d1$ENTREE), as.Date(d1$ENTREE), length)
+# t2013 <- as.data.frame(cbind(names(t2013), as.numeric(t2013)), stringsAsFactors = FALSE)
+# t2013$V1 <- as.Date(t2013$V1)
+# t2013$V2 <- as.numeric(t2013$V2)
+# t2013$V3 <- yday(t2013$V1)
+# t2013$V4 <- rollmean(t2013$V2, 7, fill = NA)
+
+p2013 <- rpu.par.jour(d1$ENTREE)
+plot(p2013$V2, type="l")
+lines(p2013$V3, p2013$V4)
+
+# nb rpu/jpour en 2015
+load("d15_p.Rda")
+p2015 <- rpu.par.jour(d01.p$ENTREE)
+plot(p2015$V2, type="l")
+lines(p2015$V3, p2015$V4)
+
+
+# synthèse
+# png("fig1.png", width = 400, height = 300)
+source("constantes.R") # récupère le nom des mois
+plot(p2014$V4, type="l", xlim = c(0,365), ylim = c(650, 1500), axes = FALSE, xlab="", ylab="")
+axis(side = 1, at= seq(1,365,30), labels=NA)
+axis(side = 1, at = seq(1,365,30), labels = c(mois_c, "Jan"))
+axis(side=2, las = 1)
+lines(p2013$V3, p2013$V4, col="blue")
+lines(p2015$V3, p2015$V4, col="red")
+legend("topleft", legend=c("2013","2014", "2015"), col=c("blue","black", "red"), lty=1, bty="n")
+title(main="Nombre de RPU/J en 2013-2014-2015", ylab="nombre de RPU", xlab="mois")
+# abline(lm(t2014$V2 ~ t2014$V3), col = "red", lwd = 2)
+# abline(lm(t2013$V2 ~ t2013$V3), col = "blue", lwd = 2)
+
+#dev.off()
+
+
+# bonne syntaxe pour créer des xts à partir d'un dataframe
+t1 <- xts(p2013[,-1], order.by=p2013[,1])
+t2 <- xts(p2014[,-1], order.by=p2014[,1])
+
+plot(yday(p2013$V1), p2013$V2, type="l", col="red", axes=FALSE)
+lines(yday(p2014$V1), p2014$V2, col="blue")
+axis(side=1, at=axTicksByTime(t1, "months"), labels=1:13)
+
+```
+
+Nombre de RPU par semaine
+=========================
+
+On compte le nombre deRPU par semaine en distinguant 2013 et 2014. Pour cela on utilise __tapply__ en créant une Liste de deux conditions, l'année et le mois. On obtient une __matrice__ de deux lignes (2013 et 2014) et 53 colonnes, que l'on peut injecter dans un barplot par exemple.
+
+load("~/Documents/Resural/Stat Resural/RPU_2014/rpu2013-2014.Rda")
+
+```{r passages}
+dx <- d2
+library(lubridate)
+
+rpu.semaine <- tapply(as.Date(dx$ENTREE), list(year(as.Date(dx$ENTREE)), week(as.Date(dx$ENTREE))), length)
+
+head(rpu.semaine)
+
+barplot(rpu.semaine, main = "RPU hebdomadaires 2013-2014", xlab="semaines", ylab="nombre de RPU")
+barplot(rpu.semaine, main = "RPU hebdomadaires 2013-2014", beside = TRUE, xlab="semaines", ylab="nombre de RPU")
+
+class(rpu.semaine)
+
+plot(rpu.semaine[2,], type = "l", ylim = c(4000,11000), col="red", xlab="semaines", ylab="nombre de RPU", main = "RPU hebdomadaires 2013-2014")
+lines(rpu.semaine[1,], col = "blue")
+legend("topleft", legend=c("2013", "2014"), col=c("blue","red"), bty="n", lty=1)
+
+```
+
+Nombre d'hospitalisations par semaine
+======================================
+
+Voir le paragraphe précéent pour le principe de la méthodologie
+
+```{r hospitalisation}
+hosp <- dx[dx$MODE_SORTIE == "Mutation" | dx$MODE_SORTIE == "Transfert", 'ENTREE']
+hosp.semaine <- tapply(as.Date(hosp), list(year(as.Date(hosp)), week(as.Date(hosp))), length)
+head(hosp.semaine)
+
+barplot(hosp.semaine, main = "Hospitalisations hebdomadaires 2013-2014", xlab="semaines", ylab="nombre de RPU")
+barplot(hosp.semaine, main = "Hospitalisations hebdomadaires 2013-2014", beside = TRUE, xlab="semaines", ylab="nombre de RPU")
+
+class(hosp.semaine)
+
+plot(hosp.semaine[2,], type = "l", ylim = c(1000,2500), col="red", xlab="semaines", ylab="nombre de RPU", main = "Hospitalisations hebdomadaires 2013-2014")
+lines(hosp.semaine[1,], col = "blue")
+legend("topleft", legend=c("2013", "2014"), col=c("blue","red"), bty="n", lty=1)
+
+```
+
+Taux d'hospitalisation
+----------------------
+
+```{r tx_hosp}
+tx_hosp <- round(100 * hosp.semaine / rpu.semaine, 2)
+head(tx_hosp)
+
+summary(tx_hosp[1,]) # taux hospitalisation 2013
+summary(tx_hosp[2,]) # taux hospitalisation 2014
+
+plot(tx_hosp[2,], type = "l", ylim = c(0,25), col="red", xlab="semaines", ylab="Taux hospitalisation (%)", main = "Taux d'Hospitalisations hebdomadaires 2013-2014", lwd=3)
+lines(tx_hosp[1,], col = "blue", lwd=3)
+legend("bottomleft", legend=c("2013", "2014"), col=c("blue","red"), bty="n", lty=1)
+
+```
+Depuis quand les établissements produisent des RPU
+--------------------------------------------------
+
+On applique tapply qui retourne une liste de dates en secondes, qu'il faut convertir en date ISO (t2). cbind permet de présenter le résultat en colonne:
+
+```{r debut_rpu}
+t <- tapply(as.Date(d2$ENTREE), factor(d2$FINESS), min)
+t2 <- as.Date(t, origin = "1970-01-01")
+cbind(as.character(t2))
+
+```
+

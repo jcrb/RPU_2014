@@ -1011,4 +1011,51 @@ s <- summary(p$FINESS)
 s[s > 0]
 
 ```
+Création de tableau avec les fonctions de Rpu2
+==============================================
+```{}
+library(Rpu2)
+t <- tapply(dec2015$MODE_SORTIE, dec2015$FINESS, resume.mode.sortie)
+p <- do.call("rbind", t)
+round(p[, c("n", "n.rens", "p.hosp")],2)
+```
+
+Essai d'appliquer resume.mode.sortie par mois et par Finess:
+```{}
+t <- tapply(d15.p$MODE_SORTIE, list(month(as.Date(d15.p$ENTREE)), d15.p$FINESS), resume.mode.sortie)
+```
+t est une liste de 240 item de 12 mois x 20 établissement de santé. Chaque item est une liste de 15 paramètres fournis par la fonction resume.mode.sortie.
+Par exemple t[1] correspond à:
+```{}
+a <- t[1] # a est une list
+round(unlist(a), 2)
+```
+ce qui correspond aux données su mois de janvier pour la clinique 3Fr (A vérifier)
+
+Les 12 pemiers éléments de t correspondent au 12 mois de cet établissement. On peut extraire une matice rectangulaire de 12 mois x 15 indicateurs:
+```{}
+p <- do.call("rbind", t[1:12])
+p <- do.call("cbind", t) # on affiche 3 colonnes parmi 15
+
+```
+fonction pour faire ça automatiquement:
+```{}
+param <- function(t, item){
+  n <- length(t)
+  i <- 1
+  k <- i + 11
+  h <- 1
+  while(i < n - 12){
+    p <- do.call("rbind", t[i:k])
+    a <- round(p[, c("n", "n.rens", "p.hosp")],2)
+    print(a)
+    print(paste("-----  ",h,"  ------------------"))
+    h <- h + 1
+    i <- k + 1
+    k <- i + 11
+  }
+}
+```
+
+
 

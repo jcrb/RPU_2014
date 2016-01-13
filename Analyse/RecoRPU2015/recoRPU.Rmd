@@ -83,7 +83,7 @@ abline(h = summary(b)["Mean"] - sd(b) * 2, col = "blue", lty = 2)
 abline(h = summary(b)["Mean"] - sd(b) * 3, col = "blue", lty = 2)
 ```
 
-A partir des données corrigées on peut fixer le seuil à partir ququel le nombre de RPU peut être considéré comme suspect à :
+A partir des données corrigées on peut fixer le seuil à partir duquel le nombre de RPU peut être considéré comme suspect à :
 
 $S = \mu - 3\sigma$
 
