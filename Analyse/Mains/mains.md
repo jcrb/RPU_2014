@@ -9,12 +9,12 @@ Analyse faite le 28/12/2015 pour évaluer l'introduction du DP au CCOM.
 
 
 
-- Période analysée: 01/01/2015, 02/01/2016
-- Date d'envoi du premier RPU: 01/01/2015
+- Période analysée: 17/12/2015, 02/01/2016
+- Date d'envoi du premier RPU: 06/10/2015
 - Date de point: 02/01/2016
-- Nombre de RPU créés: 8187
-- Date de début d'envoi de RPU avec DP renseigné: 01/01/2015
-- Taux de complétude moyen du DP: 6 %
+- Nombre de RPU créés: 2458
+- Date de début d'envoi de RPU avec DP renseigné: 17/12/2015
+- Taux de complétude moyen du DP: 68 %
 
 Evolution du taux de completude du diagnostic principal (DP)
 
@@ -40,9 +40,9 @@ Tous les RPU du CCOM
 
 En moyenne, les femmes sont plus agées que les hommes:
 
-- age moyen des femmes: 40.2 ans.
-- age moyen des hommes: 36 ans.
-- la différence est statistiquement significative (p = 3.9022282\times 10^{-17})
+- age moyen des femmes: 41.3 ans.
+- age moyen des hommes: 35.9 ans.
+- la différence est statistiquement significative (p = 1.6368104\times 10^{-10})
 
 ### Répartition des codes CIM 10
 
@@ -52,12 +52,56 @@ Code CIM10 mains
 ----------------
 Les codes CIM10 sont dans le dossier FEDORU:
 
-     CODE    Freq  LIBELLE                                                                 
----  -----  -----  ------------------------------------------------------------------------
-2    T119     573  Lésion traumatique non précisée du membre supérieur, niveau non précisé 
-1    T116       1  Amputation traumatique du membre supérieur, niveau non précisé          
-3    T190       1  Corps étranger dans l'urètre                                            
-4    T192       1  Corps étranger dans la vulve et le vagin                                
+     CODE      Freq  LIBELLE                                                                                                           
+---  -------  -----  ------------------------------------------------------------------------------------------------------------------
+18   S610        38  Plaie ouverte de(s) doigt(s) (sans lésion de l'ongle)                                                             
+32   S6280       33  Fracture fermée de parties autres et non précisées du poignet et de la main                                       
+16   S602        17  Contusion d'autres parties du poignet et de la main                                                               
+30   S6260       15  Fracture fermée d'un autre doigt                                                                                  
+1    L030        14  Phlegmon des doigts et des orteils                                                                                
+20   S617        14  Plaies ouvertes multiples du poignet et de la main                                                                
+14   S600        13  Contusion de(s) doigt(s) sans lésion de l'ongle                                                                   
+25   S6230       13  Fracture fermée d'un autre os du métacarpe                                                                        
+37   S636        11  Entorse et foulure de doigt(s)                                                                                    
+19   S611        10  Plaie ouverte de(s) doigt(s) avec lésion de l'ongle                                                               
+40   S663         8  Lésion traumatique du muscle et du tendon extenseurs d'un autre doigt au niveau du poignet et de la main          
+9    M6594        6  Synovite et ténosynovite, sans précision - Main                                                                   
+10   M7954        6  Corps étranger résiduel dans un tissu mou - Main                                                                  
+31   S6261        6  Fracture ouverte d'un autre doigt                                                                                 
+21   S618         5  Plaie ouverte d'autres parties du poignet et de la main                                                           
+47   T230         5  Brûlure du poignet et de la main, degré non précisé                                                               
+48   W3998        5  Projection de feu d'artifice, lieu sans précision                                                                 
+5    M1994        4  Arthrose, sans précision - Articulations de la main                                                               
+23   S6210        4  Fracture fermée d'autre(s) os du carpe                                                                            
+36   S635         4  Entorse et foulure du poignet                                                                                     
+2    L608         3  Autres maladies des ongles                                                                                        
+4    M1394        3  Arthrite, sans précision - Articulations de la main                                                               
+28   S6250        3  Fracture fermée du pouce                                                                                          
+33   S6281        3  Fracture ouverte de parties autres et non précisées du poignet et de la main                                      
+35   S634         3  Rupture traumatique de ligaments du doigt au niveau des articulations métacarpo-phalangienne et interphalangienne 
+44   S670         3  Écrasement du pouce et d'autre(s) doigt(s)                                                                        
+3    L923         2  Granulome cutané et sous-cutané dû à la présence d'un corps étranger                                              
+6    M2554        2  Douleur articulaire - Articulations de la main                                                                    
+7    M62848       2  Autres atteintes musculaires précisées, Main                                                                      
+13   Q681         2  Anomalie morphologique congénitale de la main                                                                     
+22   S6200        2  Fracture fermée de l'os scaphoïde de la main                                                                      
+29   S6251        2  Fracture ouverte du pouce                                                                                         
+39   S662         2  Lésion traumatique du muscle et du tendon extenseurs du pouce au niveau du poignet et de la main                  
+41   S665         2  Lésion traumatique de muscles et de tendons intrinsèques d'un autre doigt au niveau du poignet et de la main      
+8    M6534        1  Doigt "à ressort" - Main                                                                                          
+11   M7964        1  Douleur au niveau d'un membre - Main                                                                              
+12   M9484        1  Autres affections précisées du cartilage - Main                                                                   
+15   S601         1  Contusion de(s) doigt(s) avec lésion de l'ongle                                                                   
+17   S607         1  Lésions traumatiques superficielles multiples du poignet et de la main                                            
+24   S6220        1  Fracture fermée du premier métacarpien                                                                            
+26   S6231        1  Fracture ouverte d'un autre os du métacarpe                                                                       
+27   S6240        1  Fractures fermées multiples des métacarpiens                                                                      
+34   S631         1  Luxation du doigt                                                                                                 
+38   S661         1  Lésion traumatique du muscle et du tendon fléchisseurs d'un autre doigt au niveau du poignet et de la main        
+42   S667         1  Lésion traumatique de multiples muscles et tendons extenseurs au niveau du poignet et de la main                  
+43   S668         1  Lésion traumatique d'autres muscles et tendons au niveau du poignet et de la main                                 
+45   S680         1  Amputation traumatique du pouce (complète) (partielle)                                                            
+46   S681         1  Amputation traumatique d'un autre doigt (complète) (partielle)                                                    
 
 Lesions liées aux pétards
 -------------------------
@@ -66,7 +110,7 @@ Sélectionne toutes les lignes avec le code W39:
 
 
 
-- Nombre de lésions dues aux pétards: 0
+- Nombre de lésions dues aux pétards: 5
 
 Nombre de passages par mois
 ---------------------------
@@ -105,8 +149,8 @@ L'heure de sortie n'est différente de l'heure d'entrée que dans 7% des cas. Lo
 ```
 
 ```
-##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-##     0.0   900.0   900.0   971.3  1200.0  1380.0
+##     Min.  1st Qu.   Median     Mean  3rd Qu.     Max. 
+##    0.000    0.000    0.000    3.941    0.000 1260.000
 ```
 
 ![](mains_files/figure-html/unnamed-chunk-15-1.png) 
@@ -116,38 +160,32 @@ Origine des patients
 
 ### Par département
 
+#### En nombre:
 
 ```
-## cp2
-##   00   02   08   11   14   18   23   24   26   27   28   29   35   37   39 
-##    1    1    1    1    1    1    1    1    1    1    1    1    1    1    1 
-##   41   43   44   51   53   63   72   76   83   91   21   32   33   42   74 
-##    1    1    1    1    1    1    1    1    1    1    2    2    2    2    2 
-##   78   80   84   94   95   97   34   57   66   69   71   89   13   31   60 
-##    2    2    2    2    2    2    3    3    3    3    3    3    4    4    4 
-##   77   79   82   92   93   62   59   54   99   75   88   67   70   25   90 
-##    4    4    4    4    4    5    6    7   14   15   34   46   46  135  195 
-##   68 
-## 7587
+cp2
+  17   24   27   30   33   42   49   50   56   59   66   69   81   86   36 
+   1    1    1    1    1    1    1    1    1    1    1    1    1    1    2 
+  44   52   54   55   75   76   45   70   83   88   92   94   90   99   57 
+   2    2    2    2    2    2    3    3    3    3    3    4    5   11   53 
+  68   67 
+  69 2273 
 ```
 
+#### En porcentage:
+
 ```
-## cp2
-##     00     02     08     11     14     18     23     24     26     27 
-##  0.012  0.012  0.012  0.012  0.012  0.012  0.012  0.012  0.012  0.012 
-##     28     29     35     37     39     41     43     44     51     53 
-##  0.012  0.012  0.012  0.012  0.012  0.012  0.012  0.012  0.012  0.012 
-##     63     72     76     83     91     21     32     33     42     74 
-##  0.012  0.012  0.012  0.012  0.012  0.024  0.024  0.024  0.024  0.024 
-##     78     80     84     94     95     97     34     57     66     69 
-##  0.024  0.024  0.024  0.024  0.024  0.024  0.037  0.037  0.037  0.037 
-##     71     89     13     31     60     77     79     82     92     93 
-##  0.037  0.037  0.049  0.049  0.049  0.049  0.049  0.049  0.049  0.049 
-##     62     59     54     99     75     88     67     70     25     90 
-##  0.061  0.073  0.086  0.171  0.183  0.415  0.562  0.562  1.649  2.382 
-##     68 
-## 92.671
+cp2
+    17     24     27     30     33     42     49     50     56     59 
+ 0.041  0.041  0.041  0.041  0.041  0.041  0.041  0.041  0.041  0.041 
+    66     69     81     86     36     44     52     54     55     75 
+ 0.041  0.041  0.041  0.041  0.081  0.081  0.081  0.081  0.081  0.081 
+    76     45     70     83     88     92     94     90     99     57 
+ 0.081  0.122  0.122  0.122  0.122  0.122  0.163  0.203  0.448  2.156 
+    68     67 
+ 2.807 92.474 
 ```
+
 
 Cartographie
 
@@ -158,10 +196,10 @@ with 96 features
 It has 11 fields
 ```
 
-![](mains_files/figure-html/unnamed-chunk-17-1.png) 
+![](mains_files/figure-html/unnamed-chunk-18-1.png) 
 
 
 ### en Alsace
 
-![](mains_files/figure-html/unnamed-chunk-18-1.png) ![](mains_files/figure-html/unnamed-chunk-18-2.png) 
+![](mains_files/figure-html/unnamed-chunk-19-1.png) ![](mains_files/figure-html/unnamed-chunk-19-2.png) 
 

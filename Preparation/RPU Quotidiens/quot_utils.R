@@ -93,6 +93,7 @@ sql2df <- function(filename_sql, resural = TRUE){
 finess2hop <- function(a){
   # a<-dx$FINESS
   a[a=="670000397"]<-"Sel"
+  a[a=="670017755"]<-"Sel" # GHSO depuis le 5/1/2016 FINESS Juridique
   a[a=="680000684"]<-"Col"
   a[a=="670016237"]<-"Odi"
   a[a=="670780204"]<-"Odi" # Finess juridique
