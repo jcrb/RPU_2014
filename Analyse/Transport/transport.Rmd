@@ -2,33 +2,38 @@
 title: "Moyen de transport"
 author: "jcb"
 date: "28 mars 2015"
-output: html_document
+output:
+  pdf_document:
+    number_sections: yes
+    toc_depth: 3
 ---
 
 Analyse du moyen de transport utilisé pour se rendre aux urgences
 =================================================================
 
 ```{r source, echo=FALSE}
-path <- "../../"
-load(paste0(path, "rpu2014d0112_c.Rda")) # 2014
+path <- "../../../"
+load(paste0(path, "DATA/RPU_2014/rpu2014d0112_c.Rda")) # 2014
 dx <- d14
 rm(d14)
+library(knitr)
 ```
 
-```{r global}
+```{r global, echo=FALSE, comment=""}
 t1 <- table(factor(dx$TRANSPORT))
 t1
 round(prop.table(t1) * 100, 2)
+
 ```
 Globalement, le moyen de transport le plus utilisé est un moyen personnel. Le SMUR, l'hélicoptère ou les forces de l'ordre occuppent une place marginale.
 
 Analyse par tranches d'age
 --------------------------
-```{r tranche, echo=FALSE}
+```{r tranche, echo=FALSE, comment=""}
 # colonne tranche d'age de 0 à 120 ans par tranche de 10 ans
 dx$t.age <- cut(dx$AGE, breaks = c(0, seq(10,120,10)))
 t <- table(dx$t.age, factor(dx$TRANSPORT))
-t
+kable(t)
 
 # Comment chaque moyen de transport est utilisé selon l'age: la somme d'une colonne est égale à 100%
 t2 <- round(prop.table(t,2) * 100, 2)
@@ -42,10 +47,42 @@ plot(as.table(t3[1:11,]), las = 1,main="Evolution des moyens de transport en fon
 
 L'analyse par tranches d'âge révèle une modification importante des comportements avec l'âge. L'utilisation d'un moyen personnel diminue progressivement alors que la part des transporteurs privés ne cesse d'augmenter pour devenir majoritaire aux ages les plus avancés. La bascule se fait vers 70 ans. Le phénomène est encore plus net si on y inclu les VSAV (anciennement VSAB). Il est donc important d'inclure dans la formation de ces personnels (CESU, IFA) des messages gériatriques. 
 
-ToDo
------
-Mode de transport indicateur de tension ?
+Rapport AMBU / VSAV
+-------------------
+```{r, echo=FALSE, comment=""}
+s  <- table(factor(dx$TRANSPORT))
+rav <- s["AMBU"] / s["VSAB"]
+```
 
-- courbe quotidienne par moyen de transport
-- qui transporte la nuit ? le WE ?
-- rapport ASSU/VSAV ou ASSU+VSAV / PERSO
+RAV = `r round(rav, 2)`
+
+Rapport PERSO / Ambulance (VSAV + ASSU)
+----------------------------------------
+```{r, echo=FALSE, comment=""}
+s  <- table(factor(dx$TRANSPORT))
+rpa <- s["PERSO"] / (s["AMBU"] + s["VSAB"])
+```
+
+RPA = `r round(rpa, 2)`
+
+### évolution du rapport avec l'âge
+```{r, echo=FALSE, comment=""}
+rpa <- function(x){s  <- table(factor(x)); return(s["PERSO"] / (s["AMBU"] + s["VSAB"]))}
+t <- tapply(dx$TRANSPORT, dx$t.age, rpa)
+round(t, 2)
+
+plot(t, type = "b", axes = FALSE, main = "Evolution du RPA avec l'âge", ylab = "RPA", xlab = "Age (annés)", col = "red", lwd = 3)
+axis(1,at=1:length(t),labels=names(t), las = 2, cex.axis = 0.8)
+axis(2, ylim = c(0,26))
+
+```
+
+
+Questions à explorer
+--------------------
+- Le mode de transport est-il un indicateur de tension ?
+- Courbe quotidienne par moyen de transport
+- Qui transporte la nuit ? le WE ?
+- Mode de tansport et gravité
+- Mode de transport et pathologie
+- Mode de transport et lieu de résidence
