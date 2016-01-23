@@ -104,7 +104,7 @@ finess2hop <- function(a){
   a[a=="670000397"]<-"Sel"
   a[a=="670017755"]<-"Sel" # GHSO depuis le 5/1/2016
   a[a=="680000684"]<-"Col"
-  a[a=="670016237"]<-"Odi"
+  a[a=="670016237"]<-"Odi" # Finess géo. utilisé pour les RPU depuis le 1/1/2016
   a[a=="670780204"]<-"Odi" # Finess juridique
   a[a=="670000272"]<-"Wis"
   a[a=="680000700"]<-"Geb"
@@ -200,13 +200,16 @@ Si on a une collection de fichiers:
 Il faut également, à mois échu, créer un dossier pour le mois dans le dossier __archivesCSV__ et y ranger les fichiers _.csv_ du mois échu (sinon ils sont repris dans les calcule).
 
 ```{}
+# Prépare la zone de travail
+# - effacement des variables
+# - effacement des fichiers csv temporaires
 rm(list=ls())
 source("Preparation/RPU Quotidiens/quot_utils.R")
 file.to.delete <- "/home/jcb/Documents/Resural/Stat Resural/Archives_Sagec/dataQ/archivesCsv/rpu2014.data"
 file.remove(file.to.delete)
 
-date1 <- "2015-12-07"
-date2 <- "2016-01-07"
+date1 <- "2016-01-08"
+date2 <- "2016-01-21"
 
 mc <- substr(date1, 6, 7)
 ac <- substr(date1, 1,4)
@@ -227,12 +230,12 @@ num.mc <- 1 # numéro du mois courant
 mois.c <- paste("d", )
 
 ```{}
-d12 <- dx[as.Date(dx$ENTREE) >= "2015-12-01" & as.Date(dx$ENTREE) < "2016-01-01",]
-min(as.Date(d12$ENTREE))
-max(as.Date(d12$ENTREE))
+d01 <- dx[as.Date(dx$ENTREE) >= "2016-01-01" & as.Date(dx$ENTREE) < "2016-02-01",]
+min(as.Date(d01$ENTREE))
+max(as.Date(d01$ENTREE))
 
-d12 <- normalise(d12)
-save(d12, file="rpu2015d12_provisoire.Rda")
+d01 <- normalise(d01)
+save(d01, file="rpu2016d01_provisoire.Rda")
 rm(dx)
 
 # si le mois est complet:
@@ -240,47 +243,38 @@ rm(dx)
 # rm(rpu2015d11_provisoire.Rda)
 
 # uniquement le premier mois
-# d15 <- d01
-# save(d15, file="rpu2015d0112_provisoire.Rda")
-# save(d15, file="rpu2015d0112.Rda")
+# d16 <- d01
+# save(d16, file="rpu2016d0112_provisoire.Rda")
+# save(d16, file="rpu2016d0112.Rda")
 
-# load("rpu2015d01.Rda") # mois précédent
-# load("rpu2015d02.Rda") # mois précédent
-# load("rpu2015d03.Rda") # mois précédent
-# load("rpu2015d04.Rda") # mois précédent
-# load("rpu2015d05.Rda") # mois précédent
-# load("rpu2015d06.Rda") # mois précédent
-# load("rpu2015d07.Rda") # mois précédent
-# load("rpu2015d08.Rda") # mois précédent
-
-#load("RPU_2014/rpu2015d0112_provisoire.Rda")
-load("rpu2015d0112_provisoire.Rda") # si console
-d15 <- d15[as.Date(d15$ENTREE) < "2015-12-01",]
+#load("RPU_2014/rpu2016d0112_provisoire.Rda")
+load("rpu2016d0112_provisoire.Rda") # si console
+d16 <- d16[as.Date(d16$ENTREE) < "2015-01-01",]
 
 # dx <- rbind(d01, d02, d03, d04, d05, d06, d07, d08)
-dx <- rbind(d15, d12)
+dx <- rbind(d16, d01)
 
 min(as.Date(dx$ENTREE))
 max(as.Date(dx$ENTREE))
 
-d15 <- dx
+d16 <- dx
 
 # Uniquement le CCOM
-ccm2015 <- d15[d15$FINESS == "Ccm",]
-save(ccm2015, file = "ccm2015.Rda")
+ccm2016 <- d16[d16$FINESS == "Ccm",]
+save(ccm2016, file = "ccm2016.Rda")
 
 # TOUS les rpu SAUF le CCOM
-d15 <- d15[d15$FINESS != "Ccm",]
-save(d15, file="rpu2015d0112_provisoire.Rda")
+d16 <- d16[d16$FINESS != "Ccm",]
+save(d16, file="rpu2016d0112_provisoire.Rda")
 
 # Table des RPU par jour et par FINESS pour le mois en cours
 # n <- tapply(as.Date(dsi$ENTREE), list(as.Date(dsi$ENTREE), dsi$FINESS), length)
-rpu.par.jour(d12)
+rpu.par.jour(d01)
 ```
 
 Total RPU par mois et par FINESS
 ```{}
-t <- tapply(as.Date(d15$ENTREE), list(d15$FINESS, months(as.Date(d15$ENTREE))), length)
+t <- tapply(as.Date(d16$ENTREE), list(d16$FINESS, months(as.Date(d16$ENTREE))), length)
 t <- t[, c("janvier","février","mars", "avril","mai","juin","juillet", "août", "septembre", "octobre", "novembre", "décembre")]
 # tableau mensuel brut
 t
@@ -289,25 +283,25 @@ t
 apply(t, 2, sum, na.rm = TRUE)
 
 # Sauvegarde
-write.csv2(t, file = "rpu_par_mois.xls")
+write.csv2(t, file = "rpu_2016_par_mois.xls")
 ```
 
-# Mois courant: projection du nb de RPU à mois constant de 30 jours. 
-n.jours <- as.numeric(max(as.Date(d12$ENTREE))-min(as.Date(d12$ENTREE)) + 1)
-n.rpu.mois.constant <- nrow(d12) * 30 / n.jours
+# Mois courant: projection du nb de RPU à mois constant de 30 jours. ATTENTION: modifier si nécessaire le n° du mois
+n.jours <- as.numeric(max(as.Date(d01$ENTREE))-min(as.Date(d01$ENTREE)) + 1)
+n.rpu.mois.constant <- nrow(d01) * 30 / n.jours
 n.rpu.mois.constant
 
 Total par mois et par mois constants
 ```{}
 # Total par mois (non corrigé). Il vaut mieux utiliser la fonction 'month' de Lubridate qui conserve l'ordre calendaire
 # des mois plutôt que 'months' qui retourne les résultats en ordre dispersé. Par contre le nom des mois est en anglais.
-t <- tapply(as.Date(d15$ENTREE), month(as.Date(d15$ENTREE), label = TRUE), length)
+t <- tapply(as.Date(d16$ENTREE), month(as.Date(d16$ENTREE), label = TRUE), length)
 names(t) <- c("janvier","février","mars", "avril","mai","juin","juillet", "août", "septembre","octobre", "novembre", "décembre")
 
 t
 
 # nb de jours dans le mois (la séquence doit inclure le mois suivant. SOURCE: https://stat.ethz.ch/pipermail/r-help/2007-August/138116.html)
-n.j <- as.integer(diff(seq(as.Date("2015-01-01"), as.Date("2015-12-01"), by = "month")))
+n.j <- as.integer(diff(seq(as.Date("2016-01-01"), as.Date("2016-12-01"), by = "month")))
 
 # nb de RPU par mois constant de 30 jours. On supprime les valeurs de t égales à NA, correspondant aux mois manquants
 # par exemple décembre si la série s'arrête à novembre
@@ -319,20 +313,20 @@ barplot(t2, beside = TRUE, cex.names = 0.7)
 
 ```
 
-Nombre de jour en 2015
+Nombre de jour en 2016
 ```{}
-anc <- "2015"
+anc <- "2016"
 d1 <- as.Date(paste0(anc, "-01-01"))
 d2 <- as.Date(paste0(as.integer(anc) + 1, "-01-01"))
 n.days <- as.integer(d2-d1)
 ```
-
+n.days
 
 #### Nombre de RPU attendus pour l'année:
 
 ```{ rpu_extrapoles}
-n <- nrow(d15)
-td <- max(as.Date(d15$ENTREE)) - min(as.Date(d15$ENTREE))
+n <- nrow(d16)
+td <- max(as.Date(d16$ENTREE)) - min(as.Date(d16$ENTREE))
 n * n.days / as.numeric(td)
 ```
 
@@ -355,11 +349,11 @@ round(t * 365 / as.numeric(td), 0)
 # table des RPU depuis le début année transformé en dataframe
 # la colonne HUS est vide depuis le 1/1/2015 (à supprimer) remplacée par NHC et HTP
 # la colonne MUL est vide à partir du 1/9/2015 et remplacée par EMR (11/8/2015) et HSR (1/9/2015)
-rpu.jour <- as.data.frame.matrix(rpu.par.jour(d15))
+rpu.jour <- as.data.frame.matrix(rpu.par.jour(d16))
 
 
 # sauvegarde de la matrice
-write.csv(rpu.jour, file = "rpu.jour_27-12-2015.csv") 
+write.csv(rpu.jour, file = "rpu.jour_31-01-2016.csv") 
 write.csv(rpu.jour, file = paste0("rpu_jour_", anc, ".csv")) 
 
 # fonction qui compte le nombre de rpu = 0 dans le vecteur x
@@ -379,9 +373,9 @@ rpu.manquant <- function(x){length(which(x < 20))}
   
 # graphe
 
-load("~/Documents/Stat Resural/RPU_2014/rpu2015d0112_provisoire.Rda")
+load("~/Documents/Stat Resural/RPU_2014/rpu2016d0112_provisoire.Rda")
 
-rpu <- read.csv("rpu.jour_22-12-2015.csv")
+rpu <- read.csv("rpu.jour.csv")
 names(rpu)[1] <- "date"
 names(rpu)[2] <- "3Fr"
 
@@ -393,7 +387,7 @@ a <- as.integer(xts$Sel)
 s <- summary(a)
 sd <- sd(a)
 
-plot(xts$Sel, ylim = c(0, s["Max."]), las = 2, cex.axis = 0.6, main = "Nombre de RPU par jour en 2015", major.ticks= "weeks")
+plot(xts$Sel, ylim = c(0, s["Max."]), las = 2, cex.axis = 0.6, main = paste0("Nombre de RPU par jour en ", anc), major.ticks= "weeks")
 
 # Two new arguments here are the major.ticks and minor.ticks settings. 
 # The major.ticks argument represents the periods in which we wish to chop up the horizontal axis; it is chosen from the set {"years", "months", "weeks", "days", "hours", "minutes", "seconds"}
@@ -421,7 +415,7 @@ abline(h = summary(b)["Mean"] - sd(b) * 3, col = "blue", lty = 2)
 
 ### Recherche de doublons: CODE_POSTAL, COMMUNE, ENTREE, FINESS, NAISSANCE, SEXE
 ```{ doublons}
-a <- duplicated(d15[, c(2,3,6,8,13,16)])
+a <- duplicated(d16[, c(2,3,6,8,13,16)])
 sum(a)
 which(a) # quelle ligne
 d15[which(a), c(2,3,6,8,13,16)]
@@ -515,7 +509,7 @@ Objet: mesure de l'activité au jour le jour avant consolidation. En pratique re
 2. appeler la fonction __parse_rpu__ avec la date du jour, qui le transforme en dataframe
 ```{}
 
-d <- parse_rpu("2016-01-07")
+d <- parse_rpu("2016-01-21")
 
 min(as.Date(d$ENTREE))
 max(as.Date(d$ENTREE))
@@ -543,38 +537,32 @@ On peut fabriquer un fichier provisoire constitué par la fusion des jours conso
 
 
 ```{}
-d <- d[as.Date(d$ENTREE) > max(as.Date(d15$ENTREE)),]
+d <- d[as.Date(d$ENTREE) > max(as.Date(d16$ENTREE)),]
 d <- rpu2factor(d) # transforme les chiffres en facteurs cohérent avec d01
 
-d15.p <- rbind(d15, d)
-max(as.Date(d15.p$ENTREE))
+d16.p <- rbind(d16, d)
+max(as.Date(d16.p$ENTREE))
 
 # sauvegarde
-save(d15.p, file = "d15_p.Rda")
+save(d16.p, file = "d16_p.Rda")
 
 ```
 et l'afficher sous forme de série temporelle appelée __xts.a__ avec 2 colonnes (date du jour + nb de RPU).
 
 ```{}
 library(xts)
-a <-tapply(as.Date(d15.p$ENTREE), as.Date(d15.p$ENTREE), length)
-xts.a <- xts(a, order.by = unique(as.Date(d15.p$ENTREE)))
+a <-tapply(as.Date(d16.p$ENTREE), as.Date(d16.p$ENTREE), length)
+xts.a <- xts(a, order.by = unique(as.Date(d16.p$ENTREE)))
 
-svg("activite SU alsace 2015.svg")
-plot(xts.a, major.ticks= "weeks", minor.ticks = FALSE, major.format = "%d %b", cex.axis = 0.8, las = 2, main = "Activité des SU d'Alsace en 2015", ylab = "nombre de RPU créés par jour", ylim = c(900,1700))
-mean2014 <- 1141.734
-sd2014 <- 154.7858
-abline(h = mean2014, col = "red") # nb moyende RPU en 2014
-abline(h = mean2014 + sd2014, col = "red", lty = 2) # 1 écrt-type
-abline(h = mean2014 + sd2014 * 2, col = "red", lty = 2) # 2 écart-type
-legend("topleft", legend = c("moyenne 2014", "écart-type 2014", "moyenne lissée"), col = c("red","red","blue"), lty = c(1,2,1), bty = "n")
-lines(rollmean(xts.a, 7), col="blue", lwd = 3) # moyenne lissée
-copyright()
-dev.off()
+mean2015 <- 1383.074
+sd2015 <- 113.3575
+plot_rpu_quot(d16$ENTREE, mean2015, sd2015)
 
 ```
-svg("activite SU alsace 2015.svg")
-plot()
+mean2015 <- 1383.074
+sd2015 <- 113.3575
+svg("activite SU alsace 2016.svg")
+plot_rpu_quot(d16$ENTREE, mean2015, sd2015)
 dev.off()
 
 Focus mains

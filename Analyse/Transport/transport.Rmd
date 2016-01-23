@@ -13,18 +13,26 @@ Analyse du moyen de transport utilisé pour se rendre aux urgences
 
 ```{r source, echo=FALSE}
 path <- "../../../"
-load(paste0(path, "DATA/RPU_2014/rpu2014d0112_c.Rda")) # 2014
-dx <- d14
-rm(d14)
+# mode console
+# path <- "../"
+
+anc <- 2015
+
+load(paste0(path, "DATA/RPU_2015/rpu2015d0112.Rda")) # 2014
+dx <- d15
+rm(d15)
 library(knitr)
+source(paste0(path, "RPU_Routines/summary2table.R"))
 ```
 
 ```{r global, echo=FALSE, comment=""}
-t1 <- table(factor(dx$TRANSPORT))
-t1
-round(prop.table(t1) * 100, 2)
+# t1 <- table(factor(dx$TRANSPORT))
+# t1
+# round(prop.table(t1) * 100, 2)
 
+kable(summary2table(factor(dx$TRANSPORT)), format.args = list(big.mark = ' '), caption = paste0("Moyens de transport utilisé pour se rendre aux urgences - Données RESURAL ", anc))
 ```
+
 Globalement, le moyen de transport le plus utilisé est un moyen personnel. Le SMUR, l'hélicoptère ou les forces de l'ordre occuppent une place marginale.
 
 Analyse par tranches d'age
@@ -33,7 +41,7 @@ Analyse par tranches d'age
 # colonne tranche d'age de 0 à 120 ans par tranche de 10 ans
 dx$t.age <- cut(dx$AGE, breaks = c(0, seq(10,120,10)))
 t <- table(dx$t.age, factor(dx$TRANSPORT))
-kable(t)
+kable(t, format.args = list(big.mark = ' '), caption = paste0("Moyens de transport utilisé pour se rendre aux urgences selon l'âge du patient - Données RESURAL ", anc))
 
 # Comment chaque moyen de transport est utilisé selon l'age: la somme d'une colonne est égale à 100%
 t2 <- round(prop.table(t,2) * 100, 2)
