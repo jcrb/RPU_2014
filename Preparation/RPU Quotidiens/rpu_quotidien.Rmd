@@ -550,20 +550,103 @@ save(d16.p, file = "d16_p.Rda")
 et l'afficher sous forme de série temporelle appelée __xts.a__ avec 2 colonnes (date du jour + nb de RPU).
 
 ```{}
-library(xts)
-a <-tapply(as.Date(d16.p$ENTREE), as.Date(d16.p$ENTREE), length)
-xts.a <- xts(a, order.by = unique(as.Date(d16.p$ENTREE)))
+# Moyenne et SD 2014
+mean2014 <- 1141.734
+sd2014 <- 154.7858
 
+# Moyenne et SD 2015
 mean2015 <- 1383.074
 sd2015 <- 113.3575
-plot_rpu_quot(d16$ENTREE, mean2015, sd2015)
 
-```
-mean2015 <- 1383.074
-sd2015 <- 113.3575
+plot_rpu_quot(d16$ENTREE, mean2015, sd2015) # version nouvel Xts
+
+# Archivage SVG
 svg("activite SU alsace 2016.svg")
 plot_rpu_quot(d16$ENTREE, mean2015, sd2015)
 dev.off()
+```
+
+Comparaison 2016-2015
+=====================
+
+Nombre quotidien RPU
+--------------------
+
+Techniques pour créer un axe  des abcisse temporel:
+
+- http://stackoverflow.com/questions/15575625/how-to-replace-numbers-on-x-axis-by-dates-when-using-plot-in-r
+- dossier Statistiques/Electric
+
+min <- min(as.Date(d16.p$ENTREE))
+max <- max(as.Date(d16.p$ENTREE))
+cal <- seq(min, max, 1) # calendrier pour l'axe des x
+
+# activité par jour en 2016
+rpu.jour.2016 <- tapply(as.Date(d16.p$ENTREE), as.Date(d16.p$ENTREE), length)
+
+# activité par jour en 2015 (à la même date)
+d15.p <- d15[as.Date(d15$ENTREE) <= max - 365,]
+rpu.jour.2015 <- tapply(as.Date(d15.p$ENTREE), yday(as.Date(d15.p$ENTREE)), length)
+
+# graphe
+plot(cal, rpu.jour.2016, type = "l", col = "blue", lwd = 3, main = "Activité 2015 - 2016 en nombre de RPU", ylab = "nombre de RPU", xlab = "Jours", xaxt = "n") #
+axis.Date(1, at = seq(min, max, by = "day"), format = "%d/%m", las = 2, cex.axis = 0.8)
+
+# pour aligner la courbe 2015 on utilise le m^eme vecteur pour les abcisses (cal = dates 2016) et pour les valeurs d' ordonnées, le nombre de RPU produits en 2015 par jour de l'année exprimés en n° du jour de l'année (1er janvier = 1, etc.). Cette astuce permet de superposer plusieurs années.
+lines(cal, rpu.jour.2015, type = "l", col = "green", lwd = 1)
+
+legend("bottomleft", legend = c("2016","2015"), col = c("blue","green"), bty = "n", lty = 1, lwd = c(3,1))
+
+# moyenne année précédente
+mean.rpu.2015 <- 1383.074
+abline(h = mean.rpu.2015, lty = 2, col = "red")
+text(min + 1, 1400, "moyenne 2015", cex = 0.8, col = "red")
+
+copyright()
+
+Comparaisons hebdomadaires
+---------------------------
+
+rpu.tot <- c(d15$ENTREE, d16$ENTREE)
+# matrice 52 x 2
+rpu.semaine <- tapply(as.Date(rpu.tot), list(year(as.Date(rpu.tot)), week(as.Date(rpu.tot))), length)
+rpu.semaine[, 1:4]
+barplot(rpu.semaine, main = "RPU hebdomadaires 2015-2016", beside = TRUE, xlab="semaines", ylab="nombre de RPU", col = c("green", "blue"))
+
+plot(rpu.semaine[2,], type = "l", ylim = c(7000,11000), col="blue", xlab="semaines", ylab="nombre de RPU", main = "RPU hebdomadaires 2015-2016")
+lines(rpu.semaine[1,], col = "green")
+legend("bottomleft", legend=c("2015", "2016"), col=c("green","blue"), bty="n", lty=1)
+
+Hospitalisation
+----------------
+
+# RPU dont le MODE_SORTIE est renseigné + date du jour
+mode_sortie_renseigne <- rbind(d15[!is.na(d15$MODE_SORTIE), c("ENTREE", "MODE_SORTIE")], d16[!is.na(d16$MODE_SORTIE), c("ENTREE", "MODE_SORTIE")])
+
+
+# hosp = mutation + transfert
+hosp <- mode_sortie_renseigne[mode_sortie_renseigne$MODE_SORTIE == "Mutation" | mode_sortie_renseigne$MODE_SORTIE == "Transfert", 'ENTREE']
+
+# RPU dont le MODE_SORTIE est renseigné par semaines
+mode_sortie_renseigne.sem <- tapply(as.Date(mode_sortie_renseigne$ENTREE), list(year(as.Date(mode_sortie_renseigne$ENTREE)), week(as.Date(mode_sortie_renseigne$ENTREE))), length)
+mode_sortie_renseigne.sem[, 1:4]
+
+# hospitalisé par semaine
+hosp.semaine <- tapply(as.Date(hosp), list(year(as.Date(hosp)), week(as.Date(hosp))), length)
+hosp.semaine[, 1:4]
+
+barplot(hosp.semaine[, 1:4], main = "Hospitalisations hebdomadaires 2015-2016", beside = TRUE, xlab="semaines", ylab="nombre de RPU")
+
+Ratio hospitalisation:
+
+r <- hosp.semaine[, 1:4] / mode_sortie_renseigne.sem[, 1:4]
+r
+# Astuce: en augmentant artificiellement la dimension de l'axe des y on ménage de la place pour la légende
+barplot(r, beside = TRUE, main = "Taux d'hospitalisation 2015-2016", col = c("green","blue"), ylim = c(0,0.3))
+legend("topright", legend = c("2015", "2016"), fill = c("green", "blue"), bty = "n")
+
+
+
 
 Focus mains
 ============

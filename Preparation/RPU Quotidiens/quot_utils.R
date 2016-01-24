@@ -906,7 +906,7 @@ rpu_non_consolide <- function(date){
 
 #===========================================================================
 #
-# Graphe des RPU quotidiens
+# Graphe des RPU quotidiens (new Xts)
 #
 #===========================================================================
 #' @title Graphe des RPU quotidiens
@@ -916,16 +916,18 @@ rpu_non_consolide <- function(date){
 #' @param vx vecteur des dates/heures d'entrée au frmat RPU
 #' @param mean moyenne de référence
 #' @param sd écart-type de référence
-#' @details mean et sd font référence à la moyenne et lécart-type de l'année de référence.
+#' @details ATTENTION: cette méthode ne fonctionne qu'avec la nouvelle version de XTS.
+#' mean et sd font référence à la moyenne et lécart-type de l'année de référence.
 #' Par exemple 2014 pour 2015.
 #' @examples 
-#' @export mean2015 <- 1383.074
+#'         mean2015 <- 1383.074
 #'         sd2015 <- 113.3575
 #'         svg("activite SU alsace 2016.svg")
 #'         plot_rpu_quot(d16$ENTREE, mean2015, sd2015)
 #'         dev.off()
+#' @export 
 #' 
-plot_rpu_quot <- function(vx){ # mean = NA, sd = NA
+plot_rpu_quot2 <- function(vx, mean = NA, sd = NA){
  # library(xts)
   plot.new()
   a <-tapply(as.Date(vx), as.Date(vx), length)
@@ -933,29 +935,84 @@ plot_rpu_quot <- function(vx){ # mean = NA, sd = NA
   
   plot(xts.a, major.ticks= "weeks", minor.ticks = FALSE, col = 3)
   
-#   plot(xts.a, major.ticks= "weeks", minor.ticks = FALSE, col = 3,
-#        format.labels = "%e-%m", 
-#        cex.axis = 0.8, 
-#        xaxis.las = 2, 
-#        main = paste0("Activité des SU d'Alsace en ", anc), 
-#        ylab = "nombre de RPU créés par jour", 
-#        ylim = c(900,1700))
+  plot(xts.a, major.ticks= "weeks", minor.ticks = FALSE, col = 3,
+       format.labels = "%e-%m", 
+       cex.axis = 0.8, 
+       xaxis.las = 2, 
+       main = paste0("Activité des SU d'Alsace en ", anc), 
+       ylab = "nombre de RPU créés par jour", 
+       ylim = c(900,1700)
+       )
 # si la moyenne de référence n'est pas nulle
-# if(!is.na(mean)){
-#   abline(h = mean, col = "red", on = 1) # nb moyen de RPU l'année de référence
-#   abline(h = mean + sd, col = "red", lty = 2, on = 1) # 1 écrt-type
-#   abline(h = mean + sd * 2, col = "red", lty = 2, on = 1) # 2 écart-type
-# }
-# 
-# lines(rollmean(xts.a, 7), col="blue", lwd = 3, on = 1) # moyenne lissée
+if(!is.na(mean)){
+  abline(h = mean, col = "red", on = 1) # nb moyen de RPU l'année de référence
+  abline(h = mean + sd, col = "red", lty = 2, on = 1) # 1 écrt-type
+  abline(h = mean + sd * 2, col = "red", lty = 2, on = 1) # 2 écart-type
+}
 
-# addLegend("topleft", on=1,
-#           legend.names = c("moyenne 2014", "écart-type 2014", "moyenne lissée"), 
-#          col = c("red","red","blue"), 
-#          lty = c(1,2,1), 
-#          bty = "n")
+lines(rollmean(xts.a, 7), col="blue", lwd = 3, on = 1) # moyenne lissée
+
+addLegend("topleft", on=1,
+          legend.names = c("moyenne 2014", "écart-type 2014", "moyenne lissée"), 
+         col = c("red","red","blue"), 
+         lty = c(1,2,1), 
+         bty = "n")
 
   copyright()
                
 }
 
+
+#===========================================================================
+#
+# Graphe des RPU quotidiens (actual Xts)
+#
+#===========================================================================
+#' @title Graphe des RPU quotidiens
+#' @description A partir du vecteur des entrées quotidiennes, desssine le graphe des RPU
+#' avec  moyennes et écarts-type de référence
+#' @usage plot_rpu_quot(vx, mean, sd)
+#' @param vx vecteur des dates/heures d'entrée au frmat RPU
+#' @param mean moyenne de référence
+#' @param sd écart-type de référence
+#' @details ATTENTION: cette méthode ne fonctionne qu'avec la version classique de XTS.
+#' mean et sd font référence à la moyenne et lécart-type de l'année de référence.
+#' Par exemple 2014 pour 2015.
+#' @examples 
+#'         mean2015 <- 1383.074
+#'         sd2015 <- 113.3575
+#'         svg("activite SU alsace 2016.svg")
+#'         plot_rpu_quot(d16$ENTREE, mean2015, sd2015)
+#'         dev.off()
+#' @export 
+#' 
+plot_rpu_quot <- function(vx, mean = NA, sd = NA, anc = NA){
+  library(xts)
+  a <-tapply(as.Date(vx), as.Date(vx), length)
+  xts.a <- xts(a, order.by = unique(as.Date(vx)))
+  
+  # plot
+  plot(xts.a,
+       major.ticks= "weeks", 
+       minor.ticks = FALSE, 
+       major.format = "%d %b", 
+       cex.axis = 0.8, 
+       las = 2, 
+       main = paste0("Activité des SU d'Alsace en ", anc), 
+       ylab = "nombre de RPU créés par jour", ylim = c(900,1700))
+  
+  if(!is.na(mean)){
+    abline(h = mean, col = "red") # nb moyende RPU en 2014
+    abline(h = mean + sd, col = "red", lty = 2) # 1 écrt-type
+    abline(h = mean + sd * 2, col = "red", lty = 2) # 2 écart-type
+    legend("topleft", 
+           legend = c(paste("moyenne", anc-1), paste("écart-type", anc-1), "moyenne lissée"), 
+           col = c("red","red","blue"), 
+           lty = c(1,2,1), 
+           bty = "n")
+  }
+  
+  lines(rollmean(xts.a, 7), col="blue", lwd = 3) # moyenne lissée
+  
+  copyright()
+}
