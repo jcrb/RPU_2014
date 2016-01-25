@@ -70,23 +70,11 @@ img {
 
 <p>Charge d’occupation : nombre de patients présents pendant une tranche horaire définie.</p>
 <p>fichier test: 1er janvier 2014 à Wissembourg</p>
-<pre class="r"><code>load(&quot;~/Documents/Resural/Stat Resural/RPU_2014/rpu2014d0112_c2.Rda&quot;)
+<pre class="r"><code>load(&quot;~/Documents/Resural/Stat Resural/DATA/RPU_2014/rpu2014d0112_c2.Rda&quot;)
 dx &lt;- d14[d14$FINESS == &quot;Wis&quot; &amp; as.Date(d14$ENTREE) == &quot;2014-01-01&quot;,]</code></pre>
 <p>Library nécessaires:</p>
-<pre class="r"><code>library(Rpu2)</code></pre>
-<pre><code>## Loading required package: lubridate
-## Loading required package: xtable
-## Loading required package: openintro
-## Please visit openintro.org for free statistics materials
-## 
-## Attaching package: 'openintro'
-## 
-## The following object is masked from 'package:datasets':
-## 
-##     cars
-## 
-## Loading required package: plotrix</code></pre>
-<pre class="r"><code>library(lubridate)</code></pre>
+<pre class="r"><code>library(Rpu2)
+library(lubridate)</code></pre>
 <p>Heures d’arrivées et de départ</p>
 <pre class="r"><code>he &lt;- horaire(dx$ENTREE)
 hs &lt;- horaire(dx$SORTIE)

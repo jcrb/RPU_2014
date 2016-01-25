@@ -55,14 +55,24 @@ plot(as.table(t3[1:11,]), las = 1,main="Evolution des moyens de transport en fon
 
 L'analyse par tranches d'âge révèle une modification importante des comportements avec l'âge. L'utilisation d'un moyen personnel diminue progressivement alors que la part des transporteurs privés ne cesse d'augmenter pour devenir majoritaire aux ages les plus avancés. La bascule se fait vers 70 ans. Le phénomène est encore plus net si on y inclu les VSAV (anciennement VSAB). Il est donc important d'inclure dans la formation de ces personnels (CESU, IFA) des messages gériatriques. 
 
-Rapport AMBU / VSAV
+Rapport AMBU / VSAV 
 -------------------
+
+### Transports non médicalisés:
 ```{r, echo=FALSE, comment=""}
 s  <- table(factor(dx$TRANSPORT))
 rav <- s["AMBU"] / s["VSAB"]
 ```
 
 RAV = `r round(rav, 2)`
+
+### Transports privés versus transports publics
+```{r, echo=FALSE, comment=""}
+# rapport public/privé
+rpp <- s["AMBU"] / (s["VSAB"] + s["SMUR"])
+```
+
+RPP  = `r round(rpp, 2)`
 
 Rapport PERSO / Ambulance (VSAV + ASSU)
 ----------------------------------------

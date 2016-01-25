@@ -16,25 +16,26 @@ Réalisation: il faut disposer:
 
 
 
-![](carte_rpu_tp_files/figure-html/carte-1.png) 
+![](carte_rpu_tp_files/figure-html/carte-1.png)
 
 La surface des cercles est proportionnelle au nombre de RPU. Il manque des informations sur deux territoires: Schirmeck et Thann. En 2014, le nombre de RPU de la zone Strasbourg est fortement sous estimé.
 
-<table border=1>
-<caption align="bottom"> RPU produits en 2015 par zone de proximité </caption>
-<tr> <th> Zone de proximité </th> <th> Nombre de RPU </th>  </tr>
-  <tr> <td> ALTKIRCH </td> <td align="right"> 16 831,00 </td> </tr>
-  <tr> <td> COLMAR </td> <td align="right"> 68 231,00 </td> </tr>
-  <tr> <td> GUEBWILLER </td> <td align="right"> 15 939,00 </td> </tr>
-  <tr> <td> HAGUENAU </td> <td align="right"> 46 286,00 </td> </tr>
-  <tr> <td> MULHOUSE </td> <td align="right"> 100 316,00 </td> </tr>
-  <tr> <td> SAINT-LOUIS </td> <td align="right"> 17 277,00 </td> </tr>
-  <tr> <td> SAVERNE </td> <td align="right"> 29 730,00 </td> </tr>
-  <tr> <td> SCHIRMECK </td> <td align="right">  </td> </tr>
-  <tr> <td> SELESTAT </td> <td align="right"> 29 854,00 </td> </tr>
-  <tr> <td> STRASBOURG </td> <td align="right"> 167 141,00 </td> </tr>
-  <tr> <td> THANN </td> <td align="right">  </td> </tr>
-  <tr> <td> WISSEMBOURG </td> <td align="right"> 13 217,00 </td> </tr>
-   <tr> <td> TOTAL </td> <td align="right"> 504 822,00 </td> </tr>
-  </table>
+
+Table: RPU produits en 2015 par zone de proximité
+
+        Zone de proximité    Nombre de RPU
+------  ------------------  --------------
+27886   ALTKIRCH                    16 831
+27940   COLMAR                      68 231
+28053   GUEBWILLER                  15 939
+27520   HAGUENAU                    46 286
+27970   MULHOUSE                   100 316
+27807   SAINT-LOUIS                 17 277
+27574   SAVERNE                     29 730
+27638   SCHIRMECK                       NA
+27481   SELESTAT                    29 854
+27661   STRASBOURG                 167 141
+27868   THANN                           NA
+27201   WISSEMBOURG                 13 217
+13      TOTAL                      504 822
 

@@ -37,6 +37,7 @@ Données
 
 ```{r systeme, echo=FALSE, comment="", message=FALSE}
 library(R.utils)
+library(knitr)
 
 host <- System$getHostname()
 
@@ -56,7 +57,7 @@ Système utilisé: `r host`
 
 
 ```{r init, echo=FALSE}
-
+anc <- 2015
 dx <- d15
 rm(d15)
 
@@ -89,7 +90,8 @@ for(i in 1:length(finess)){
 colnames(m) <- c("Hop","Motifs","CIM10","Completude")
 rownames(m) <- 1:length(finess)
 motif <- as.data.frame(m)
-motif
+
+kable(motif)
 ```
 
 Complétude régionale
@@ -101,7 +103,7 @@ completude_region <- completude(dx)
 radar.completude(completude_region)
 n.items <- length(completude_region) # nb d'items pris en compte N = 19
 
-completude_region
+kable(completude_region)
 
 score.region <- sum(completude_region) / n.items
 ```
@@ -120,10 +122,10 @@ Todo:
 - comparer le score en foction du logiciel utilisé et sa version.
 
 
-```{r finess, echo=FALSE, comment="", fig.width=9, fig.height=7, results='asis'}
+```{r finess, echo=FALSE, comment="", fig.width=9, fig.height=7, message=FALSE}
 library(lubridate)
-library(xtable)
-library(stargazer)
+#library(xtable)
+# library(stargazer)
 
 for(i in 1:length(finess)){
   # données de l'établissement
@@ -142,7 +144,9 @@ for(i in 1:length(finess)){
   legend(90, -120, legend = c("complétude locale"), lty = 1, lwd = 3, col = "red", bty = "n", cex = 0.8)
   
   # tableau de complétude
-  print(d.completude)
+  print("---------------------------------------------------------------------")
+  d.completude
+  print("---------------------------------------------------------------------")
   
   # note globale sur 100
   score.local <- sum(d.completude) / n.items
@@ -156,15 +160,19 @@ for(i in 1:length(finess)){
   # alternative: en dataframe
   # b <- as.data.frame(matrix(unlist(a), ncol = length(a)))
   colnames(b) <- paste("2015 -", names(a))
-  rownames(b) <- names(unlist(a[1][1]))
-  
-  stargazer(b)
+  #rownames(b) <- names(unlist(a[1][1]))
+  rownames(b) <- names(d.completude)
+
+  # stargazer(b)
   
   print('')
   print("=====================================================================")
   print(finess[i])
   print("=====================================================================")
+ 
   print(b)
+  
+
 }
 
 ```
@@ -173,39 +181,38 @@ Suivi des Complétude par établissement et par mois
 
 Crée un tableau de complétude par mois:
 
-```{r}
+```{r,echo=FALSE, comment=""}
 
 
 tableau.des.completudes <- function(dx, finess = NULL){
   if(!is.null(finess))
     d <- dx[dx$FINESS == finess,] # établissement
   else d <- dx
-  a <- by(d, month(as.Date(d$ENTREE)), completude) # split le DF par mois et lui applique la fonction completude
-  b <- matrix(unlist(a), ncol = length(a)) # transforme en matrice
-  # alternative: en dataframe
-  # b <- as.data.frame(matrix(unlist(a), ncol = length(a)))
-  colnames(b) <- paste("2015 -", names(a))
-  rownames(b) <- names(unlist(a[1][1]))
+  # split le DF par mois et lui applique la fonction completude
+  a <- by(d, month(as.Date(d$ENTREE)), completude) # a est une liste de listes
+  # que l'on transforme en dataframe
+  # Source: http://stackoverflow.com/questions/4227223/r-list-to-data-frame
+  b <- data.frame(t(sapply(a,c))) # c = concaténation. 
   return(b)
 }
 
 for(i in 1:length(finess)){
   b <- tableau.des.completudes(dx, finess[i])
   
-#   d <- dx[dx$FINESS == finess[i],] # établissement
-#   a <- by(d, month(as.Date(d$ENTREE)), completude) # split le DF par mois et lui applique la fonction completude
-#   b <- matrix(unlist(a), ncol = length(a)) # transforme en matrice
-#   # alternative: en dataframe
-#   # b <- as.data.frame(matrix(unlist(a), ncol = length(a)))
-#   colnames(b) <- paste("2015 -", names(a))
-#   rownames(b) <- names(unlist(a[1][1]))
-  
   print('')
   print("=====================================================================")
-  print(finess[i])
+  print(paste(finess[i], "-", anc))
   print("=====================================================================")
-  print(b)
+  b <- t(b)
+  # print(b)
+  # tous les établissements n'ont pas forcément le même nombre de colonnes après la transposition car le nombre de mois renseignés peut varier. Les 12 mois sont affichés en 2 tableaux de 6 mois. Kable ne fonctionne pas ? par contre fonctionne en mode console ??
+  print(b[, 1:min(ncol(b), 6)])
+  # kable(b[, 1:min(ncol(b), 6)])
+  if(ncol(b) > 6)
+    print(b[, 7:min(ncol(b), 12)])
+    # kable(b[, 7:min(ncol(b), 12)])
   print("=====================================================================")
+  write.csv(b, file = paste0("../../../RPU_2015/Resultats/", finess[i], "-", anc, ".csv"))
 }
 ```
 

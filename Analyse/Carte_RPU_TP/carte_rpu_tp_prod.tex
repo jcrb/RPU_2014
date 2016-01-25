@@ -43,7 +43,7 @@
 \fi
 \hypersetup{breaklinks=true,
             bookmarks=true,
-            pdfauthor={JcB},
+            pdfauthor={JcB - RESURAL},
             pdftitle={Carte des RPU produits par territoire de santé},
             colorlinks=true,
             citecolor=blue,
@@ -74,7 +74,7 @@
   \title{Carte des RPU produits par territoire de santé}
   \pretitle{\vspace{\droptitle}\centering\huge}
   \posttitle{\par}
-  \author{JcB}
+  \author{JcB - RESURAL}
   \preauthor{\centering\large\emph}
   \postauthor{\par}
   \predate{\centering\large\emph}
@@ -88,29 +88,11 @@
 \maketitle
 
 
-Objectif: dessiner une carte de l'Alsace avec une représentation du
-nombre de RPU produits par chacun des douze territoires de proximié. Les
-RPU sont représentés par des cercles dont la superficie est
-proportionnelle au nombre de RPU.
+Les RPU sont représentés par des cercles dont la superficie est
+proportionnelle au nombre de RPU produits par chacun des douze
+territoires de proximité.
 
-Source: R et espace pp 189
-
-Emplacement: RPU\_2014/Analyse/Carte\_RPU\_TP
-
-Réalisation: il faut disposer:
-
-\begin{itemize}
-\itemsep1pt\parskip0pt\parsep0pt
-\item
-  d'un fond cartographique de l'Alsace: ctss
-\item
-  de la position des 12 villes correspondant au 12 territoires de
-  proximité: ts
-\item
-  d'une liste du nombre de RPU par territoire de proximité
-\end{itemize}
-
-\includegraphics{carte_rpu_tp_files/figure-latex/carte-1.pdf}
+\includegraphics{carte_rpu_tp_prod_files/figure-latex/carte_prod-1.pdf}
 
 La surface des cercles est proportionnelle au nombre de RPU. Il manque
 des informations sur deux territoires: Schirmeck et Thann. En 2014, le
@@ -141,5 +123,9 @@ nombre de RPU de la zone Strasbourg est fortement sous estimé.
 13 & TOTAL & 504 822\tabularnewline
 \bottomrule
 \end{longtable}
+
+\begin{verbatim}
+Source: RPU_2014/Analyse/Carte_RPU_TP
+\end{verbatim}
 
 \end{document}
