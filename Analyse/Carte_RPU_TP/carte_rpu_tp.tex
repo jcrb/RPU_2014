@@ -24,6 +24,7 @@
 \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
 }{}
 \usepackage[margin=1in]{geometry}
+\usepackage{longtable,booktabs}
 \usepackage{graphicx}
 \makeatletter
 \def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
@@ -94,6 +95,8 @@ proportionnelle au nombre de RPU.
 
 Source: R et espace pp 189
 
+Emplacement: RPU\_2014/Analyse/Carte\_RPU\_TP
+
 Réalisation: il faut disposer:
 
 \begin{itemize}
@@ -113,28 +116,30 @@ La surface des cercles est proportionnelle au nombre de RPU. Il manque
 des informations sur deux territoires: Schirmeck et Thann. En 2014, le
 nombre de RPU de la zone Strasbourg est fortement sous estimé.
 
-\begin{table}[ht]
-\centering
-\begin{tabular}{lr}
-  \hline
-Zone de proximité & Nombre de RPU \\ 
-  \hline
-WISSEMBOURG & 13 217,00 \\ 
-  SELESTAT & 29 854,00 \\ 
-  HAGUENAU & 46 286,00 \\ 
-  SAVERNE & 29 730,00 \\ 
-  SCHIRMECK &  \\ 
-  STRASBOURG & 167 141,00 \\ 
-  SAINT-LOUIS & 17 277,00 \\ 
-  THANN &  \\ 
-  ALTKIRCH & 16 831,00 \\ 
-  COLMAR & 68 231,00 \\ 
-  MULHOUSE & 100 316,00 \\ 
-  GUEBWILLER & 15 939,00 \\ 
-   \hline
-TOTAL & 504 822,00 \\ 
-  \end{tabular}
-\caption{RPU produits en 2015 par zone de proximité} 
-\end{table}
+\begin{longtable}[c]{@{}llr@{}}
+\caption{RPU produits en 2015 par zone de proximité}\tabularnewline
+\toprule
+& Zone de proximité & Nombre de RPU\tabularnewline
+\midrule
+\endfirsthead
+\toprule
+& Zone de proximité & Nombre de RPU\tabularnewline
+\midrule
+\endhead
+27886 & ALTKIRCH & 16 831\tabularnewline
+27940 & COLMAR & 68 231\tabularnewline
+28053 & GUEBWILLER & 15 939\tabularnewline
+27520 & HAGUENAU & 46 286\tabularnewline
+27970 & MULHOUSE & 100 316\tabularnewline
+27807 & SAINT-LOUIS & 17 277\tabularnewline
+27574 & SAVERNE & 29 730\tabularnewline
+27638 & SCHIRMECK & NA\tabularnewline
+27481 & SELESTAT & 29 854\tabularnewline
+27661 & STRASBOURG & 167 141\tabularnewline
+27868 & THANN & NA\tabularnewline
+27201 & WISSEMBOURG & 13 217\tabularnewline
+13 & TOTAL & 504 822\tabularnewline
+\bottomrule
+\end{longtable}
 
 \end{document}

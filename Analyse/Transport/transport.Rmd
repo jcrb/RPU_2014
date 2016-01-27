@@ -13,18 +13,26 @@ Analyse du moyen de transport utilisé pour se rendre aux urgences
 
 ```{r source, echo=FALSE}
 path <- "../../../"
-load(paste0(path, "DATA/RPU_2014/rpu2014d0112_c.Rda")) # 2014
-dx <- d14
-rm(d14)
+# mode console
+# path <- "../"
+
+anc <- 2015
+
+load(paste0(path, "DATA/RPU_2015/rpu2015d0112.Rda")) # 2014
+dx <- d15
+rm(d15)
 library(knitr)
+source(paste0(path, "RPU_Routines/summary2table.R"))
 ```
 
 ```{r global, echo=FALSE, comment=""}
-t1 <- table(factor(dx$TRANSPORT))
-t1
-round(prop.table(t1) * 100, 2)
+# t1 <- table(factor(dx$TRANSPORT))
+# t1
+# round(prop.table(t1) * 100, 2)
 
+kable(summary2table(factor(dx$TRANSPORT)), format.args = list(big.mark = ' '), caption = paste0("Moyens de transport utilisé pour se rendre aux urgences - Données RESURAL ", anc))
 ```
+
 Globalement, le moyen de transport le plus utilisé est un moyen personnel. Le SMUR, l'hélicoptère ou les forces de l'ordre occuppent une place marginale.
 
 Analyse par tranches d'age
@@ -33,7 +41,7 @@ Analyse par tranches d'age
 # colonne tranche d'age de 0 à 120 ans par tranche de 10 ans
 dx$t.age <- cut(dx$AGE, breaks = c(0, seq(10,120,10)))
 t <- table(dx$t.age, factor(dx$TRANSPORT))
-kable(t)
+kable(t, format.args = list(big.mark = ' '), caption = paste0("Moyens de transport utilisé pour se rendre aux urgences selon l'âge du patient - Données RESURAL ", anc))
 
 # Comment chaque moyen de transport est utilisé selon l'age: la somme d'une colonne est égale à 100%
 t2 <- round(prop.table(t,2) * 100, 2)
@@ -47,14 +55,24 @@ plot(as.table(t3[1:11,]), las = 1,main="Evolution des moyens de transport en fon
 
 L'analyse par tranches d'âge révèle une modification importante des comportements avec l'âge. L'utilisation d'un moyen personnel diminue progressivement alors que la part des transporteurs privés ne cesse d'augmenter pour devenir majoritaire aux ages les plus avancés. La bascule se fait vers 70 ans. Le phénomène est encore plus net si on y inclu les VSAV (anciennement VSAB). Il est donc important d'inclure dans la formation de ces personnels (CESU, IFA) des messages gériatriques. 
 
-Rapport AMBU / VSAV
+Rapport AMBU / VSAV 
 -------------------
+
+### Transports non médicalisés:
 ```{r, echo=FALSE, comment=""}
 s  <- table(factor(dx$TRANSPORT))
 rav <- s["AMBU"] / s["VSAB"]
 ```
 
 RAV = `r round(rav, 2)`
+
+### Transports privés versus transports publics
+```{r, echo=FALSE, comment=""}
+# rapport public/privé
+rpp <- s["AMBU"] / (s["VSAB"] + s["SMUR"])
+```
+
+RPP  = `r round(rpp, 2)`
 
 Rapport PERSO / Ambulance (VSAV + ASSU)
 ----------------------------------------

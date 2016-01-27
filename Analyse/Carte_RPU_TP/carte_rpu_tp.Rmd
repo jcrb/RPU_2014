@@ -3,10 +3,11 @@ title: "Carte des RPU produits par territoire de santé"
 author: "JcB"
 date: "08/01/2016"
 output:
-  html_document:
-    keep_md: yes
+  word_document: default
   pdf_document:
     keep_tex: yes
+  html_document:
+    keep_md: yes
 ---
 Objectif: dessiner une carte de l'Alsace avec une représentation du nombre de RPU produits par chacun des douze territoires de proximié. Les RPU sont représentés par des cercles dont la superficie est proportionnelle au nombre de RPU.
 
@@ -23,6 +24,7 @@ Réalisation: il faut disposer:
 ```{r, echo=FALSE}
 anc <- "2015"
 library(sp)
+library(knitr)
 par(mar = c(0,0,2,0))
 
 # en mode console retirer ../../
@@ -33,7 +35,7 @@ load("../../../../Stat Resural/RPU_Doc/RPU_Carto-Pop-Alsace/Cartographie/Cartofi
 ```{r, echo=FALSE}
 # calcul du nombre de RPU par TP en 2014 et 2015. La création des zones varie selon l'année. Par exemple HUS existe en 2014 mais remplacé par NHC et HTP en 2015. Pour 2016, Mul sera remplacé par Hsr et Emr.
 if(anc == 2014){
-  load("/home/jcb/Documents/Resural/Stat Resural/RPU_2014/rpu2014d0112_c2.Rda")
+  load("/home/jcb/Documents/Resural/Stat Resural/DATA/RPU_2014/rpu2014d0112_c2.Rda")
   dx <- d14
   t <- tapply(as.Date(dx$ENTREE), dx$FINESS, length)
   rpu <- c(t['Wis'], t['Sel'], t['Hag'], t['Sav'], NA, t['Hus']+t['Ane']+t['Odi']+t['Dts'], t['3Fr'], NA, t['Alk'], t['Col'],t['Mul']+t['Dia']+t['Ros'], t['Geb'])
@@ -80,14 +82,16 @@ tab <- rbind(tab, c("TOTAL", TOTAL))
 tab[, 2] <- as.numeric(tab[, 2]) #
 colnames(tab) <- c("Zone de proximité", "Nombre de RPU")
 
-type = "html"
-print.xtable(xtable(tab, caption = paste0("RPU produits en ", anc, " par zone de proximité")), type = type, include.rownames = FALSE, format.args = list(big.mark = " ", decimal.mark = ","), comment = FALSE, hline.after = c(-1, 0, nrow(tab)-1))
+# type = "html"
+# print.xtable(xtable(tab, caption = paste0("RPU produits en ", anc, " par zone de proximité")), type = type, include.rownames = FALSE, format.args = list(big.mark = " ", decimal.mark = ","), comment = FALSE, hline.after = c(-1, 0, nrow(tab)-1))
+
+kable(tab, caption = paste0("RPU produits en ", anc, " par zone de proximité"), format.args = list(big.mark = " ", decimal.mark = ","))
 
 # sauvegarde de la table tab pour usage ultérieur:
 # tab <- "/home/jcb/Documents/Resural/Stat Resural/RPU_2014/Analyse/Carte_RPU_TP/tab2015.csv""
 # type = "html"
 # print.xtable(xtable(tab, caption = paste0("RPU produits en ", anc, " par zone de proximité")), type = type, include.rownames = FALSE, format.args = list(big.mark = " ", decimal.mark = ","), comment = FALSE, hline.after = c(-1, 0, nrow(tab)-1))
-write.csv(tab, file = "tab2015.csv", row.names = FALSE)
+write.csv(tab, file = paste0("tab", anc, ".csv"), row.names = FALSE)
 
 ```
 
