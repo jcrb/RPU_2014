@@ -225,6 +225,53 @@ parse_da <- function(date.jour, filename = NULL){
 
 #=======================================
 #
+# parse_acte
+#
+#=======================================
+#
+#' @title parse un fichier rpu_actes.sql
+#' @description parse un fichier rpu_actes.sql et retoune un dataframe à 2 colonnes: identifiant dossier
+#' et acte CCAM. Il peut y avoir plusieurs codes pour un même identifiant.
+#' @param date.jour date du jour au format Date (AAAA-MM-JJ)
+#' @param file optionel. Nom du fichier s'il est différent de rpu_diag_asso_AAAA-MM-JJ_dump.sql
+#' @usage parse_da(date.jour, filename = NULL)
+#' @details le fichier à parser doit obligatoirement se trouver dans le dossier ~/Documents/Resural/Stat Resural/Archives_Sagec/dataDA
+#' Une base de données MySql du nom de 'archives' doit exister de même q'un fichier de connexion '.my.cnf' dans le dossier personnel.
+#' 
+#' @return un dataframe
+#' @examples parse_acte("2015-05-07")
+
+parse_acte <- function(date.jour, filename = NULL){
+    library("RMySQL")
+    if(!is.null(filename))
+        file <- filename
+    else file <- paste0("rpu_acte_", date.jour, "_dump.sql") # rpu_acte_2015-01-08_dump.sql
+    wd <- getwd()
+    setwd("~/Documents/Resural/Stat Resural/Archives_Sagec/data_actes")
+    
+    if(!file.exists(file)){
+        x <- paste("Le fichier",file,"n'existe pas dans le répertoire",getwd(), sep=" ")
+        stop(x)
+    }
+    # charge le fichier dans la base de  données "archives". Si la table existe, elle est automatiquement effacée.
+    # si la table n'existe pas, elle est créée automatiquement
+    system(paste0("mysql -u root -pmarion archives < ", file))
+    
+    # Transfert de la table vers un dataframe
+    con<-dbConnect(MySQL(),group = "archives") # connexion à la base "archives"
+    rs<-dbSendQuery(con,paste("SELECT * FROM RPU_ACTE__ ",sep=""))
+    dx<-fetch(rs,n=-1,encoding = "UTF-8") # dataframe
+    # fermeture de la connexion
+    dbDisconnect(con)
+    con <- NULL
+    # restauration et retour
+    setwd(wd)
+    return(dx)
+}
+
+
+#=======================================
+#
 # rpu2factor
 #
 #=======================================
