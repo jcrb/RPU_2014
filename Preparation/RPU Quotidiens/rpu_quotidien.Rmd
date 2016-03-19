@@ -418,7 +418,7 @@ abline(h = summary(b)["Mean"] - sd(b) * 3, col = "blue", lty = 2)
 a <- duplicated(d16[, c(2,3,6,8,13,16)])
 sum(a)
 which(a) # quelle ligne
-d15[which(a), c(2,3,6,8,13,16)]
+d16[which(a), c(2,3,6,8,13,16)]
 
 ```
 
