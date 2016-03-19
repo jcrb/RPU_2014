@@ -1,0 +1,74 @@
+---
+title: "R et postgreSql"
+author: "JcB"
+date: "19 mars 2016"
+output: html_document
+---
+
+Le but de ce document est d'expliquer comment utiliser une base postgresql à partir de R
+
+[source](http://www.r-bloggers.com/getting-started-with-postgresql-in-r/)
+
+Préalable
+=========
+On crée une base appelée __pma__ comortant une table __table_test__ pour y stoker le dataframe _motorcar_. On utilise l'utilsateur _openpg_ avec me mot de passe _password__ sur une connexion locale _localhost_.
+
+Connexion avec la base de donnée
+===============================
+```
+install.packages("RPostgreSQL")
+require("RPostgreSQL")
+# create a connection
+# save the password that we can "hide" it as best as we can by collapsing it
+
+pw <- {
+"password"
+}
+
+# loads the PostgreSQL driver
+drv <- dbDriver("PostgreSQL")
+
+# creates a connection to the postgres database
+# note that "con" will be used later in each connection to the database
+con <- dbConnect(drv, dbname = "pma",
+host = "localhost", port = 5432,
+user = "openpg", password = pw)
+rm(pw) # removes the password
+
+Teste si la table existe
+------------------------
+# check for table_test
+dbExistsTable(con, "table_test")
+
+Céation d'un dataframe
+----------------------
+The following code show how we can write and read data to the database:
+# creates df, a data.frame with the necessary columns
+data(mtcars)
+df <- data.frame(carname = rownames(mtcars), mtcars, row.names = NULL)
+df$carname <- as.character(df$carname)
+rm(mtcars)
+
+Transfert du DF dans la BD
+--------------------------
+# writes df to the PostgreSQL database "postgres", table "table_test"
+dbWriteTable(con, "table_test", value = df, append = TRUE, row.names = FALSE)
+
+# query the data from postgreSQL
+df_postgres <- dbGetQuery(con, "SELECT * from table_test")
+
+# compares the two data.frames
+identical(df, df_postgres)
+
+Application graphique
+---------------------
+library("ggplot2", lib.loc="/Library/Frameworks/R.framework/Versions/3.2/Resources/library")
+# Basic Graph of the Data
+require(ggplot2)
+ggplot(df_postgres, aes(x = as.factor(cyl), y = mpg, fill = as.factor(cyl))) +
+geom_boxplot() + theme_bw()
+# Lastly, if we are finished, we have to disconnect from the server:
+# close the connection
+dbDisconnect(con)
+dbUnloadDriver(drv)
+```

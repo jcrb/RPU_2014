@@ -1,0 +1,69 @@
+---
+title: "Extraire les actes"
+author: "JcB"
+date: "19 mars 2016"
+output: html_document
+---
+
+Ce programme a pour objet de récupérer les _gestes_ stockés parallèllement aux RPU dans des fichiers _rpu_acte_YYYY-MM-DD_dump.sql_. Ces fichiers sont constitués par les gestes des 6 jours glissants c'est à dire qu'un même geste peut être présent 6 fois. Chaque enregistrement comporte un identifiant spécifique unique du RPU du jour.
+```
+ID RPU = ID diag. associé 1 = ID geste 1
+       = ID diag. associé 2 = ID geste 2
+       = ID diag. associé n = ID geste n
+```
+
+Les fichiers source sont dans le dossier __Archives_Sagec/Actes_2015__.
+
+Fonction parse_acte
+--------------------
+```{r}
+
+parse_acte <- function(filename){
+    library("RMySQL")
+    wd <- getwd()
+    # setwd("~/Documents/Resural/Stat Resural/Archives_Sagec/data_actes")
+    
+    if(!file.exists(file)){
+        x <- paste("Le fichier",file,"n'existe pas dans le répertoire",getwd(), sep=" ")
+        stop(x)
+    }
+    # charge le fichier dans la base de  données "archives". Si la table existe, elle est automatiquement effacée.
+    # si la table n'existe pas, elle est créée automatiquement
+    system(paste0("mysql -u root -pmarion archives < ", file))
+    
+    # Transfert de la table vers un dataframe
+    con<-dbConnect(MySQL(),group = "archives") # connexion à la base "archives"
+    rs<-dbSendQuery(con,paste("SELECT * FROM RPU_ACTE__ ",sep=""))
+    dx<-fetch(rs,n=-1,encoding = "UTF-8") # dataframe
+    # fermeture de la connexion
+    dbDisconnect(con)
+    con <- NULL
+    # restauration et retour
+    setwd(wd)
+    return(dx)
+}
+```
+
+Etape 1
+
+Décompresser les fichiers _.gz_
+
+Etape 2 : assembler les fichiers
+```{r}
+# fonctions utiles
+#source("~/Documents/Resural/Stat Resural/rpu_2014/Preparation/RPU Quotidiens/quot_utils.R")
+
+path <- "../../../Archives_Sagec/Actes_2015"
+# on ne lit que les fichiers se terminant par .sql
+file.name <- dir(path, pattern = ".sql")
+length(file.name)
+
+dx <- NULL
+for(i in 1:length(file.name)){
+  f <- parse_acte(i)
+  dx <- rbind(dx, f)
+}
+
+write.csv(dx, file = "actes2015.csv")
+```
+

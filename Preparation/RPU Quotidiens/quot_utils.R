@@ -7,6 +7,9 @@
 #' - rpu_jour
 #' - finess2hop
 #' - parse_rpu
+#' - parse_da
+#' - parse_acte
+#' 
 #' - rpu2factor
 #' - analyse_rpu_jour
 #' - jour_consolide
