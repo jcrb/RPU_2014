@@ -1,0 +1,117 @@
+---
+title: "Actes associés"
+author: "JcB & Leslie Buisson"
+date: "19/03/2016"
+output: html_document
+---
+
+Ce programme a pour objet de récupérer les _diagnostics associés_ stockés parallèllement aux RPU dans des fichiers _rpu_acte_YYYY-MM-DD_dump.sql_. Ces fichiers sont constitués par les gestes des 6 jours glissants c'est à dire qu'un même geste peut être présent 6 fois. Chaque enregistrement comporte un identifiant spécifique unique du RPU du jour.
+
+Le fichier comporte 2 colonnes:
+
+- RPU_ID
+- DA
+
+```
+ID RPU = ID diag. associé 1 = ID DA 1
+       = ID diag. associé 2 = ID DA 2
+       = ID diag. associé n = ID DA n
+```
+
+Les fichiers source sont dans le dossier __Archives_Sagec/DA2015__.
+
+Fonction parse_da
+--------------------
+```{r, warning=FALSE}
+
+parse_da <- function(filename){
+    library("RMySQL")
+    wd <- getwd()
+    setwd("~/Documents/Resural/Stat Resural/Archives_Sagec/DA2015")
+    
+    if(!file.exists(filename)){
+        x <- paste("Le fichier",file,"n'existe pas dans le répertoire",getwd(), sep=" ")
+        stop(x)
+    }
+    # charge le fichier dans la base de  données "archives". Si la table existe, elle est automatiquement effacée.
+    # si la table n'existe pas, elle est créée automatiquement
+    system(paste0("mysql -u root -pmarion archives < ", filename))
+    
+    # Transfert de la table vers un dataframe
+    con<-dbConnect(MySQL(),group = "archives") # connexion à la base "archives"
+    rs<-dbSendQuery(con,paste("SELECT * FROM RPU_DIAG_ASSO__",sep=""))
+    dx<-fetch(rs,n=-1,encoding = "UTF-8") # dataframe
+    # fermeture de la connexion
+    dbDisconnect(con)
+    con <- NULL
+    # restauration et retour
+    setwd(wd)
+    return(dx)
+}
+```
+
+Etape 1
+
+Décompresser les fichiers _.gz_
+
+Etape 2 : assembler les fichiers
+```{r, warning=FALSE}
+# fonctions utiles
+#source("~/Documents/Resural/Stat Resural/rpu_2014/Preparation/RPU Quotidiens/quot_utils.R")
+
+path <- "../../../Archives_Sagec/DA2015"
+# on ne lit que les fichiers se terminant par .sql
+file.name <- dir(path, pattern = ".sql")
+n <- length(file.name)
+n
+
+dx <- NULL
+for(i in 1:n){
+  f <- parse_da(file.name[i])
+  # supprime les enregistrements où DA est vide
+  f <- f[f$DA != "",]
+  dx <- rbind(dx, f)
+}
+
+head(dx)
+write.csv(dx, file = "DA2015.csv")
+```
+
+Etape 3: merging des fichiers actes et D15
+
+```{r}
+load("~/Documents/Resural/Stat Resural/DATA/RPU_2015/rpu2015d0112.Rda") # d15
+# dx <- read.csv("Preparation/Diag_Associes/DA2015.csv") # en mode console
+dx <- read.csv("DA2015.csv")
+
+da <- merge(x = d15, y = dx, by.x = "id", by.y = "RPU_ID", all.x = TRUE)
+# on ne garde que les RPU où ACTE est renseigné
+da2 <- da[!is.na(da$DA),]
+
+```
+
+Etape 4: éliminer les doublons
+
+On appelle doublons, les enregistrements ayant le meme __id__ ET le même __DA__
+
+```{r}
+doublons <- duplicated(da2[, c(2,22)]) # vecteur de TRUE et FALSE
+nombre_doublons <- sum(doublons)
+nombre_doublons
+# DF des actes sans doublons
+da3 <- da2[which(doublons == FALSE),]
+n.da3 <- nrow(da3)
+
+t <- sort(table(da3$DA))
+tail(t, 10) # top 10 des DA
+
+# nombre d'acte par RPU
+t2 <- sort(table(da3$id))
+table(as.factor(t2))
+round(prop.table(table(as.factor(t2))),4)
+
+# nombre d'actes différents
+n <- unique(da3$DA)
+length(n)
+
+```
