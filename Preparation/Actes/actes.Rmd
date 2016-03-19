@@ -102,6 +102,10 @@ t2 <- sort(table(actes3$id))
 table(as.factor(t2))
 round(prop.table(table(as.factor(t2))),4)
 
+# nombre d'actes différents
+n <- unique(actes3$ACTE)
+length(n)
+
 ```
 
 - DEQP003 ECG sur au moins 12 dérivations
