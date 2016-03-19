@@ -3,10 +3,10 @@ title: "RPU Quotidiens"
 author: "JcB"
 date: "10/01/2014"
 output:
-  html_document:
-    toc: yes
   pdf_document:
     number_sections: yes
+    toc: yes
+  html_document:
     toc: yes
 ---
 
@@ -180,7 +180,7 @@ table(as.Date(rj$ENTREE), rj$FINESS)
 
 Si un seul fichier de rattrapage
 --------------------------------
-NB: le fichier doit se trouver dans la dossier __dataQ__.
+NB: le fichier doit se trouver dans la dossier __dataQ__. La méthode __parse_rpu__ complète le nom du fichier avec le préfixe "rpu_" et le suffixe "_dump.sql". par exemple pour le fichier "rpu_01_15_dump.sql", on utilisera rj <- parse_rpu("01_15")
 ```{}
 wd <- getwd()
 rj <- parse_rpu("2015-0607")
@@ -189,8 +189,6 @@ rpu.par.jour(rj)
 rj <- rpu2factor(rj)
 setwd(wd)
 ```
-
-
 
 Si on a une collection de fichiers:
 -----------------------------------
