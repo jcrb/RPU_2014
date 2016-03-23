@@ -55,7 +55,9 @@ Etape 1
 Décompresser les fichiers _.gz_
 
 Etape 2 : assembler les fichiers
-```{r, warning=FALSE}
+
+Eval est mis à FALSE pour éviter d'avoir à recalculer.
+```{r, warning=FALSE, eval=FALSE}
 # fonctions utiles
 #source("~/Documents/Resural/Stat Resural/rpu_2014/Preparation/RPU Quotidiens/quot_utils.R")
 
@@ -79,6 +81,8 @@ write.csv(dx, file = "DA2015.csv")
 
 Etape 3: merging des fichiers actes et D15
 
+Le fichier D15 contient un id qui permet de lier le RPU avec les gestes correspondants.
+
 ```{r}
 load("~/Documents/Resural/Stat Resural/DATA/RPU_2015/rpu2015d0112.Rda") # d15
 # dx <- read.csv("Preparation/Diag_Associes/DA2015.csv") # en mode console
@@ -87,7 +91,7 @@ dx <- read.csv("DA2015.csv")
 da <- merge(x = d15, y = dx, by.x = "id", by.y = "RPU_ID", all.x = TRUE)
 # on ne garde que les RPU où ACTE est renseigné
 da2 <- da[!is.na(da$DA),]
-
+write.csv(da2, file = "DA2_2015.csv")
 ```
 
 Etape 4: éliminer les doublons
@@ -101,6 +105,7 @@ nombre_doublons
 # DF des actes sans doublons
 da3 <- da2[which(doublons == FALSE),]
 n.da3 <- nrow(da3)
+write.csv(da3, file = "DA3_2015.csv")
 
 t <- sort(table(da3$DA))
 tail(t, 10) # top 10 des DA
@@ -115,3 +120,14 @@ n <- unique(da3$DA)
 length(n)
 
 ```
+
+Etape 5
+-------
+
+Reformer un fichier simplifié avec 2 colonnes: id et DA
+
+```{r}
+da4 <- da3[, c("id", "DA")]
+write.csv(da4, file = "DA4_2015.csv")
+```
+
