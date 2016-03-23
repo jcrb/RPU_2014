@@ -41,7 +41,9 @@ Descriptif
 3. Lecture des données dans R
 ```{}
   library("RMySQL")
-  con<-dbConnect(MySQL(),group = "archives")
+  # con<-dbConnect(MySQL(),group = "archives")
+  con <- dbConnect(MySQL(), user="root", password="marion", dbname="archives", host="localhost")
+
   rs<-dbSendQuery(con,paste("SELECT * FROM RPU__ ",sep=""))
   dx<-fetch(rs,n=-1,encoding = "UTF-8")
   max(dx$ENTREE)

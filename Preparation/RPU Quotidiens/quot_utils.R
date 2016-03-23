@@ -108,7 +108,8 @@ finess2hop <- function(a){
   a[a=="680000197"]<-"3Fr"
   a[a=="680020096"]<-"3Fr" # maj le 30/5/2014 680020096
 
-  a[a=="680000627"]<-"Hsr" # correspond au Hasenrain 14/08/2015. Avant cette date = Mul
+  a[a=="680000627"]<-"Hsr" # correspond au Hasenrain 14/08/2015. Avant cette date = Mul 
+  a[a=="680020336"]<-"Mul" # pour GHRMSA
   # a[a=="680000627"]<-"Har" # correspond au Hasenrain
   a[a=="670000157"]<-"Hag"
   a[a=="680000320"]<-"Dia" # DFO
@@ -122,6 +123,30 @@ finess2hop <- function(a){
   a[a=="680004546"]<-"Emr" # Emile muller  2015-04-23
 
   return(a)
+}
+
+
+#=======================================
+#
+# hop2finess
+#
+#=======================================
+#'
+#' @title Transformation du nom de l'hôpital en code Finess
+#' @details  correspond aux 18 levels de 2015: 
+#' "3Fr" "Alk" "Ane" "Col" "Dia" "Dts" "Geb" "Hag" "Mul" "Odi" "Ros" "Sav" "Sel" "Wis" "HTP" "NHC" "Emr"
+#' "Hsr"
+#' Le Finess de Mulhouse a été scindé en 2 en 2015: Mul est devenu en cours d'année Hsr et Emr. Le Finess
+#' juridique du GHRMSA a été attribué à Mul.
+#' @usage hop2finess(dx$FINESS)
+#' 
+hop2finess <- function(a){
+lab <- c("680020096", "680000395", "670780212", "680000684", "680000320","670780162", "680000700", 
+         "670000157", "680020336", "670016237", "680000494", "670000165", "670017755", "670000272", 
+         "670783273", "670000025", "680004546", "680000627")
+c <- factor(a, label = lab)
+return(c)
+
 }
 
 #=======================================
@@ -171,7 +196,11 @@ parse_rpu <- function(date.jour, filename = NULL){
   dx<-dx[,-16]
   dx$FINESS <- as.factor(finess2hop(dx$FINESS))
   
-  dx$AGE<-floor(as.numeric(as.Date(dx$ENTREE)-as.Date(dx$NAISSANCE))/365)
+  # age
+  # L'age est la différence entre la date d'entrée et la date de naissance
+  # convertie en année en divisant par 365.25 (reco FEDORU)
+  # et arrondi à l'entier inférieur (pour l'entier sup. remplacer floor par ceiling ou round)
+  dx$AGE<-floor(as.numeric(as.Date(dx$ENTREE)-as.Date(dx$NAISSANCE))/365.25)
   dx$AGE[dx$AGE > 120]<-NA
   dx$AGE[dx$AGE < 0]<-NA
   
@@ -303,6 +332,99 @@ rpu2factor <- function(dx){
   return(dx)
 }
 
+#=======================================
+#
+# correction2015
+#
+#=======================================
+#' @title Corrige des RPU mal formés
+#' @description En 2015 un Finess sur une journée a mal été transcrit, certains factor sont restés sous
+#' forme e chifrre et non de texte explicite. Cette routine corrige les anomalies.
+#' ATTENTION: l'item provenance n'est pas complet au cas où la fonction serait utlisée pour d'autres années
+correction2015 <- function(dx){
+  a <- as.character(dx$MODE_ENTREE) 
+  a[a == 6] <- "Mutation"
+  a[a == 7] <- "Transfert"
+  a[a == 8] <- "Domicile"
+  dx$MODE_ENTREE <- factor(a)
+  
+  a <- as.character(dx$PROVENANCE)
+  a[a == 1] <- "MCO"
+  dx$PROVENANCE <- factor(a)
+  
+  a <- as.character(dx$MODE_SORTIE)
+  a[a == 6] <- "Mutation"
+  a[a == 7] <- "Transfert"
+  a[a == 8] <- "Domicile"
+  a[a == 4] <- "Décès"
+  dx$MODE_SORTIE <- factor(a)
+  
+  a <- as.character(dx$DESTINATION)
+  a[a == 1] <- "MCO"
+  a[a == 2] <- "SSR"
+  a[a == 3] <- "SLD"
+  a[a == 4] <- "PSY"
+  a[a == 6] <- "HAD"
+  a[a == 7] <- "HMS"
+  dx$DESTINATION <- factor(a)
+  
+  # Passage Mul -> Hsr. En aout 2015 Mul est scindé en 2. Mais du 13 au 31/8/2015 les RPU Hsr
+  # sont transmis sous Mul. Pour cette période, il faut transformer Mul en Hsr
+  dx$FINESS <- as.character(dx$FINESS)
+  dx$FINESS[dx$FINESS == "Mul" & 
+              as.Date(dx$ENTREE) > "2015-08-12" & 
+              as.Date(dx$ENTREE) < "2015-09-01"] <- "Hsr"
+  dx$FINESS <- as.factor(dx$FINESS)
+
+  # Retour
+  dx
+}
+
+#=======================================
+#
+# factor2level
+#
+#=======================================
+#' @title Tansforme des facteurs explicites en valeurs natives conforme à la définition des RPU
+#' 
+factor2level <- function(dx){
+  dx$MODE_ENTREE<-factor(dx$MODE_ENTREE,labels=c(6,7,8),levels=c('Mutation','Transfert','Domicile'))
+  dx$PROVENANCE<-factor(dx$PROVENANCE,labels=c(1,2,3,4,5,8),levels=c('MCO','SSR','SLD','PSY','PEA','PEO'))
+  dx$MODE_SORTIE<-factor(dx$MODE_SORTIE,labels=c(6,7,8,4),levels=c('Mutation','Transfert','Domicile','Décès'))
+  dx$DESTINATION<-factor(dx$DESTINATION,labels=c(1,2,3,4,6,7),levels=c('MCO','SSR','SLD','PSY','HAD','HMS'))
+  
+  dx
+}
+
+#=======================================
+#
+# exportRPU
+#
+#=======================================
+#' @title Exporte un dataframe de type RPU en dataframe natif
+#' @description Rend un RPU compatible avec ceux définis par la norme InVS notamment dans le cas
+#' d'une fusion avec ceux de la Lorraine et de Champagne Ardenne.
+#' @param  dx un dataframe de type RPU
+#' @usage exportRPU(dx); write.csv(dx, file = "../DATA/RPU_2015/EXPORT_ACAL_2015.csv")
+#' 
+exportRPU <- function(dx){
+  # transformation des FINESS
+  dx$FINESS <- hop2finess(dx$FINESS)
+  
+  # Transformation des facteurs
+  dx <- correction2015(dx)
+  dx <- factor2level(dx)
+  
+  # supprime la colonne AGE
+  dx$AGE <- NULL
+  
+  # Ajout de colonnes vides pour les champs non standard
+  dx$ORDRE <- NA
+  dx$GEMSA <- NA
+  dx$ATTENTE <- NA
+  
+  dx
+}
 #=======================================
 #
 # analyse_rpu_jour
@@ -640,16 +762,17 @@ choose.path <- function(){
 # create.col.territoire
 #
 #=======================================
-#' ajoute une colonne TERRITOIRE à un dataframe de RPU
+#' @title  ajoute une colonne TERRITOIRE à un dataframe de RPU
+#' @description doublon avec add.territoire
 #' @param dx dataframe. Doit comprter au moins une colonne appelée FINESS
 #' @usage a <- create.col.territoire(j2015)
 #'        tapply(as.Date(a$ENTREE), a$TERRITOIRE, length)
 #' 
 create.col.territoire <- function(dx){
   dx$TERRITOIRE[dx$FINESS %in% c("Wis","Sav","Hag")] <- "T1"
-  dx$TERRITOIRE[dx$FINESS %in% c("Hus","Odi","Ane","Dts")] <- "T2"
+  dx$TERRITOIRE[dx$FINESS %in% c("Hus","Odi","Ane","Dts", "HTP", "NHC")] <- "T2"
   dx$TERRITOIRE[dx$FINESS %in% c("Sel","Col","Geb")] <- "T3"
-  dx$TERRITOIRE[dx$FINESS %in% c("Mul","3Fr","Alk","Ros","Dia","Tan")] <- "T4"
+  dx$TERRITOIRE[dx$FINESS %in% c("Mul","3Fr","Alk","Ros","Dia","Tan","Emr","Hsr")] <- "T4"
   return(dx)
 }
 
@@ -696,9 +819,9 @@ rpu.par.jour <- function(d, roll = 7){
 #'
 add.territoire <- function(dx){
   dx$TERRITOIRE[dx$FINESS %in% c("Wis","Sav","Hag")] <- "T1"
-  dx$TERRITOIRE[dx$FINESS %in% c("Hus","Odi","Ane","Dts")] <- "T2"
+  dx$TERRITOIRE[dx$FINESS %in% c("Hus","Odi","Ane","Dts", "NHC", "HTP")] <- "T2"
   dx$TERRITOIRE[dx$FINESS %in% c("Sel","Col","Geb")] <- "T3"
-  dx$TERRITOIRE[dx$FINESS %in% c("Mul","3Fr","Alk","Ros","Dia")] <- "T4"
+  dx$TERRITOIRE[dx$FINESS %in% c("Mul","3Fr","Alk","Ros","Dia", "Emr", "Hsr")] <- "T4"
   return(dx)
 }
 

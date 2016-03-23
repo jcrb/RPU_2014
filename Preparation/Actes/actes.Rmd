@@ -49,7 +49,10 @@ Etape 1
 Décompresser les fichiers _.gz_
 
 Etape 2 : assembler les fichiers
-```{r}
+
+On met eval à false pour ne pas reévaler actes2015
+
+```{r, eval=FALSE}
 # fonctions utiles
 #source("~/Documents/Resural/Stat Resural/rpu_2014/Preparation/RPU Quotidiens/quot_utils.R")
 
@@ -75,11 +78,13 @@ Etape 3: merging des fichiers actes et D15
 
 ```{r}
 load("~/Documents/Resural/Stat Resural/DATA/RPU_2015/rpu2015d0112.Rda")
-dx <- read.csv("Preparation/Actes/actes2015.csv")
+# dx <- read.csv("Preparation/Actes/actes2015.csv")
+dx <- read.csv("actes2015.csv")
+
 actes <- merge(x = d15, y = dx, by.x = "id", by.y = "RPU_ID", all.x = TRUE)
 # on ne garde que les RPU où ACTE est renseigné
 actes2 <- actes[!is.na(actes$ACTE),]
-
+write.csv(actes2, file = "actes2_2015.csv")
 ```
 
 Etape 4: éliminer les doublons
@@ -92,6 +97,8 @@ nombre_doublons <- sum(doublons)
 nombre_doublons
 # DF des actes sans doublons
 actes3 <- actes2[which(doublons == FALSE),]
+write.csv(actes3, file = "actes3_2015.csv")
+
 n.actes3 <- nrow(actes3)
 
 t <- sort(table(actes3$ACTE))
@@ -119,3 +126,12 @@ length(n)
 - NDQK001 Radiographie unilatérale du pied selon 1 à 3 incidences
 - ACQK001 Scanographie du crâne et de son contenu, sans injection de produit de contraste
 
+Etape 5
+-------
+
+Reformer un fichier simplifié avec 2 colonnes: id et DA
+
+```{r}
+actes4 <- actes3[, c("id", "ACTE")]
+write.csv(actes4, file = "actes4_2015.csv")
+```
