@@ -1,0 +1,50 @@
+---
+title: "Impression ses complétudes"
+author: "JcB - RESURAL"
+date: "27/01/2016"
+output: pdf_document
+---
+
+```{r, echo=FALSE}
+library(xtable)
+library(knitr)
+
+anc <- 2015
+```
+Pour chaque établissement, on récupère le fichier des complétudes (créé par _completude.Rmd_) et on l'imprime.
+
+CH Wissembourg - `r anc`
+--------------
+
+```{r, echo=FALSE}
+
+fin <- "Wis"
+
+mois <- c("Jan.", "Fev.", "Mar.", "Avr.", "Mai", "Jui.", "Jul.", "Aou.", "Sep.", "Oct.", "Nov.", "Dec.")
+
+w <- read.csv(paste0("../../../RPU_2015/Resultats/", fin, "-", anc, ".csv"), header = FALSE)
+# la première ligne et la première colonne correspondent aux noms des lignes et des colonnes
+# on extrait la matrice d qui ne contient que les données
+d <- w[-1,-1]
+
+# s'il ny a qu'une colonne
+if(ncol(w) == 2){
+  d <- data.frame(w[-1, 2])
+  names(d) <- w[1, 2]
+  rownames(d) <- w[-1,1]
+  kable(d)
+}else{
+  # le nom des colonnes de d est la première ligne de w sauf la 1ère case
+names(d) <- w[1, -1]
+names(d) <- mois[as.integer(names(d))]
+# le nom des lignes set la 1ère colonne se w sauf la 1ère case
+rownames(d) <- w[-1,1]
+
+kable(d[, 1:min(ncol(d):6)])
+
+if(ncol(d) > 6)
+  kable(d[, 7:min(ncol(d):12)])
+}
+
+```
+

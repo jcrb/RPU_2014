@@ -77,6 +77,7 @@ anc <- year(dpr$ENTREE[1]) # année courante
 
 # correction des caractères bloquants
 dpr$DP<-gsub("\xe8","è",as.character(dpr$DP),fixed=FALSE)
+dpr$DP<-gsub("\xe9","é",as.character(dpr$DP),fixed=FALSE)
 
 # autres symboles
 dpr$DP<-gsub(".","",as.character(dpr$DP),fixed=TRUE)
@@ -278,7 +279,8 @@ copyright()
 # idem limité à 20 semaines
 b <- tapply(as.Date(grippe$ENTREE),list(year(as.Date(grippe$ENTREE)), week(as.Date(grippe$ENTREE))), length )
 cols <- c( "gold", "yellow", "chartreuse")
-barplot(b[,1:20], beside = TRUE, main = "Syndromes grippaux vus aux urgences en Alsace", ylab = "Fréquence hebdomadaire", las = 2, cex.names = 0.8, col = cols, xlab = "semaines")
+
+barplot(b[,1:20], beside = TRUE, main = "Syndromes grippaux vus aux urgences en Alsace", ylab = "Fréquence hebdomadaire", las = 2, cex.names = 0.7, col = cols, xlab = "semaines")
 legend("topright", legend = rownames(a), col = cols, pch = 15, bty = "n")
 copyright()
 

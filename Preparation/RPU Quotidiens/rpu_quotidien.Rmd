@@ -3,10 +3,10 @@ title: "RPU Quotidiens"
 author: "JcB"
 date: "10/01/2014"
 output:
-  html_document:
-    toc: yes
   pdf_document:
     number_sections: yes
+    toc: yes
+  html_document:
     toc: yes
 ---
 
@@ -41,7 +41,9 @@ Descriptif
 3. Lecture des données dans R
 ```{}
   library("RMySQL")
-  con<-dbConnect(MySQL(),group = "archives")
+  # con<-dbConnect(MySQL(),group = "archives")
+  con <- dbConnect(MySQL(), user="root", password="marion", dbname="archives", host="localhost")
+
   rs<-dbSendQuery(con,paste("SELECT * FROM RPU__ ",sep=""))
   dx<-fetch(rs,n=-1,encoding = "UTF-8")
   max(dx$ENTREE)
@@ -180,7 +182,7 @@ table(as.Date(rj$ENTREE), rj$FINESS)
 
 Si un seul fichier de rattrapage
 --------------------------------
-NB: le fichier doit se trouver dans la dossier __dataQ__.
+NB: le fichier doit se trouver dans la dossier __dataQ__. La méthode __parse_rpu__ complète le nom du fichier avec le préfixe "rpu_" et le suffixe "_dump.sql". par exemple pour le fichier "rpu_01_15_dump.sql", on utilisera rj <- parse_rpu("01_15")
 ```{}
 wd <- getwd()
 rj <- parse_rpu("2015-0607")
@@ -189,8 +191,6 @@ rpu.par.jour(rj)
 rj <- rpu2factor(rj)
 setwd(wd)
 ```
-
-
 
 Si on a une collection de fichiers:
 -----------------------------------
@@ -209,7 +209,7 @@ file.to.delete <- "/home/jcb/Documents/Resural/Stat Resural/Archives_Sagec/dataQ
 file.remove(file.to.delete)
 
 date1 <- "2016-01-08"
-date2 <- "2016-01-21"
+date2 <- "2016-01-25"
 
 mc <- substr(date1, 6, 7)
 ac <- substr(date1, 1,4)
@@ -353,7 +353,7 @@ rpu.jour <- as.data.frame.matrix(rpu.par.jour(d16))
 
 
 # sauvegarde de la matrice
-write.csv(rpu.jour, file = "rpu.jour_31-01-2016.csv") 
+# write.csv(rpu.jour, file = "rpu.jour_31-01-2016.csv") 
 write.csv(rpu.jour, file = paste0("rpu_jour_", anc, ".csv")) 
 
 # fonction qui compte le nombre de rpu = 0 dans le vecteur x
@@ -418,7 +418,7 @@ abline(h = summary(b)["Mean"] - sd(b) * 3, col = "blue", lty = 2)
 a <- duplicated(d16[, c(2,3,6,8,13,16)])
 sum(a)
 which(a) # quelle ligne
-d15[which(a), c(2,3,6,8,13,16)]
+d16[which(a), c(2,3,6,8,13,16)]
 
 ```
 
@@ -509,7 +509,7 @@ Objet: mesure de l'activité au jour le jour avant consolidation. En pratique re
 2. appeler la fonction __parse_rpu__ avec la date du jour, qui le transforme en dataframe
 ```{}
 
-d <- parse_rpu("2016-01-21")
+d <- parse_rpu("2016-01-25")
 
 min(as.Date(d$ENTREE))
 max(as.Date(d$ENTREE))
@@ -543,8 +543,12 @@ d <- rpu2factor(d) # transforme les chiffres en facteurs cohérent avec d01
 d16.p <- rbind(d16, d)
 max(as.Date(d16.p$ENTREE))
 
+rpu.par.jour(d16.p)
+rpu.jour.nc <- as.data.frame.matrix(rpu.par.jour(d16.p)) # nc = non consolidé
+
 # sauvegarde
 save(d16.p, file = "d16_p.Rda")
+write.csv(rpu.jour.nc, file = paste0("rpu_jour_nc_", anc, ".csv"))
 
 ```
 et l'afficher sous forme de série temporelle appelée __xts.a__ avec 2 colonnes (date du jour + nb de RPU).
@@ -558,7 +562,9 @@ sd2014 <- 154.7858
 mean2015 <- 1383.074
 sd2015 <- 113.3575
 
-plot_rpu_quot(d16$ENTREE, mean2015, sd2015) # version nouvel Xts
+plot_rpu_quot(d16$ENTREE, mean2015, sd2015) # version Xts classique
+# version uptodate:
+plot_rpu_quot(d16.p$ENTREE, mean2015, sd2015)
 
 # Archivage SVG
 svg("activite SU alsace 2016.svg")

@@ -1,18 +1,22 @@
 ---
 title: "Completude"
-author: "jcb"
-date: "30 mars 2015"
+author:
+- 'JcB'
+- "**RESURAL**"
+date: '`r format(Sys.Date(), "%d %B %Y")`'
 output:
-  html_document:
-    fig_height: 7
-    fig_width: 9
-    keep_md: yes
-    toc: yes
   pdf_document:
     fig_crop: no
     fig_height: 6
     keep_tex: yes
     number_sections: yes
+    toc: yes
+  html_document:
+    fig_height: 5
+    fig_width: 7
+    highlight: kate
+    keep_md: yes
+    latex_engine: xelatex
     toc: yes
 ---
 Complétude des données
@@ -28,16 +32,16 @@ MAJ
 - 12/4/2014: enregistrement des graphiques, impression du tableau de completude
 - 15/4/2015: Ajout légende, amélioration du titre, élargissement du graphique
 - `r Sys.Date()`: dernière mise à jour.
-
-TODO
-----
+- 27/1/2016: Modification de Yaml [source](). Esssai de la fonction __switch__. 
 
 Données
 -------
-
+Choix de la machine et récupération des données correspondant à l'année d'analyse.
 ```{r systeme, echo=FALSE, comment="", message=FALSE}
 library(R.utils)
 library(knitr)
+
+anc <- "2015"
 
 host <- System$getHostname()
 
@@ -45,7 +49,7 @@ if (host == "XPS"){
   # Connexion XPS
   path <- "../../"
   source("/home/jcb/Documents/Resural/FEDORU/Trame_Commune/Rapport/rapport_2014.R")
-  load(paste0(path, "rpu2015d0112_provisoire.Rda")) # 2015
+  load(paste0(path, "rpu", anc, "d0112_provisoire.Rda")) # 2015
 } else {
  # connexion MAC: "MacBook-Air-de-JCB.local"
   path <- "../"
@@ -57,9 +61,10 @@ Système utilisé: `r host`
 
 
 ```{r init, echo=FALSE}
-anc <- 2015
-dx <- d15
-rm(d15)
+switch(anc, 
+       '2015'={dx = d15; rm(d15)}, 
+       '2016' = {dx = d16; rm(d16)}
+       )
 
 finess <- unique(as.character(dx$FINESS)) # liste des établissements
 d1 <- min(as.Date(dx$ENTREE))
@@ -110,6 +115,7 @@ score.region <- sum(completude_region) / n.items
 
 Score de complétude régional: `r round(score.region, 2)` sur 100.
 
+
 Completude par établissement
 ----------------------------
 
@@ -121,6 +127,7 @@ Todo:
 - calculer un sous score par chapitre selon découpage Fedoru
 - comparer le score en foction du logiciel utilisé et sa version.
 
+Utilise une boucle qui balaye tous les établissements.
 
 ```{r finess, echo=FALSE, comment="", fig.width=9, fig.height=7, message=FALSE}
 library(lubridate)
@@ -128,11 +135,13 @@ library(lubridate)
 # library(stargazer)
 
 for(i in 1:length(finess)){
+  
   # données de l'établissement
   d <- dx[dx$FINESS == finess[i],]
   
   # completude de l'établissement
   d.completude <- completude(d)
+  # m est le tableau des complétudes
   d.completude["MOTIF DE RECOURS"] <- as.numeric(m[i,4])
   
   titre <- paste("( du", d1, "au", d2, ")")
@@ -144,13 +153,11 @@ for(i in 1:length(finess)){
   legend(90, -120, legend = c("complétude locale"), lty = 1, lwd = 3, col = "red", bty = "n", cex = 0.8)
   
   # tableau de complétude
-  print("---------------------------------------------------------------------")
   d.completude
-  print("---------------------------------------------------------------------")
   
   # note globale sur 100
   score.local <- sum(d.completude) / n.items
-  cat(paste0("Score local: ", round(score.local, 2)), " sur 100")
+  print(paste0("Score local: ", round(score.local, 2), " sur 100"))
   
   # Suivi des Complétude par établissement et par mois
   #----------------------------------------------------
@@ -159,7 +166,7 @@ for(i in 1:length(finess)){
   b <- matrix(unlist(a), ncol = length(a)) # transforme en matrice
   # alternative: en dataframe
   # b <- as.data.frame(matrix(unlist(a), ncol = length(a)))
-  colnames(b) <- paste("2015 -", names(a))
+  colnames(b) <- paste(anc, "-", names(a))
   #rownames(b) <- names(unlist(a[1][1]))
   rownames(b) <- names(d.completude)
 
@@ -170,7 +177,12 @@ for(i in 1:length(finess)){
   print(finess[i])
   print("=====================================================================")
  
-  print(b)
+ # tous les établissements n'ont pas forcément le même nombre de colonnes après la transposition car le nombre de mois renseignés peut varier. Les 12 mois sont affichés en 2 tableaux de 6 mois. Kable ne fonctionne pas ? par contre fonctionne en mode console ??
+  print(b[, 1:min(ncol(b), 6)])
+  kable(b[, 1:min(ncol(b), 6)])
+  if(ncol(b) > 6)
+    print(b[, 7:min(ncol(b), 12)])
+    # kable(b[, 7:min(ncol(b), 12)])
   
 
 }
@@ -204,15 +216,18 @@ for(i in 1:length(finess)){
   print(paste(finess[i], "-", anc))
   print("=====================================================================")
   b <- t(b)
-  # print(b)
+
   # tous les établissements n'ont pas forcément le même nombre de colonnes après la transposition car le nombre de mois renseignés peut varier. Les 12 mois sont affichés en 2 tableaux de 6 mois. Kable ne fonctionne pas ? par contre fonctionne en mode console ??
   print(b[, 1:min(ncol(b), 6)])
   # kable(b[, 1:min(ncol(b), 6)])
   if(ncol(b) > 6)
     print(b[, 7:min(ncol(b), 12)])
     # kable(b[, 7:min(ncol(b), 12)])
+  
   print("=====================================================================")
-  write.csv(b, file = paste0("../../../RPU_2015/Resultats/", finess[i], "-", anc, ".csv"))
+  
+  # Saegarde des tableaux de complétude
+  write.csv(b, file = paste0("../../../RPU_2015/Resultats/", finess[i], "-", anc, ".csv"), col.names = TRUE)
 }
 ```
 

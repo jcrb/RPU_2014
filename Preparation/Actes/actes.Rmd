@@ -1,0 +1,137 @@
+---
+title: "Extraire les actes"
+author: "JcB"
+date: "19 mars 2016"
+output: html_document
+---
+
+Ce programme a pour objet de récupérer les _gestes_ stockés parallèllement aux RPU dans des fichiers _rpu_acte_YYYY-MM-DD_dump.sql_. Ces fichiers sont constitués par les gestes des 6 jours glissants c'est à dire qu'un même geste peut être présent 6 fois. Chaque enregistrement comporte un identifiant spécifique unique du RPU du jour.
+```
+ID RPU = ID diag. associé 1 = ID geste 1
+       = ID diag. associé 2 = ID geste 2
+       = ID diag. associé n = ID geste n
+```
+
+Les fichiers source sont dans le dossier __Archives_Sagec/Actes_2015__.
+
+Fonction parse_acte
+--------------------
+```{r}
+
+parse_acte <- function(filename){
+    library("RMySQL")
+    wd <- getwd()
+    setwd("~/Documents/Resural/Stat Resural/Archives_Sagec/Actes_2015")
+    
+    if(!file.exists(filename)){
+        x <- paste("Le fichier",file,"n'existe pas dans le répertoire",getwd(), sep=" ")
+        stop(x)
+    }
+    # charge le fichier dans la base de  données "archives". Si la table existe, elle est automatiquement effacée.
+    # si la table n'existe pas, elle est créée automatiquement
+    system(paste0("mysql -u root -pmarion archives < ", filename))
+    
+    # Transfert de la table vers un dataframe
+    con<-dbConnect(MySQL(),group = "archives") # connexion à la base "archives"
+    rs<-dbSendQuery(con,paste("SELECT * FROM RPU_ACTE__ ",sep=""))
+    dx<-fetch(rs,n=-1,encoding = "UTF-8") # dataframe
+    # fermeture de la connexion
+    dbDisconnect(con)
+    con <- NULL
+    # restauration et retour
+    setwd(wd)
+    return(dx)
+}
+```
+
+Etape 1
+
+Décompresser les fichiers _.gz_
+
+Etape 2 : assembler les fichiers
+
+On met eval à false pour ne pas reévaler actes2015
+
+```{r, eval=FALSE}
+# fonctions utiles
+#source("~/Documents/Resural/Stat Resural/rpu_2014/Preparation/RPU Quotidiens/quot_utils.R")
+
+path <- "../../../Archives_Sagec/Actes_2015"
+# on ne lit que les fichiers se terminant par .sql
+file.name <- dir(path, pattern = ".sql")
+n <- length(file.name)
+n
+
+dx <- NULL
+for(i in 1:n){
+  f <- parse_acte(file.name[i])
+  # supprime les enregistrements où ACTE est vide
+  f <- f[f$ACTE != "",]
+  dx <- rbind(dx, f)
+}
+
+head(dx)
+write.csv(dx, file = "actes2015.csv")
+```
+
+Etape 3: merging des fichiers actes et D15
+
+```{r}
+load("~/Documents/Resural/Stat Resural/DATA/RPU_2015/rpu2015d0112.Rda")
+# dx <- read.csv("Preparation/Actes/actes2015.csv")
+dx <- read.csv("actes2015.csv")
+
+actes <- merge(x = d15, y = dx, by.x = "id", by.y = "RPU_ID", all.x = TRUE)
+# on ne garde que les RPU où ACTE est renseigné
+actes2 <- actes[!is.na(actes$ACTE),]
+write.csv(actes2, file = "actes2_2015.csv")
+```
+
+Etape 4: éliminer les doublons
+
+On appelle doublons, les enregistrements ayant le meme __id__ ET le même __ACTE__
+
+```{r}
+doublons <- duplicated(actes2[, c(2,22)]) # vecteur de TRUE et FALSE
+nombre_doublons <- sum(doublons)
+nombre_doublons
+# DF des actes sans doublons
+actes3 <- actes2[which(doublons == FALSE),]
+write.csv(actes3, file = "actes3_2015.csv")
+
+n.actes3 <- nrow(actes3)
+
+t <- sort(table(actes3$ACTE))
+tail(t, 10) # top 10 des actes
+
+# nombre d'acte par RPU
+t2 <- sort(table(actes3$id))
+table(as.factor(t2))
+round(prop.table(table(as.factor(t2))),4)
+
+# nombre d'actes différents
+n <- unique(actes3$ACTE)
+length(n)
+
+```
+
+- DEQP003 ECG sur au moins 12 dérivations
+- ZBQK002   Radiographie du thorax
+- QZJA002 Parage et/ou suture de plaie superficielle de la peau de moins de 3 cm de grand axe, en dehors de la face
+- QAJA013 Parage et/ou suture de plaie superficielle de la peau de la face de moins de 3 cm de grand axe
+- NGQK001 Radiographie de la cheville selon 1 à 3 incidences
+- MDQK001 Radiographie de la main ou de doigt
+- QZJA017 Parage et/ou suture de plaie superficielle de la peau de 3 cm à 10 cm de grand axe, en dehors de la face
+- DEQP004 Surveillance continue de l'électrocardiogramme par oscilloscopie et/ou télésurveillance, par 24 heures
+- NDQK001 Radiographie unilatérale du pied selon 1 à 3 incidences
+- ACQK001 Scanographie du crâne et de son contenu, sans injection de produit de contraste
+
+Etape 5
+-------
+
+Reformer un fichier simplifié avec 2 colonnes: id et DA
+
+```{r}
+actes4 <- actes3[, c("id", "ACTE")]
+write.csv(actes4, file = "actes4_2015.csv")
+```

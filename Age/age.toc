@@ -1,9 +1,0 @@
-\contentsline {subsection}{\numberline {0.1}Recommandations FEDORU 2014}{1}{subsection.0.1}
-\contentsline {subsection}{\numberline {0.2}Tranches d'age p\IeC {\'e}diatriques:}{2}{subsection.0.2}
-\contentsline {subsection}{\numberline {0.3}Tranches d'age adultes}{4}{subsection.0.3}
-\contentsline {section}{\numberline {1}Sexe (RPU)}{5}{section.1}
-\contentsline {section}{\numberline {2}R\IeC {\'e}sum\IeC {\'e} RPU}{7}{section.2}
-\contentsline {section}{\numberline {3}Population d'Alsace}{8}{section.3}
-\contentsline {subsection}{\numberline {3.1}Population alsacienne:}{9}{subsection.3.1}
-\contentsline {subsection}{\numberline {3.2}Tranches d'age}{13}{subsection.3.2}
-\contentsline {subsection}{\numberline {3.3}Comparaison des sex-ratio (RPU - pop.Alsacienne)}{13}{subsection.3.3}
