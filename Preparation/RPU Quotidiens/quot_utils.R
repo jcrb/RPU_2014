@@ -173,7 +173,6 @@ return(c)
 #'       
 #'       file <- "SteAnne2015/rpu_2015_670780212.dump.sql"
 #'       d <- parse_rpu("", file)
-
 #'@return dx une tidy dataframe
 #'
 parse_rpu <- function(date.jour, filename = NULL){
@@ -188,7 +187,10 @@ parse_rpu <- function(date.jour, filename = NULL){
     stop(x)
   }
   system(paste0("mysql -u root -pmarion archives < ", file))
-  con<-dbConnect(MySQL(),group = "archives")
+  
+  #con<-dbConnect(MySQL(),group = "archives")
+  con <- dbConnect(MySQL(), user="root", password="marion", dbname="archives", host="localhost")
+  
   rs<-dbSendQuery(con,paste("SELECT * FROM RPU__ ",sep=""))
   dx<-fetch(rs,n=-1,encoding = "UTF-8")
   dbDisconnect(con)
