@@ -186,8 +186,8 @@ NB: le fichier doit se trouver dans la dossier __dataQ__. La méthode __parse_rp
 ```{}
 wd <- getwd()
 rj <- parse_rpu("2015-0607")
-rpu.par.jour(rj)
-# les RPU sont bruts sauf le FINESS qui est transcodé. Pour les rendre compatibles, il faut appeler rpu2factor
+rpu.par.jour(rj) # affiche le nombre de RPU par jour.
+# les RPU sont bruts sauf le FINESS qui est transcodé. Pour les rendre compatibles, il faut appeler rpu2factor(rj)
 rj <- rpu2factor(rj)
 setwd(wd)
 ```

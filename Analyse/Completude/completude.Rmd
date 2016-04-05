@@ -41,30 +41,40 @@ Choix de la machine et récupération des données correspondant à l'année d'a
 library(R.utils)
 library(knitr)
 
-anc <- "2015"
+anc <- "2016"
 
 host <- System$getHostname()
+
+# path <- "../../../"
+#   source(paste0(path, "../../Resural/FEDORU/Trame_Commune/Rapport/rapport_2014.R"))
+#   load(paste0(path, "DATA/RPU_", anc, "/rpu", anc, "d0112.Rda")) # 2015
 
 if (host == "XPS"){
   # Connexion XPS
   path <- "../../"
   source("/home/jcb/Documents/Resural/FEDORU/Trame_Commune/Rapport/rapport_2014.R")
   load(paste0(path, "rpu", anc, "d0112_provisoire.Rda")) # 2015
-} else {
+ } else if(host == "iMac-de-Jean-Claude.local"){
+  path <- "../../../"
+  source(paste0(path, "../../Resural/FEDORU/Trame_Commune/Rapport/rapport_2014.R"))
+  load(paste0(path, "DATA/RPU_", anc, "/rpu", anc, "d0112.Rda")) # 2015
+ } else {
  # connexion MAC: "MacBook-Air-de-JCB.local"
   path <- "../"
   source(paste0(path, "../../../RESURAL/Trame_Commune/Rapport/rapport_2014.R"))
   load(paste0(path, "../rpu2015d0112.Rda")) # 2015
 }
 ```
-Système utilisé: `r host`
-
+- Système utilisé: `r host`
+- Année courante: `r anc`
 
 ```{r init, echo=FALSE}
 switch(anc, 
        '2015'={dx = d15; rm(d15)}, 
        '2016' = {dx = d16; rm(d16)}
        )
+
+# dx <- cat(paste0("d", substr(anc , 3,4)))
 
 finess <- unique(as.character(dx$FINESS)) # liste des établissements
 d1 <- min(as.Date(dx$ENTREE))

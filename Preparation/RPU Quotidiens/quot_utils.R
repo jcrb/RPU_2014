@@ -125,6 +125,44 @@ finess2hop <- function(a){
   return(a)
 }
 
+#=======================================
+#
+# reverse_hop2finess
+#
+#=======================================
+#'
+#' @title Transformation du nom de l'hôpital en code Finess
+#' @details fonction inverse de finess2hop
+#' @param a un vecteur de character
+#' @return un vecteur de character`
+#' @usage reverse_hop2finess(dx$FINESS)
+#' @export
+reverse_hop2finess <- function(a){
+    if(class(a) != "character")
+        a <- as.character(a)
+    a[a == "3Fr"] <- "680020096"
+    a[a == "Alk"] <- "680000395"
+    a[a == "Ane"] <- "670780212"
+    a[a == "Col"] <- "680000684"
+    a[a == "Dia"] <- "680000320"
+    a[a == "Dts"] <- "670780162"
+    a[a == "Geb"] <- "680000700"
+    a[a == "Hag"] <- "670000157"
+    a[a == "Mul"] <- "680020336"
+    a[a == "Odi"] <- "670016237"
+    a[a == "Ros"] <- "680000494"
+    a[a == "Sav"] <- "670000165"
+    a[a == "Sel"] <- "670017755"
+    a[a == "Wis"] <- "670000272"
+    a[a == "HTP"] <- "670783273"
+    a[a == "NHC"] <- "670000025"
+    a[a == "Emr"] <- "680004546"
+    a[a == "Hsr"] <- "680000627"
+    a[a == "Hus"] <- "670780055"
+    a[a == "Tan"] <- "680000601"
+    a[a == "Ccm"] <- "670009109"
+    a
+}
 
 #=======================================
 #
@@ -134,20 +172,22 @@ finess2hop <- function(a){
 #'
 #' @title Transformation du nom de l'hôpital en code Finess
 #' @details  correspond aux 18 levels de 2015: 
-#' "3Fr" "Alk" "Ane" "Col" "Dia" "Dts" "Geb" "Hag" "Mul" "Odi" "Ros" "Sav" "Sel" "Wis" "HTP" "NHC" "Emr"
-#' "Hsr"
-#' Le Finess de Mulhouse a été scindé en 2 en 2015: Mul est devenu en cours d'année Hsr et Emr. Le Finess
-#' juridique du GHRMSA a été attribué à Mul.
+#' "3Fr" "Alk" "Ane" "Col" "Dia" "Dts" "Geb" "Hag" "Mul" "Odi" "Ros" "Sav" "Sel" "Wis" "HTP" "NHC" "Emr", "Hsr"
+#' Le Finess de Mulhouse a été scindé en 2 en 2015: Mul est devenu en cours d'année Hsr et Emr. Le Finess juridique du GHRMSA a été attribué à Mul.
+#' Cette fonction n'est utilisable que pour les données 2015. Remplacée par reverse_hop2finess
 #' @usage hop2finess(dx$FINESS)
 #' 
 hop2finess <- function(a){
+
 lab <- c("680020096", "680000395", "670780212", "680000684", "680000320","670780162", "680000700", 
          "670000157", "680020336", "670016237", "680000494", "670000165", "670017755", "670000272", 
-         "670783273", "670000025", "680004546", "680000627")
+         "670783273", "670000025", "680004546", "680000627", "670780055")
 c <- factor(a, label = lab)
 return(c)
 
 }
+
+
 
 #=======================================
 #
@@ -340,9 +380,10 @@ rpu2factor <- function(dx){
 #
 #=======================================
 #' @title Corrige des RPU mal formés
-#' @description En 2015 un Finess sur une journée a mal été transcrit, certains factor sont restés sous
-#' forme e chifrre et non de texte explicite. Cette routine corrige les anomalies.
-#' ATTENTION: l'item provenance n'est pas complet au cas où la fonction serait utlisée pour d'autres années
+#' @description En 2015 un Finess sur une journée a mal été transcrit, certains factor sont restés
+#' sous forme de chifre et non de texte explicite. Cette routine corrige les anomalies.
+#' ATTENTION: l'item provenance n'est pas complet au cas où la fonction serait utlisée pour d'autres
+#' années
 correction2015 <- function(dx){
   a <- as.character(dx$MODE_ENTREE) 
   a[a == 6] <- "Mutation"
@@ -508,8 +549,9 @@ lire_archive <- function(jour){
 #' @return un dataframe correspondant aux jours présents. Le dataframe est sauvegardé dans un fichier .csv appelé rpu2014.data
 #' @usage dx <- assemble(comment=TRUE)
 #' 
-assemble <- function(comment=FALSE){
-  path <- "/home/jcb/Documents/Resural/Stat Resural/Archives_Sagec/dataQ/archivesCsv"
+assemble <- function(comment=FALSE, path = NULL){
+    if(is.null(path))
+        path <- "~/Documents/Resural/Stat Resural/Archives_Sagec/dataQ/archivesCsv"
   out.file<-NULL
   file.names <- dir(path, pattern =".csv")
   for(i in 1:length(file.names)){
